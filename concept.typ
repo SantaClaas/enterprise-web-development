@@ -39,3 +39,4 @@ Zudem müssen sie z.B. nicht dem Arbeitszeiterfassungssystem ihres Arbeitgebers 
 // - Beschreibung der Software-Architektur
 //   - Welche Komponenten wollen Sie verwenden? Warum wählen sie diese aus?
 //   - Zeichnen Sie eine grobe Darstellung der Software-Architektur mit allen relevanten Schnittstellen.
+// TODO Temporal API
