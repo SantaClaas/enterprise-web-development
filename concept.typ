@@ -1,10 +1,15 @@
+
+#set text(lang: "de")
+
 = Projektkonzept
 // - Sinn und Zweck der Anwendung
 //   - Für wen ist die Anwendung gedacht?
 //   - Was soll mit der Anwendung gemacht werden?
 //   - Welchen Vorteil hat der Nutzer durch die Anwendung?
 
-Die in diesem Projektkonzept beschriebene Anwendung soll eine einfache Anwendung für Zeiterfassung sein. Die Anwendung ist an Werkstudenten und Personen gerichtet, die nach Stunden arbeiten und bezahlt werden. Sie soll Studierenden ermöglichen einen Überblick über geleistete Stunden zu erhalten
+Die in diesem Projektkonzept beschriebene Anwendung soll eine einfache Anwendung zur Zeiterfassung für Werkstudenten sein. Für die Prorisierung der Entwicklung wird dabei in zwei Zielgruppen unterschieden. Die primäre Zielgruppe sind Studenten, die als Werkstudenten arbeiten und für sich ihre Arbeitszeiten erfassen wollen.
+
+die flexibel auf Stundenbasis arbeiten. Die erweiterte Zielgruppe. für Zeiterfassung sein. Die Anwendung ist an Werkstudenten und Personen gerichtet, die nach Stunden arbeiten und bezahlt werden. Sie soll Studierenden ermöglichen einen Überblick über geleistete Stunden zu erhalten
 
 - Zielpublikum
   - Für welche Nutzerkreise ist die Anwendung gedacht?
