@@ -91,24 +91,122 @@ Die Anwendung wird während des Projektes für Demozwecke bereit gestellt. Jedoc
 === Erweiterungen
 Die Anwendung soll in Zukunft erweiterbar sein um Nutzenden in Zukunft ermöglichen, ihre Arbeitszeiten Projekten zuzuordnen. Dies ist jedoch nicht das primäre Ziel der Anwendung und wird gegebenenfalls in einem späteren Projekt ergänzt.
 
+#pagebreak()
 == Anwendungsfälle (Use-Cases)
+
+Nutzende können mit der Anwendung ihre Arbeitszeiten aufzeichnen, exportieren, importieren, löschen und bearbeiten.
+Eine Arbeitszeit ist einem Projekt zugeordnet und Nutzende können Projekte erstellen, bearbeiten und löschen.
+Zudem können Nutzende ihre Arbeitszeiten exportieren und importieren.
+Um die Erfassung von Zeiten zu vereinfachen können Nutzende einen Timer verwenden. Für diesen können sie optional Benachrichtigungen zur Erinnerung aktivieren.
+
 #figure(
-  image("Use Case Diagram Time.svg", width: 80%),
+  image("Use Case Diagram Time.svg", width: 50%),
   caption: [Time Tracking Use Case Diagram],
-)
+) <use-case-time>
+
+#pagebreak()
+Nutzende können sich mit der Anwendung authentifizieren und sich mit einem Passkey registrieren. Passkeys können mit einem Label versehen werden um eine einfachere Wiedererkennung zu ermöglichen. Zudem können Nutzende Details zu ihren Passkeys einsehen wie der benutzte Authenticator.
+
+#figure(
+  image("Use Case Diagram Auth.svg", width: 50%),
+  caption: [Auth Use Case Diagram],
+) <use-case-auth>
 
 
+#pagebreak()
 == Entitäten
-- User
-- Time Entry
-- WebAuthn User //TODO explain why separate from user
-- WebAuthn Credential
-- WebAuthn Authenticator
-- Timer
-- Project
+
+/*
+@startuml
+skinparam classAttributeIconSize 0
+hide circle
+
+class User {
+  + id: UUID
+  + recovery_email: String
+  + notifications_enabled: Boolean
+  + created_at: DateTime
+}
+
+class "Time Entry" as TimeEntry {
+  + id: UUID
+  + start_time: DateTime
+  + end_time: DateTime
+  + notes: String
+}
+
+class Project {
+  + id: UUID
+  + name: String
+  + description: String
+  + color_code: String
+}
+
+class Timer {
+  + id: UUID
+  + start_time: DateTime
+}
+
+class "WebAuthn User" as WebAuthnUser {
+  + webauthn_user_id: String
+}
+
+class "WebAuthn Credential" as WebAuthnCredential {
+  + id: String
+  + name: String
+  + public_key: Bytes
+  + created_at: DateTime
+  + last_used_at: DateTime
+  + last_used_from: String
+  + device_type: String
+  + signature_counter: Integer
+  + transports: String[]
+}
+
+class "WebAuthn Authenticator" as WebAuthnAuthenticator {
+  + aaguid: String
+  + Name: String
+  + dark_icon: String
+  + light_icon: String
+}
+
+' Beziehungen
+User "1" *-- "0..*" TimeEntry : erfasst >
+User "1" *-- "0..*" Project : erstellt >
+User "1" *-- "0..1" Timer : hat aktiven >
+
+Project "0..1" <-- "0..*" TimeEntry : zugeordnet zu <
+
+User "1" -- "0..1" WebAuthnUser : ist verknüpft mit >
+WebAuthnUser "1" *-- "1..*" WebAuthnCredential : besitzt >
+WebAuthnCredential "1" -- "1" WebAuthnAuthenticator : läuft auf >
+
+@enduml
+*/
+
+// - User
+// - Time Entry
+// - WebAuthn User //TODO explain why separate from user
+// - WebAuthn Credential
+// - WebAuthn Authenticator
+// - Timer
+// - Project
 // - Sessions
 // - Reset links
 // - WebPush Subscription?
+
+Im Zentrum der Anwendung steht die User-Entität. Sie wird genutzt um alle Daten mit einer Person zu verküpfen. Nutzende haben in dieser Version der Anwendung noch keinen Namen, da dies an keiner Stelle benötigt wird. Bei System mit mehreren Nutzenden wäre ein Name zur identifizierung der Nutzer untereinander nötig aber da Nutzende nicht miteinander interagieren wird hier auf die minimalisierung von erfassten Daten bevorzugt.
+Nutzende können ein oder mehrere Projekte erstellen unter denen Sie Zeiten erfassen können. Es besteht zu jeder Zeit mindestens ein Standardprojekt, das nicht gesondert angelegt werden muss damit Nutzende sofort starten können Zeiten zu erfassen.
+Für Timer besteht eine Entität damit Timer auch über neustarts der Anwendung weiterhin bestehen können. Sie haben nur eine Startzeit, da sie bei Beendigung direkt gelöscht werden und in die erfassten Zeiten überführt werden.
+Separat zu User existieren WebAuthn-User über eine 1:1 Verbindung, die mit einem Passkey (WebAuthn-Credential) verknüpft sind. Diese werden separat gehalten um die Authentifizierung und Autorisierung einfacher aus dem System ausgliedern zu können oder das ganze Modul eventuell zu löschen.
+Um Passkeys besser wieder zu erkennen wird zusätzlich Metadaten wie Name und Icons von den verwendeten Authenticatoren gespeichert.
+
+#figure(
+  image("UML Class Diagram Entities.svg", width: 80%),
+  caption: [Entities Class Diagram],
+) <class-diagram-entities>
+
+#pagebreak()
 
 == Software-Architektur
 Durch die Anforderungen des Moduls an dieses Projekt soll für diese Software zwei Komponenten entwickelt werden, die in einer zentralisierten Server-Client-Architektur arrangiert sind.
