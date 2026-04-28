@@ -39,11 +39,11 @@
 //   - Was soll mit der Anwendung gemacht werden?
 //   - Welchen Vorteil haben Nutzende durch die Anwendung?
 
-Die in diesem Projektkonzept beschriebene Anwendung soll eine einfache Anwendung zur Zeiterfassung für Werkstudenten sein. Für die Prorisierung der Entwicklung wird dabei in zwei Zielgruppen unterschieden. Die primäre Zielgruppe sind Studenten, die als Werkstudenten arbeiten und ihre Arbeitszeiten außerhalb eines von Arbeitgebern bereitgestellten Zeiterfassungssystem aufzeichnen wollen. Die erweiterte Zielgruppe sind selbständig Arbeitende, die ähnliche Bedürfnisse haben ihre Arbeitszeiten zu erfassen.
+Die in diesem Projektkonzept beschriebene Anwendung soll eine einfache Anwendung zur Zeiterfassung für Werkstudenten sein. Für die Priorisierung der Entwicklung wird dabei in zwei Zielgruppen unterschieden. Die primäre Zielgruppe ist Studenten, die als Werkstudenten arbeiten und ihre Arbeitszeiten außerhalb eines von Arbeitgebern bereitgestellten Zeiterfassungssystem aufzeichnen wollen. Die erweiterte Zielgruppe sind selbständig Arbeitende, die ähnliche Bedürfnisse haben ihre Arbeitszeiten zu erfassen.
 
 Für das Projekt wird sich in erster Linie auf die primäre Zielgruppe konzentriert und die erweiterte Zielgruppe wird in Betracht gezogen.
 
-Nutzende haben durch die Anwendung die Möglichkeit nicht nur ihre Arbeitszeiten zu erfassen sondern auch Besitz von ihren Daten zu ergreifen und exportieren zu können ohne das sie in einem externen System in einer unzugänglichen Datenbank gespeichert sind.
+Nutzende haben durch die Anwendung die Möglichkeit nicht nur ihre Arbeitszeiten zu erfassen sondern auch Besitz von ihren Daten zu ergreifen und exportieren zu können ohne, dass sie in einem externen System in einer unzugänglichen Datenbank gespeichert sind.
 Zudem müssen sie z.B. nicht dem Arbeitszeiterfassungssystem ihres Arbeitgebers vertrauen die Daten richtig zu speichern und haben somit eigene Nachweise für die geleistete Arbeitszeit.
 
 Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele Anwendungsbereiche abdeckt. Vielmehr soll die Anwendung wenige Funktionen unterstützen und diese qualitativ hochwertig umsetzen.
@@ -102,7 +102,7 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
   - Dies ist sowohl ein funktionales als auch eine nicht-funktionale Anforderung. Funktional: Compliance. Nicht-Funktional: "Accessibility beyond WCAG"
   - In der funktionalen Anforderung soll die Anwendung den Rechtlichen Anforderungen entsprechen.
 - Fokus
-  - Die Anwendung soll sich auf die primären Ziele konzentrieren und diese qualitativ hochwertig umsetzen anstatt möglichst viele Funktionen anzubieten.
+  - Die Anwendung soll sich auf die primären Ziele konzentrieren und diese qualitativ hochwertig umsetzen, anstatt möglichst viele Funktionen anzubieten.
 - Plattformunabhängigkeit
   - Die Anwendung soll auf verschiedenen Plattformen lauffähig sein. Dazu gehören Windows, macOS, Linux, iOS und Android.
 - Die Serverseitigen Komponenten der Anwendung sollen weitestgehend horizontal skalierbar sein. Auch wenn sie im Zuge des Projektes nicht horizontal skaliert werden.
@@ -115,7 +115,7 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
 
 == Anforderungen außerhalb des Projektziels (Non-Goals)
 Die Anwendung ist nicht für die Zeiterfassung von Organisationen gedacht sofern sie aus mehr als einem Arbeitnehmer bestehen. Es soll keine Verwaltung von Nutzenden für Organisationen geben.
-Die Anwendung wird während des Projektes für Demozwecke bereit gestellt. Jedoch wird sie aus Kostengründen nicht in einer Form bereitgestellt, dass sie besonders hohen Andrang oder Leistungsfähigkeit oder Zuverlässigkeit bietet. Bereitstellung einer Produktionsumgebung ist außerhalb des Projektziels. Persistenz der Daten über lange Zeiträume ist ebenfalls nicht garantiert.
+Die Anwendung wird während des Projektes für Demozwecke bereitgestellt. Jedoch wird sie aus Kostengründen nicht in einer Form bereitgestellt, dass sie besonders hohen Andrang oder Leistungsfähigkeit oder Zuverlässigkeit bietet. Bereitstellung einer Produktionsumgebung ist außerhalb des Projektziels. Persistenz der Daten über lange Zeiträume ist ebenfalls nicht garantiert.
 
 == Erweiterungen
 Die Anwendung soll in Zukunft erweiterbar sein um Nutzenden in Zukunft ermöglichen, ihre Arbeitszeiten Projekten zuzuordnen. Dies ist jedoch nicht das primäre Ziel der Anwendung und wird gegebenenfalls in einem späteren Projekt ergänzt.
@@ -224,9 +224,9 @@ WebAuthnCredential "1" -- "1" WebAuthnAuthenticator : läuft auf >
 // - Reset links
 // - WebPush Subscription?
 
-Im Zentrum der Anwendung steht die User-Entität. Sie wird genutzt um alle Daten mit einer Person zu verküpfen. Nutzende haben in dieser Version der Anwendung noch keinen Namen, da dies an keiner Stelle benötigt wird. Bei System mit mehreren Nutzenden wäre ein Name zur identifizierung der Nutzer untereinander nötig aber da Nutzende nicht miteinander interagieren wird hier auf die minimalisierung von erfassten Daten bevorzugt.
-Nutzende können ein oder mehrere Projekte erstellen unter denen Sie Zeiten erfassen können. Es besteht zu jeder Zeit mindestens ein Standardprojekt, das nicht gesondert angelegt werden muss damit Nutzende sofort starten können Zeiten zu erfassen.
-Für Timer besteht eine Entität damit Timer auch über neustarts der Anwendung weiterhin bestehen können. Sie haben nur eine Startzeit, da sie bei Beendigung direkt gelöscht werden und in die erfassten Zeiten überführt werden.
+Im Zentrum der Anwendung steht die User-Entität. Sie wird genutzt um alle Daten mit einer Person zu verknüpfen. Nutzende haben in dieser Version der Anwendung noch keinen Namen, da dies an keiner Stelle benötigt wird. Bei System mit mehreren Nutzenden wäre ein Name zur Identifizierung der Nutzer untereinander nötig aber da Nutzende nicht miteinander interagieren wird hier auf die Minimalisierung von erfassten Daten bevorzugt.
+Nutzende können ein oder mehrere Projekte erstellen unter denen Sie Zeiten erfassen können. Es besteht zu jeder Zeit mindestens ein Standardprojekt, das nicht gesondert angelegt werden muss, damit Nutzende sofort starten können Zeiten zu erfassen.
+Für Timer besteht eine Entität damit Timer auch über Neustarts der Anwendung weiterhin bestehen können. Sie haben nur eine Startzeit, da sie bei Beendigung direkt gelöscht werden und in die erfassten Zeiten überführt werden.
 Separat zu User existieren WebAuthn-User über eine 1:1 Verbindung, die mit einem Passkey (WebAuthn-Credential) verknüpft sind. Diese werden separat gehalten um die Authentifizierung und Autorisierung einfacher aus dem System ausgliedern zu können oder das ganze Modul eventuell zu löschen.
 Um Passkeys besser wieder zu erkennen wird zusätzlich Metadaten wie Name und Icons von den verwendeten Authenticatoren gespeichert.
 
@@ -242,17 +242,17 @@ Durch die Anforderungen des Moduls an dieses Projekt soll für diese Software zw
 Die erste Komponente ist eine HTTP JSON API, die den REST-Prinzipien folgt. Für die Endpunkte zur Authentifizierung, Autorisierung und Hosting des Clients wird von diesen Prinzipien eventuell abgewichen werden müssen, da der API-Server auch die Rolle des Authentifizierungs-Servers erfüllt.
 
 Über die von der API bereitgestellten Endpunkte wird einer Client-Server-Architektur realisiert. Der Client ist eine Web-Anwendung, die die API-Endpunkte aufruft und die Daten aus der API abruft. Die API-Endpunkte werden von einem Server ausgeführt, der die Daten speichert und verarbeitet.
-Zum speichern der Daten kommt eine Datenbank wie eventuell PostgreSQL oder SQLite zum Einsatz.
+Zum Speichern der Daten kommt eine Datenbank wie eventuell PostgreSQL oder SQLite zum Einsatz.
 SQLite würde sich anbieten, da dies das Deployment der Anwendung erleichtert, da SQLite nur eine persistente Datei im Dateisystem erfordert. Dahingegen benötigt PostgreSQL eine eigene Datenbankserverinstanz.
-Zusätzllich wird für Authentifizierung über WebAuthn ein temporärer Speicher für Challenges benötigt, der mit einem Redis-Service umgesetzt werden kann. Um das Deployment der Anwendung simpel zu halten wird eventuell auf eine eigene Redis-Instanz verzichtet und stattdessen in der Server-Anwendung eine Tabelle zum speichern der temporären Challenges eingebaut. Diese benötigt zudem einen regelmäßigen Background-Job um abgelaufene Challenges zu löschen damit die Tabelle nicht ohne Limitierungen zu groß wird. Ein weiterer Nachteil ist auch, dass die Zugriffszeiten auf diese Tabelle eventuell geringer sein werden als die Zugriffszeiten auf eine Redis-Instanz. Jedoch ist dies für das erste in diesem Projekt verkraftbar solange sie nur für Demonstrationszwecke verwendet wird und es das Deployment der Anwendung erleichtert.
+Zusätzllich wird für Authentifizierung über WebAuthn ein temporärer Speicher für Challenges benötigt, der mit einem Redis-Service umgesetzt werden kann. Um das Deployment der Anwendung simpel zu halten wird eventuell auf eine eigene Redis-Instanz verzichtet und stattdessen in der Server-Anwendung eine Tabelle zum Speichern der temporären Challenges eingebaut. Diese benötigt zudem einen regelmäßigen Background-Job um abgelaufene Challenges zu löschen damit die Tabelle nicht ohne Limitierungen zu groß wird. Ein weiterer Nachteil ist auch, dass die Zugriffszeiten auf diese Tabelle eventuell geringer sein werden als die Zugriffszeiten auf eine Redis-Instanz. Jedoch ist dies für das erste in diesem Projekt verkraftbar solange sie nur für Demonstrationszwecke verwendet wird und es das Deployment der Anwendung erleichtert.
 
 Damit Nutzende die Anwendung nutzen können wird eine Single-Page-Application (SPA) implementiert. Diese greift über die von der API bereitgestellten Endpunkte auf die Daten zu und bietet eine Schnittstelle mit der Nutzende mit der Anwendung interagieren können.
-Die Anwendung kann über moderne Webbrowser geöffnen und genutzt werden umd die Anforderung an die Verfügbarkeit auf verschiedenen Plattformen zu erfüllen.
-Das Hosting der der SPA wird dabei auch von der API übernommen, da dies die eine Cookie-basierte Aithentifizierung erleichtert und Cross Origin Resource Sharing (CORS) vermeidet, da die SPA sowie die API auf der gleichen Domain erreichbar sind.
+Die Anwendung kann über moderne Webbrowser geöffnet und genutzt werden um die Anforderung an die Verfügbarkeit auf verschiedenen Plattformen zu erfüllen.
+Das Hosting der der SPA wird dabei auch von der API übernommen, da dies die eine Cookie-basierte Authentifizierung erleichtert und Cross Origin Resource Sharing (CORS) vermeidet, da die SPA sowie die API auf der gleichen Domain erreichbar sind.
 
 
 = Wireframes
-Der erste Screen den Nutzende sehen ist der Sign-in Screen. Hier werden sie begrüßt und können über einen Button direkt anmelden mit ihrem Passkey falls sie sich bereits registriert haben.
+Der erste Screen, den Nutzende sehen, ist der Sign-in Screen. Hier werden sie begrüßt und können über einen Button direkt anmelden mit ihrem Passkey falls sie sich bereits registriert haben.
 Alternativ können sie sich mit einem neuen Passkey registrieren.
 
 Die beiden Optionen sind am unteren Rand des Screens zu finden damit sie leicht auf mobilen Geräten auszuwählen sind. Auf Desktop-Geräten sind sie weiter in der Mitte des Screens damit sie leichter gefunden werden können.
