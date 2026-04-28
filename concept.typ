@@ -52,6 +52,9 @@ Zudem müssen sie z.B. nicht dem Arbeitszeiterfassungssystem ihres Arbeitgebers 
 - Sicherheit (Security)
   - Daten werden verschlüsselt zwischen Client und Server gesendet.
   - Daten von Nutzenden sind sicher vor unauthorisierten Zugriffen geschützt.
+- Barrierefreiheit (Accessibility)
+  - Dies ist sowohl ein funktionales als auch eine nicht-funktionale Anforderung.
+  - In der funktionalen Anforderung
 // - Klassendiagramm mit den Entitäten
 //   - Erstellen Sie ein Klassendiagramm, in dem Sie die geplanten Entitäten mit ihren Bezie-hungen darstellen.
 //   - Erläutern Sie kurz die Entitäten sowie deren Beziehungen zueinander.
