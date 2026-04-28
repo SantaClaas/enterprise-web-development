@@ -222,6 +222,39 @@ Die Anwendung kann über moderne Webbrowser geöffnen und genutzt werden umd die
 Das Hosting der der SPA wird dabei auch von der API übernommen, da dies die eine Cookie-basierte Aithentifizierung erleichtert und Cross Origin Resource Sharing (CORS) vermeidet, da die SPA sowie die API auf der gleichen Domain erreichbar sind.
 
 
+== Wireframes
+Der erste Screen den Nutzende sehen ist der Sign-in Screen. Hier werden sie begrüßt und können über einen Button direkt anmelden mit ihrem Passkey falls sie sich bereits registriert haben.
+Alternativ können sie sich mit einem neuen Passkey registrieren.
+
+Die beiden Optionen sind am unteren Rand des Screens zu finden damit sie leicht auf mobilen Geräten auszuwählen sind. Auf Desktop-Geräten sind sie weiter in der Mitte des Screens damit sie leichter gefunden werden können.
+
+Nach dem Sign-in sehen Nutzende ihre aktuellen Tage der Woche und erfasste Zeiten. Hier können sie Zeiten erfassen, bearbeiten und löschen.
+
+Über ein Menü oben rechts können Nutzende sich abmelden oder zu ihren Passkey-Einstellungen gelangen.
+
+Um schnell neue Zeiten zu erfassen oder einen Timer zu starten befindet sich in Reichweite des Daumens unten rechts ein Floating-Action-Button.
+
+
+#figure(
+  image("Wireframe Mobile.svg", width: 80%),
+  caption: [Wireframes Mobile],
+) <wireframes-mobile>
+
+
+Auf Desktop-Geräten verschiebt sich die Anzeige in die Breite und kann mehr Daten nebeneinander anzeigen. Zudem befinden sich der Floating-Action-Button und das Menü oben links, da dies der Leserichtung der Nutzenden folgt, schneller gefunden werden kann und Erreichbarkeit mit dem Daumen nicht mehr erforderlich ist, da vermutlich eine Maus genutzt wird.
+
+#figure(
+  image("Wireframe Desktop.svg", width: 80%),
+  caption: [Wireframes Desktop],
+) <wireframes-mobile>
+
+
+
+#figure(
+  image("protype.png", width: 80%),
+  caption: [Prototype],
+) <prototype>
+
 // - Beschreibung der Software-Architektur
 //   - Welche Komponenten wollen Sie verwenden? Warum wählen sie diese aus?
 //   - Zeichnen Sie eine grobe Darstellung der Software-Architektur mit allen relevanten Schnittstellen.
