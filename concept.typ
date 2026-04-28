@@ -37,18 +37,30 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
 //   - Beschreiben Sie die Use-Cases kurz und knapp, so dass der Inhalt nachvollziehbar ist.
 === Funktionale Anforderungen
 - Arbeitszeiterfassung
-  - Nutzende müssen ihre Arbeitszeiten aufzeichnen können
-  - Nutzende müssen ihre Arbeitszeiten exportieren können
-  - Nutzende müssen ihre Arbeitszeiten importieren können
-  - Nutzende müssen ihre Arbeitszeiten löschen können
-  - Nutzende müssen ihre Arbeitszeiten bearbeiten können
+  - Nutzende können ihre Arbeitszeiten aufzeichnen.
+  - Nutzende können ihre Arbeitszeiten exportieren.
+  - Nutzende können ihre Arbeitszeiten importieren.
+  - Nutzende können ihre Arbeitszeiten löschen.
+  - Nutzende können ihre Arbeitszeiten bearbeiten.
+- Projekte
+  - Nutzende können Projekte erstellen.
+  - Nutzende können Projekte bearbeiten.
+  - Nutzende können Projekte löschen.
+  - Nutzende können Zeiten zu Projekten.
 - Stopp-Start-Funktionalität
-  - Nutzende müssen ihre Arbeitszeiten stoppen und starten können und die Arbeitszeit wird automatisch aufgezeichnet
+  - Nutzende müssen ihre Arbeitszeiten stoppen und starten können und die Arbeitszeit wird automatisch aufgezeichnet.
 - Benachrichtigungen
   - Nutzende können  regelmäßige Benachrichtigungen aktivieren, um sich an das Eintragen der Arbeitszeigen zu erinnern.
-- Die Anwendung soll in Deutsch und Englisch verfügbar sein
+- Die Anwendung soll in Deutsch und Englisch verfügbar sein.
 - Rechtliches (Compliance)
-  - Barrierefreiheit (Accessibility). Die Anwendung soll WCAG 2.2 AA-konform sein.
+  - Barrierefreiheit (Accessibility): Die Anwendung soll WCAG 2.2 AA-konform sein.
+- WebAuthn/Sign-in
+  - Nutzende müssen sich mit einem Passkey registrieren können.
+  - Nutzende müssen sich über einen Passkey authentifizieren können.
+  - Nutzende können weitere Passkeys hinzufügen.
+  - Nutzende können Passkeys löschen.
+  - Hinzufügen, Editieren von Recovery-Email
+
 
 
 === Nicht-Funktionale Anforderungen
@@ -79,13 +91,23 @@ Die Anwendung wird während des Projektes für Demozwecke bereit gestellt. Jedoc
 === Erweiterungen
 Die Anwendung soll in Zukunft erweiterbar sein um Nutzenden in Zukunft ermöglichen, ihre Arbeitszeiten Projekten zuzuordnen. Dies ist jedoch nicht das primäre Ziel der Anwendung und wird gegebenenfalls in einem späteren Projekt ergänzt.
 
+== Anwendungsfälle (Use-Cases)
+#figure(
+  image("Use Case Diagram Time.svg", width: 80%),
+  caption: [Time Tracking Use Case Diagram],
+)
+
+
 == Entitäten
 - User
 - Time Entry
 - WebAuthn User //TODO explain why separate from user
 - WebAuthn Credential
-- Sessions
-- Reset links
+- WebAuthn Authenticator
+- Timer
+- Project
+// - Sessions
+// - Reset links
 // - WebPush Subscription?
 
 == Software-Architektur
