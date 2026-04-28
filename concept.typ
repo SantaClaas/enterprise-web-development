@@ -1,8 +1,37 @@
+#set page(numbering: none)
+
+#align(center)[
+  #par(leading: 1em)[#text(10pt)[#for _ in range(3) { linebreak() }]]
+
+  #par[
+    #text(30pt)[Time Track]
+    #text(10pt)[#for _ in range(2) { linebreak() }]
+    #text(18pt)[Projektkonzept]
+    #text(10pt)[#for _ in range(2) { linebreak() }]
+    #text(18pt)[Enterprise Web Development]
+  ]
+
+  #text(10pt)[#for _ in range(2) { linebreak() }]
+]
+
+#place(
+  bottom + left,
+)[
+  Claas Möhlmann\
+  113366\
+  tgtp6192\@bht-berlin.de
+]
 
 #set text(lang: "de")
 #set page(
   paper: "a4",
+  numbering: "1",
 )
+#counter(page).update(1)
+
+#outline()
+
+#pagebreak()
 
 = Projektkonzept
 // - Sinn und Zweck der Anwendung
@@ -26,7 +55,7 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
 //   - Wodurch zeichnen sich die Nutzerkreise aus?
 //   - Was sind deren speziellen Bedürfnisse?
 
-== Anforderungen
+= Anforderungen
 // - Anforderungen
 //   - Erläutern Sie alle funktionalen und nicht-funktionalen Anforderungen (wie Sie es in Software-Engineering gelernt haben)
 //   - Welche besonderen Anforderungen müssen für das Zielpublikum erfüllt werden.
@@ -35,7 +64,7 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
 // - Die wesentlichen Use-Cases der Anwendung
 //   - Erstellen Sie ein einfaches Use-Case-Diagramm (es müssen keine CRUD-Use-Cases mo-delliert werden)
 //   - Beschreiben Sie die Use-Cases kurz und knapp, so dass der Inhalt nachvollziehbar ist.
-=== Funktionale Anforderungen
+== Funktionale Anforderungen
 - Arbeitszeiterfassung
   - Nutzende können ihre Arbeitszeiten aufzeichnen.
   - Nutzende können ihre Arbeitszeiten exportieren.
@@ -63,7 +92,7 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
 
 
 
-=== Nicht-Funktionale Anforderungen
+== Nicht-Funktionale Anforderungen
 - Benutzerfreundlichkeit (Usability)
   - Die Anwendung soll intuitiv und einfach zu bedienen sein. Dies bedeutet unter anderem, dass die Anwenung eine verständliche visuelle Hierarchie in der Benutzeroberfläche bietet und funktionale Anforderung mit minimalem Aufwand von Nutzenden erfüllt werden kann.
 - Sicherheit (Security)
@@ -84,15 +113,15 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
 //   - Erstellen Sie ein Klassendiagramm, in dem Sie die geplanten Entitäten mit ihren Beziehungen darstellen.
 //   - Erläutern Sie kurz die Entitäten sowie deren Beziehungen zueinander.
 
-=== Anforderungen außerhalb des Projektziels (Non-Goals)
+== Anforderungen außerhalb des Projektziels (Non-Goals)
 Die Anwendung ist nicht für die Zeiterfassung von Organisationen gedacht sofern sie aus mehr als einem Arbeitnehmer bestehen. Es soll keine Verwaltung von Nutzenden für Organisationen geben.
 Die Anwendung wird während des Projektes für Demozwecke bereit gestellt. Jedoch wird sie aus Kostengründen nicht in einer Form bereitgestellt, dass sie besonders hohen Andrang oder Leistungsfähigkeit oder Zuverlässigkeit bietet. Bereitstellung einer Produktionsumgebung ist außerhalb des Projektziels. Persistenz der Daten über lange Zeiträume ist ebenfalls nicht garantiert.
 
-=== Erweiterungen
+== Erweiterungen
 Die Anwendung soll in Zukunft erweiterbar sein um Nutzenden in Zukunft ermöglichen, ihre Arbeitszeiten Projekten zuzuordnen. Dies ist jedoch nicht das primäre Ziel der Anwendung und wird gegebenenfalls in einem späteren Projekt ergänzt.
 
 #pagebreak()
-== Anwendungsfälle (Use-Cases)
+= Anwendungsfälle (Use-Cases)
 
 Nutzende können mit der Anwendung ihre Arbeitszeiten aufzeichnen, exportieren, importieren, löschen und bearbeiten.
 Eine Arbeitszeit ist einem Projekt zugeordnet und Nutzende können Projekte erstellen, bearbeiten und löschen.
@@ -114,7 +143,7 @@ Nutzende können sich mit der Anwendung authentifizieren und sich mit einem Pass
 
 
 #pagebreak()
-== Entitäten
+= Entitäten
 
 /*
 @startuml
@@ -208,7 +237,7 @@ Um Passkeys besser wieder zu erkennen wird zusätzlich Metadaten wie Name und Ic
 
 #pagebreak()
 
-== Software-Architektur
+= Software-Architektur
 Durch die Anforderungen des Moduls an dieses Projekt soll für diese Software zwei Komponenten entwickelt werden, die in einer zentralisierten Server-Client-Architektur arrangiert sind.
 Die erste Komponente ist eine HTTP JSON API, die den REST-Prinzipien folgt. Für die Endpunkte zur Authentifizierung, Autorisierung und Hosting des Clients wird von diesen Prinzipien eventuell abgewichen werden müssen, da der API-Server auch die Rolle des Authentifizierungs-Servers erfüllt.
 
@@ -222,7 +251,7 @@ Die Anwendung kann über moderne Webbrowser geöffnen und genutzt werden umd die
 Das Hosting der der SPA wird dabei auch von der API übernommen, da dies die eine Cookie-basierte Aithentifizierung erleichtert und Cross Origin Resource Sharing (CORS) vermeidet, da die SPA sowie die API auf der gleichen Domain erreichbar sind.
 
 
-== Wireframes
+= Wireframes
 Der erste Screen den Nutzende sehen ist der Sign-in Screen. Hier werden sie begrüßt und können über einen Button direkt anmelden mit ihrem Passkey falls sie sich bereits registriert haben.
 Alternativ können sie sich mit einem neuen Passkey registrieren.
 
