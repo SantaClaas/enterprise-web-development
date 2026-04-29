@@ -8,17 +8,13 @@ on:
 jobs:
   compile-paper:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pages: write
     steps:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Run compile
         run: docker run --rm --mount type=bind,src="$PWD",dst=/work --workdir /work ghcr.io/typst/typst:latest compile concept.typ concept.pdf
-      - name: Upload pages artifact
-        uses: actions/upload-pages-artifact@v5
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
         with:
-          path: ./concept.pdf
-      - name: Deploy to GitHub Pages
-        uses: actions/deploy-pages@v5
+          path: concept.pdf
+          archive: false
