@@ -11,18 +11,32 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+
       - name: Run compile
         run: docker run --rm --mount type=bind,src="$PWD",dst=/work --workdir /work ghcr.io/typst/typst:latest compile concept.typ concept.pdf
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v7
         with:
           path: concept.pdf
+
+      - name: Prepare Pages artifact folder
+        run: |
+          mkdir -p dist
+          cp concept.pdf dist/index.pdf
+          # optional: make it easier to browse by adding a simple index page
+          cat > dist/index.html <<'EOF'
+          <!doctype html>
+          <meta charset="utf-8" />
+          <title>Concept Paper</title>
+          <p><a href="index.pdf">Download/View the Concept Paper (PDF)</a></p>
+          EOF
+
       - name: Upload static files as artifact
         id: deployment
         uses: actions/upload-pages-artifact@v5
         with:
-          path: "concept.pdf"
-
+          path: dist
 
   deploy-pages:
     environment:
