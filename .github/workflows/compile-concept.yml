@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v6
       - name: Run compile
-        run: docker run --remove \
+        run: docker run --rm \
           --mount type=bind,src="$PWD",dst=/work \
           -workdir /work \
           ghcr.io/typst/typst:latest \
