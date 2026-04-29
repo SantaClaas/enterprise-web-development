@@ -1,21 +1,20 @@
 name: Compile Concept Paper
 
 on:
-    workflow_dispatch:
-    push:
-        paths:
-            "concept.typ"
+  workflow_dispatch:
+  push:
+    paths: "concept.typ"
 
 jobs:
-    compile-paper:
-        runs-on: ubuntu-latest
-        steps:
-        - name: Checkout
-          uses: actions/checkout@v6
-        - name: Run compile
-          run: docker run ghcr.io/typst/typst:latest compile concept.typ
-        - name: Upload Artifact
-          uses: actions/upload-artifact@v7
-          with:
-            path: concept.pdf
-            archive: false
+  compile-paper:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Run compile
+        run: docker run ghcr.io/typst/typst:latest compile concept.typ
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v7
+        with:
+          path: concept.pdf
+          archive: false
