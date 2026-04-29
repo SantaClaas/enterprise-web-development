@@ -5,6 +5,16 @@ on:
   push:
     paths: "concept.typ"
 
+# Required for actions/deploy-pages@v4 to obtain an OIDC token
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
 jobs:
   compile-paper:
     runs-on: ubuntu-latest
