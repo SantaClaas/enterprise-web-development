@@ -9,7 +9,7 @@ jobs:
   compile-paper:
     runs-on: ubuntu-latest
     permissions:
-      # contents: read
+      contents: read
       pages: write
     steps:
       - name: Checkout
