@@ -1,8 +1,11 @@
+import { Router, Route } from "@solidjs/router";
+
+import "./index.css";
 /* @refresh reload */
 import { render } from "solid-js/web";
 
-import "./index.css";
-import App from "./App.tsx";
+import App from "./App";
+import SignIn from "./SignIn";
 
 // Keep polyfill out of the bundle. You can see this as vite generates two js bundles, one with only the polyfill and one without.
 if (!("Temporal" in globalThis)) {
@@ -14,4 +17,12 @@ if (!("Temporal" in globalThis)) {
   Date.prototype.toTemporalInstant = toTemporalInstant;
 }
 
-render(() => <App />, document.body);
+render(
+  () => (
+    <Router>
+      <Route path="/" component={App} />
+      <Route path="/sign-in" component={SignIn} />
+    </Router>
+  ),
+  document.body,
+);

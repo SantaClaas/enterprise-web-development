@@ -3,4 +3,5 @@
   "ignorePatterns": [],
   "sortImports": true,
   "sortTailwindcss": true,
+  "jsdoc": true
 }
