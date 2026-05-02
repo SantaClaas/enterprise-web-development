@@ -3,7 +3,9 @@ name: Compile Concept Paper
 on:
   workflow_dispatch:
   push:
-    paths: "concept.typ"
+    paths:
+      - "concept/concept.typ"
+      - ".github/workflows/compile-concept.yml"
 
 # Required for actions/deploy-pages@v4 to obtain an OIDC token
 permissions:
