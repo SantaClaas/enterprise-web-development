@@ -1,4 +1,8 @@
+import { A } from "@solidjs/router";
 import { createSignal, For } from "solid-js";
+
+import Body from "./Body";
+import Icon from "./Icon";
 
 function Fun() {
   return (
@@ -71,109 +75,43 @@ function App() {
     { date: "2026-05-02", entries: [["10:15", "18:30"]] },
     { date: "2026-05-03", entries: [] },
   ]);
+
   return (
-    <>
-      <h1>Time</h1>
-      <aside>
-        <nav>
-          <ul>
-            <li>
-              <a href="#">Home</a>
-            </li>
-            <li>
-              <a href="#">About</a>
-            </li>
-            <li>
-              <a href="#">Contact</a>
-            </li>
-          </ul>
-        </nav>
-      </aside>
-      <main class="grid grid-cols-[auto_1fr] gap-4">
-        <For each={data()}>
-          {(item) => {
-            // const dayOfWeek = item?.date.toLocaleString(undefined, {
-            //   weekday: "long",
-            // });
-
-            const date = Temporal.PlainDate.from(item.date);
-            const weekday = date.toLocaleString(undefined, {
-              weekday: "long",
-            });
-
-            return (
-              <article
-                data-day={date.dayOfWeek}
-                class="col-span-full grid grid-cols-subgrid grid-rows-(--grid-rows) gap-4 rounded-4xl p-4 [corner-shape:squircle] data-[day=1]:bg-red-500 data-[day=2]:bg-orange-500 data-[day=3]:bg-yellow-500 data-[day=4]:bg-green-500 data-[day=5]:bg-blue-500 data-[day=6]:bg-indigo-500 data-[day=7]:bg-violet-500"
-                style={{
-                  // `grid-row: 1 / -1;` (`row-span-full`) does not work without a known row length
-                  "--grid-rows": `repeat(${item.entries.length}, minmax(0, 1fr))`,
-                }}
-              >
-                <time class="row-span-full block">
-                  <span class="block text-end text-xl font-semibold tracking-wide text-slate-50">
-                    {weekday}
-                  </span>
-                  <span class="block text-end text-5xl font-bold tracking-tight text-slate-50">
-                    {date.toLocaleString(undefined, { day: "2-digit" })}
-                  </span>
-                </time>
-                <For each={item.entries}>
-                  {([from, to]) => {
-                    const fromTime = Temporal.PlainTime.from(from);
-                    const toTime = Temporal.PlainTime.from(to);
-
-                    const duration = toTime.since(fromTime);
-                    return (
-                      <section class="col-start-2 flex max-h-min items-center gap-2 text-lg">
-                        <input
-                          type="time"
-                          value={from}
-                          step="900"
-                          class="rounded-4xl bg-slate-50/75 py-1 pr-1.5 pl-3"
-                        />
-                        <span class="font-black text-slate-50">&ndash;</span>
-                        <input
-                          type="time"
-                          value={to}
-                          step="900"
-                          class="rounded-4xl bg-slate-50/75 py-1 pr-1.5 pl-3"
-                        />
-                        <time class="rounded-4xl bg-slate-50/75 px-3 py-1">
-                          {duration.toLocaleString(undefined, {
-                            style: "digital",
-                            hours: "2-digit",
-                            secondsDisplay: "auto",
-                          })}
-                        </time>
-                      </section>
-                    );
-                  }}
-                </For>
-              </article>
-            );
-          }}
-        </For>
-        {/* <article class="rounded-2xl bg-orange-500">
-          <time>April 28, 2026</time>
-        </article>
-        <article class="rounded-2xl bg-yellow-500">
-          <time>April 29, 2026</time>
-        </article>
-        <article class="rounded-2xl bg-green-500">
-          <time>April 30, 2026</time>
-        </article>
-        <article class="rounded-2xl bg-blue-500">
-          <time>May 1, 2026</time>
-        </article>
-        <article class="rounded-2xl bg-indigo-500">
-          <time>May 2, 2026</time>
-        </article>
-        <article class="rounded-2xl bg-violet-500">
-          <time>May 3, 2026</time>
-        </article> */}
-      </main>
-    </>
+    <Body class="grid h-dvh grid-rows-[1fr_auto]">
+      <nav class="row-start-2">
+        <menu class="grid grid-cols-3 text-xs leading-4 font-medium">
+          <li>
+            <A class="group block py-1.5 text-center" href="/">
+              <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
+                <Icon class="block size-6 group-[.active]:hidden" name="calendar-month" />
+                <Icon class="hidden size-6 group-[.active]:block" name="calendar-month-filled" />
+              </div>
+              <span class="mt-1 block">Times</span>
+            </A>
+          </li>
+          <li>
+            <A class="group block py-1.5 text-center" href="/projects">
+              {/* Any way to avoid drawing a box around the icon? */}
+              <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
+                <Icon class="block size-6 group-[.active]:hidden" name="calendar-month" />
+                <Icon class="hidden size-6 group-[.active]:block" name="calendar-month-filled" />
+              </div>
+              <span class="mt-1 block">Projects</span>
+            </A>
+          </li>
+          <li>
+            <A class="group block py-1.5 text-center" href="/orgranization">
+              <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
+                <Icon class="block size-6 group-[.active]:hidden" name="calendar-month" />
+                <Icon class="hidden size-6 group-[.active]:block" name="calendar-month-filled" />
+              </div>
+              <span class="mt-1 block">Organization</span>
+            </A>
+          </li>
+        </menu>
+      </nav>
+      <main class="bg-slate-50"></main>
+    </Body>
   );
 }
 
