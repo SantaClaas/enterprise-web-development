@@ -93,8 +93,8 @@ function App() {
             <A class="group block py-1.5 text-center" href="/projects">
               {/* Any way to avoid drawing a box around the icon? */}
               <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
-                <Icon class="block size-6 group-[.active]:hidden" name="calendar-month" />
-                <Icon class="hidden size-6 group-[.active]:block" name="calendar-month-filled" />
+                <Icon class="block size-6 group-[.active]:hidden" name="assignment" />
+                <Icon class="hidden size-6 group-[.active]:block" name="assignment-filled" />
               </div>
               <span class="mt-1 block">Projects</span>
             </A>
@@ -102,8 +102,8 @@ function App() {
           <li>
             <A class="group block py-1.5 text-center" href="/orgranization">
               <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
-                <Icon class="block size-6 group-[.active]:hidden" name="calendar-month" />
-                <Icon class="hidden size-6 group-[.active]:block" name="calendar-month-filled" />
+                <Icon class="block size-6 group-[.active]:hidden" name="group" />
+                <Icon class="hidden size-6 group-[.active]:block" name="group-filled" />
               </div>
               <span class="mt-1 block">Organization</span>
             </A>
