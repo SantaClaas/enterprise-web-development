@@ -1,8 +1,7 @@
-import { A } from "@solidjs/router";
-import { createSignal, For } from "solid-js";
+import { createSignal } from "solid-js";
 
 import Body from "./Body";
-import Icon from "./Icon";
+import Navigation from "./Navigation";
 
 function Fun() {
   return (
@@ -37,7 +36,7 @@ type Data = {
   date: string;
   entries: Entry[];
 };
-function App() {
+export default function Times() {
   const [data] = createSignal<Data[]>([
     {
       date: "2026-04-27",
@@ -78,41 +77,8 @@ function App() {
 
   return (
     <Body class="grid h-dvh grid-rows-[1fr_auto]">
-      <nav class="row-start-2">
-        <menu class="grid grid-cols-3 text-xs leading-4 font-medium">
-          <li>
-            <A class="group block py-1.5 text-center" href="/">
-              <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
-                <Icon class="block size-6 group-[.active]:hidden" name="calendar-month" />
-                <Icon class="hidden size-6 group-[.active]:block" name="calendar-month-filled" />
-              </div>
-              <span class="mt-1 block">Times</span>
-            </A>
-          </li>
-          <li>
-            <A class="group block py-1.5 text-center" href="/projects">
-              {/* Any way to avoid drawing a box around the icon? */}
-              <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
-                <Icon class="block size-6 group-[.active]:hidden" name="assignment" />
-                <Icon class="hidden size-6 group-[.active]:block" name="assignment-filled" />
-              </div>
-              <span class="mt-1 block">Projects</span>
-            </A>
-          </li>
-          <li>
-            <A class="group block py-1.5 text-center" href="/orgranization">
-              <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
-                <Icon class="block size-6 group-[.active]:hidden" name="group" />
-                <Icon class="hidden size-6 group-[.active]:block" name="group-filled" />
-              </div>
-              <span class="mt-1 block">Organization</span>
-            </A>
-          </li>
-        </menu>
-      </nav>
+      <Navigation />
       <main class="bg-slate-50"></main>
     </Body>
   );
 }
-
-export default App;

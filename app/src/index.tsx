@@ -1,11 +1,13 @@
-import { Router, Route } from "@solidjs/router";
+import { Router, Route, Navigate } from "@solidjs/router";
 
 import "./index.css";
 /* @refresh reload */
 import { render } from "solid-js/web";
 
-import App from "./App";
+import Organizations from "./Organizations";
+import Projects from "./Projects";
 import SignIn from "./SignIn";
+import Times from "./Times";
 
 // Keep polyfill out of the bundle. You can see this as vite generates two js bundles, one with only the polyfill and one without.
 if (!("Temporal" in globalThis)) {
@@ -20,8 +22,11 @@ if (!("Temporal" in globalThis)) {
 render(
   () => (
     <Router>
-      <Route path="/" component={App} />
+      <Route path="/" component={() => <Navigate href="/times" />} />
       <Route path="/sign-in" component={SignIn} />
+      <Route path="/times" component={Times} />
+      <Route path="/projects" component={Projects} />
+      <Route path="/organizations" component={Organizations} />
     </Router>
   ),
   document.body,
