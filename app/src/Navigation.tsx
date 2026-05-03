@@ -1,4 +1,4 @@
-import { A } from "@solidjs/router";
+import { Link } from "@tanstack/solid-router";
 
 import Icon from "./Icon";
 
@@ -7,7 +7,7 @@ export default function Navigation() {
     <nav class="row-start-2">
       <menu class="grid grid-cols-3 text-xs leading-4 font-medium">
         <li>
-          <A class="group block py-1.5 text-center" href="/times">
+          <Link to="/times" class="group block py-1.5 text-center">
             <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
               <Icon
                 name="calendar-month"
@@ -19,10 +19,10 @@ export default function Navigation() {
               />
             </div>
             <span class="mt-1 block">Times</span>
-          </A>
+          </Link>
         </li>
         <li>
-          <A class="group block py-1.5 text-center" href="/projects">
+          <Link to="/projects" class="group block py-1.5 text-center">
             {/* Any way to avoid drawing a box around the icon? */}
             <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
               <Icon name="assignment" class="block size-6 fill-slate-950 group-[.active]:hidden" />
@@ -32,10 +32,10 @@ export default function Navigation() {
               />
             </div>
             <span class="mt-1 block">Projects</span>
-          </A>
+          </Link>
         </li>
         <li>
-          <A class="group block py-1.5 text-center" href="/organizations">
+          <Link to="/organizations" class="group block py-1.5 text-center">
             <div class="mx-auto max-w-min rounded-2xl px-4 py-1 group-[.active]:bg-slate-400 hover:bg-slate-300">
               <Icon name="group" class="block size-6 fill-slate-950 group-[.active]:hidden" />
               <Icon
@@ -44,7 +44,7 @@ export default function Navigation() {
               />
             </div>
             <span class="mt-1 block">Organization</span>
-          </A>
+          </Link>
         </li>
       </menu>
     </nav>

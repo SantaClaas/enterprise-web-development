@@ -1,7 +1,13 @@
-import Body from "./Body";
-import Icon from "./Icon";
+import { createFileRoute } from "@tanstack/solid-router";
 
-export default function SignIn() {
+import Body from "../Body";
+import Icon from "../Icon";
+
+export const Route = createFileRoute("/sign-in")({
+  component: SignIn,
+});
+
+function SignIn() {
   return (
     <Body class="h-dvh p-4 md:p-6">
       <main class="grid h-full items-end">

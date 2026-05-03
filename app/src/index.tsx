@@ -1,13 +1,9 @@
-import { Router, Route, Navigate } from "@solidjs/router";
-
 import "./index.css";
+import { createRouter, RouterProvider } from "@tanstack/solid-router";
 /* @refresh reload */
 import { render } from "solid-js/web";
 
-import Organizations from "./Organizations";
-import Projects from "./Projects";
-import SignIn from "./SignIn";
-import Times from "./Times";
+import { routeTree } from "./routeTree.gen";
 
 // Keep polyfill out of the bundle. You can see this as vite generates two js bundles, one with only the polyfill and one without.
 if (!("Temporal" in globalThis)) {
@@ -19,15 +15,18 @@ if (!("Temporal" in globalThis)) {
   Date.prototype.toTemporalInstant = toTemporalInstant;
 }
 
-render(
-  () => (
-    <Router>
-      <Route path="/" component={() => <Navigate href="/times" />} />
-      <Route path="/sign-in" component={SignIn} />
-      <Route path="/times" component={Times} />
-      <Route path="/projects" component={Projects} />
-      <Route path="/organizations" component={Organizations} />
-    </Router>
-  ),
-  document.body,
-);
+const router = createRouter({
+  routeTree,
+  defaultPreload: "intent",
+  defaultStaleTime: 5000,
+  scrollRestoration: true,
+});
+
+// Register things for typesafety
+declare module "@tanstack/solid-router" {
+  interface Register {
+    router: typeof router;
+  }
+}
+
+render(() => <RouterProvider router={router} />, document.body);
