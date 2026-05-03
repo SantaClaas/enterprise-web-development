@@ -11,9 +11,6 @@ importers:
       '@tanstack/solid-router':
         specifier: ^1.169.1
         version: 1.169.1(solid-js@1.9.12)
-      '@tanstack/solid-router-devtools':
-        specifier: ^1.166.13
-        version: 1.166.13(@tanstack/router-core@1.169.1)(@tanstack/solid-router@1.169.1(solid-js@1.9.12))(csstype@3.2.3)(solid-js@1.9.12)
       solid-js:
         specifier: ^1.9.11
         version: 1.9.12
@@ -570,16 +567,6 @@ packages:
     engines: {node: '>=20.19'}
     hasBin: true
 
-  '@tanstack/router-devtools-core@1.167.3':
-    resolution: {integrity: sha512-fJ1VMhyQgnoashTrP763c2HRc9kofgF61L7Jb3F6eTHAmCKtGVx8BRtiFt37sr3U0P0jmaaiiSPGP6nT5JtVNg==}
-    engines: {node: '>=20.19'}
-    peerDependencies:
-      '@tanstack/router-core': ^1.168.11
-      csstype: ^3.0.10
-    peerDependenciesMeta:
-      csstype:
-        optional: true
-
   '@tanstack/router-generator@1.166.39':
     resolution: {integrity: sha512-j2OW/UvpjM/DT9tHVmuhWW1k6UOezTRrPqBPZFFmIth0fY7iTPqK+Erqpo8r5yGTRGCbMvOS4sL3H2MldnIZew==}
     engines: {node: '>=20.19'}
@@ -609,17 +596,6 @@ packages:
   '@tanstack/router-utils@1.161.7':
     resolution: {integrity: sha512-VkY0u7ax/GD0qU6ZLLnfPC+UMxVzxRbvZp4yV4iUSXjgJZ/siAT5/QlLm9FEDJ9QDoC0VD9W7f00tKKreUI7Ng==}
     engines: {node: '>=20.19'}
-
-  '@tanstack/solid-router-devtools@1.166.13':
-    resolution: {integrity: sha512-0K/bhEWPuBjHjI9h9Ckc9iioHmHr/DW+rXbfETa6G+lNK9nArUgtvuVM58sITRaSmlpImm/OCMCuNkUhXrPP/w==}
-    engines: {node: '>=20.19'}
-    peerDependencies:
-      '@tanstack/router-core': ^1.168.11
-      '@tanstack/solid-router': ^1.168.14
-      solid-js: ^1.9.10
-    peerDependenciesMeta:
-      '@tanstack/router-core':
-        optional: true
 
   '@tanstack/solid-router@1.169.1':
     resolution: {integrity: sha512-Ij0kD/nh8h7JupF6obPZvmYFLPF74tlPDuwIGdWWS3vJWYx8SXuDrI11rMTJPmftnkgYDfhrwvhYQzz4K3/+cQ==}
@@ -701,10 +677,6 @@ packages:
     resolution: {integrity: sha512-7VT13fmjotKpGipCW9JEQAusEPE+Ei8nl6/g4FBAmIm0GOOLMua9NDDo/DWp0ZAxCr3cPq5ZpBqmPAQgDda2Pw==}
     engines: {node: '>= 8.10.0'}
 
-  clsx@2.1.1:
-    resolution: {integrity: sha512-eYm0QWBtUrBWZWG0d386OGAw16Z995PiOVo2B7bjWSbHedGl5e0ZWaq65kOGgUSNesEIDkB9ISbTg/JK9dhCZA==}
-    engines: {node: '>=6'}
-
   convert-source-map@2.0.0:
     resolution: {integrity: sha512-Kvp459HrV2FEJ1CAsi1Ku+MY3kasH19TFykTz2xWmMeq6bk2NU3XXvfJ+Q61m0xktWwt+1HSYf3JZsTms3aRJg==}
 
@@ -771,11 +743,6 @@ packages:
   glob-parent@5.1.2:
     resolution: {integrity: sha512-AOIgSQCepiJYwP3ARnGx+5VnTu2HBYdzbGP45eLw1vr3zB3vZLeyed1sC9hnbcOc9/SrMyM5RPQrkGz4aS9Zow==}
     engines: {node: '>= 6'}
-
-  goober@2.1.18:
-    resolution: {integrity: sha512-2vFqsaDVIT9Gz7N6kAL++pLpp41l3PfDuusHcjnGLfR6+huZkl6ziX+zgVC3ZxpqWhzH6pyDdGrCeDhMIvwaxw==}
-    peerDependencies:
-      csstype: ^3.0.10
 
   graceful-fs@4.2.11:
     resolution: {integrity: sha512-RbJ5/jmFcNNCcDV5o9eTnBLJ/HszWV0P73bc+Ff4nS/rJj+YaS6IGyiOL0VoBYX+l1Wrl3k63h/KrH+nhJ0XvQ==}
@@ -1558,14 +1525,6 @@ snapshots:
       seroval: 1.5.1
       seroval-plugins: 1.5.1(seroval@1.5.1)
 
-  '@tanstack/router-devtools-core@1.167.3(@tanstack/router-core@1.169.1)(csstype@3.2.3)':
-    dependencies:
-      '@tanstack/router-core': 1.169.1
-      clsx: 2.1.1
-      goober: 2.1.18(csstype@3.2.3)
-    optionalDependencies:
-      csstype: 3.2.3
-
   '@tanstack/router-generator@1.166.39':
     dependencies:
       '@babel/types': 7.29.0
@@ -1613,16 +1572,6 @@ snapshots:
       tinyglobby: 0.2.15
     transitivePeerDependencies:
       - supports-color
-
-  '@tanstack/solid-router-devtools@1.166.13(@tanstack/router-core@1.169.1)(@tanstack/solid-router@1.169.1(solid-js@1.9.12))(csstype@3.2.3)(solid-js@1.9.12)':
-    dependencies:
-      '@tanstack/router-devtools-core': 1.167.3(@tanstack/router-core@1.169.1)(csstype@3.2.3)
-      '@tanstack/solid-router': 1.169.1(solid-js@1.9.12)
-      solid-js: 1.9.12
-    optionalDependencies:
-      '@tanstack/router-core': 1.169.1
-    transitivePeerDependencies:
-      - csstype
 
   '@tanstack/solid-router@1.169.1(solid-js@1.9.12)':
     dependencies:
@@ -1728,8 +1677,6 @@ snapshots:
     optionalDependencies:
       fsevents: 2.3.3
 
-  clsx@2.1.1: {}
-
   convert-source-map@2.0.0: {}
 
   cookie-es@3.1.1: {}
@@ -1771,10 +1718,6 @@ snapshots:
   glob-parent@5.1.2:
     dependencies:
       is-glob: 4.0.3
-
-  goober@2.1.18(csstype@3.2.3):
-    dependencies:
-      csstype: 3.2.3
 
   graceful-fs@4.2.11: {}
 

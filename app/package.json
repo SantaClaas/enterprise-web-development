@@ -12,7 +12,6 @@
   },
   "dependencies": {
     "@tanstack/solid-router": "^1.169.1",
-    "@tanstack/solid-router-devtools": "^1.166.13",
     "solid-js": "^1.9.11",
     "temporal-polyfill": "^0.3.2"
   },
