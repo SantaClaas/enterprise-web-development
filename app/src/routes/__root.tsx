@@ -1,11 +1,3 @@
-import { createRootRoute, Outlet } from "@tanstack/solid-router";
+import { createRootRoute } from "@tanstack/solid-router";
 
-export const Route = createRootRoute({
-  component() {
-    return (
-      <>
-        <Outlet />
-      </>
-    );
-  },
-});
+export const Route = createRootRoute();
