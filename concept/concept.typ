@@ -44,12 +44,13 @@
 
 Die in diesem Projektkonzept beschriebene Anwendung soll eine einfache Anwendung zur Zeiterfassung für Werkstudenten sein. Für die Priorisierung der Entwicklung wird dabei in zwei Zielgruppen unterschieden. Die primäre Zielgruppe ist Studenten, die als Werkstudenten arbeiten und ihre Arbeitszeiten außerhalb eines von Arbeitgebern bereitgestellten Zeiterfassungssystem aufzeichnen wollen. Die erweiterte Zielgruppe sind selbständig Arbeitende, die ähnliche Bedürfnisse haben ihre Arbeitszeiten zu erfassen.
 
+
 Für das Projekt wird sich in erster Linie auf die primäre Zielgruppe konzentriert und die erweiterte Zielgruppe wird in Betracht gezogen.
 
 Nutzende haben durch die Anwendung die Möglichkeit nicht nur ihre Arbeitszeiten zu erfassen sondern auch Besitz von ihren Daten zu ergreifen und exportieren zu können ohne, dass sie in einem externen System in einer unzugänglichen Datenbank gespeichert sind.
 Zudem müssen sie z.B. nicht dem Arbeitszeiterfassungssystem ihres Arbeitgebers vertrauen die Daten richtig zu speichern und haben somit eigene Nachweise für die geleistete Arbeitszeit.
 
-Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele Anwendungsbereiche abdeckt. Vielmehr soll die Anwendung wenige Funktionen unterstützen und diese qualitativ hochwertig umsetzen.
+Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele Anwendungsbereiche abdeckt. Der Fokus liegt auf einer hohen funktionalen Dichte und Usability innerhalb eines reduzierten Feature-Sets (KISS-Prinzip - Keep It Simple, Stupid).
 
 //TODO wie viele Personen kann man durch die Anwendung potenziell erreichen
 //TODO Statistik über Bedürfniss nach Privatsphäre?
@@ -97,7 +98,7 @@ Manche Anforderungen finden sich in beiden Kategorien wie Accessibility, da dies
   + Nutzende können  regelmäßige Benachrichtigungen aktivieren, um sich an das Eintragen der Arbeitszeigen zu erinnern.
 + Die Anwendung soll in Deutsch und Englisch verfügbar sein.
 + Rechtliches (Compliance)
-  + Barrierefreiheit (Accessibility): Die Anwendung soll WCAG 2.2 AA-konform sein.
+  + Barrierefreiheit (Accessibility): Die Anwendung soll WCAG 2.2 AA-konform sein. @w3c_wcag22
 + WebAuthn/Sign-in
   + Nutzende müssen sich mit einem Passkey registrieren können.
   + Nutzende müssen sich über einen Passkey authentifizieren können.
@@ -109,6 +110,7 @@ Manche Anforderungen finden sich in beiden Kategorien wie Accessibility, da dies
 == Nicht-Funktionale Anforderungen
 + Benutzerfreundlichkeit (Usability)
   + Die Anwendung soll intuitiv und einfach zu bedienen sein. Dies bedeutet unter anderem, dass die Anwenung eine verständliche visuelle Hierarchie in der Benutzeroberfläche bietet und funktionale Anforderung mit minimalem Aufwand von Nutzenden erfüllt werden kann.
+  + Die Eingabe von Zeiten sollte mit möglichst wengig Tastatur-Eingaben erfolgen.
 + Sicherheit (Security)
   + Daten werden verschlüsselt zwischen Client und Server gesendet.
   + Daten von Nutzenden sind sicher vor unauthorisierten Zugriffen geschützt.
@@ -261,7 +263,7 @@ Um Passkeys besser wieder zu erkennen wird zusätzlich Metadaten wie Name und Ic
 
 = Software-Architektur
 Durch die Anforderungen des Moduls an dieses Projekt soll für diese Software zwei Komponenten entwickelt werden, die in einer zentralisierten Server-Client-Architektur arrangiert sind.
-Die erste Komponente ist eine HTTP JSON API, die den REST-Prinzipien folgt. Für die Endpunkte zur Authentifizierung, Autorisierung und Hosting des Clients wird von diesen Prinzipien eventuell abgewichen werden müssen, da der API-Server auch die Rolle des Authentifizierungs-Servers erfüllt.
+Die erste Komponente ist eine HTTP JSON API, die den REST-Prinzipien nach Fielding folgt @fielding_rest. Für die Endpunkte zur Authentifizierung, Autorisierung und Hosting des Clients wird von diesen Prinzipien eventuell abgewichen werden müssen, da der API-Server auch die Rolle des Authentifizierungs-Servers erfüllt.
 
 Über die von der API bereitgestellten Endpunkte wird einer Client-Server-Architektur realisiert. Der Client ist eine Web-Anwendung, die die API-Endpunkte aufruft und die Daten aus der API abruft. Die API-Endpunkte werden von einem Server ausgeführt, der die Daten speichert und verarbeitet.
 Zum Speichern der Daten kommt eine Datenbank wie eventuell PostgreSQL oder SQLite zum Einsatz.
@@ -299,8 +301,6 @@ Auf Desktop-Geräten verschiebt sich die Anzeige in die Breite und kann mehr Dat
   caption: [Wireframes Desktop],
 ) <wireframes-mobile>
 
-
-
 #figure(
   image("protype.png", width: 80%),
   caption: [Prototype],
@@ -310,3 +310,7 @@ Auf Desktop-Geräten verschiebt sich die Anzeige in die Breite und kann mehr Dat
 //   - Welche Komponenten wollen Sie verwenden? Warum wählen sie diese aus?
 //   - Zeichnen Sie eine grobe Darstellung der Software-Architektur mit allen relevanten Schnittstellen.
 // TODO Temporal API
+
+#pagebreak()
+#bibliography("references.bib")
+// PayScale. (January 12, 2024). Percentage of employees who work from home all or most of the time worldwide from 2015 to 2023 [Graph]. In Statista. Retrieved May 05, 2026, from https://www.statista.com/statistics/1450450/employees-remote-work-share/

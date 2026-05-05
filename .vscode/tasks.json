@@ -1,0 +1,13 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "Sync Zotero",
+            "type": "shell",
+            "command": "curl -L 'http://127.0.0.1:23119/better-bibtex/export?/library;id:1/collection;key:3KPUAVZY/Enterprise%20Web%20Development.biblatex' -o concept/references.bib",
+            "presentation": {
+                "reveal": "silent"
+            }
+        }
+    ]
+}
