@@ -166,7 +166,8 @@ hide circle
 
 class User {
   + id: UUID
-  + recovery_email: String
+  + name: String
+  + email: String
   + notifications_enabled: Boolean
   + created_at: DateTime
 }
@@ -183,6 +184,11 @@ class Project {
   + name: String
   + description: String
   + color_code: String
+}
+
+class Organization {
+  + id: UUID
+  + name: String
 }
 
 class Timer {
@@ -217,6 +223,8 @@ class "WebAuthn Authenticator" as WebAuthnAuthenticator {
 User "1" *-- "0..*" TimeEntry : erfasst >
 User "1" *-- "0..*" Project : erstellt >
 User "1" *-- "0..1" Timer : hat aktiven >
+User "*" *-* "*" Organization : teil von
+Project "*" *-- "1" Organization : zugeordnet zu
 
 Project "0..1" <-- "0..*" TimeEntry : zugeordnet zu <
 
