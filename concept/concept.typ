@@ -1,4 +1,7 @@
 #set page(numbering: none)
+// Fix fonts being set to times new roman in SVGs. This is not ideal as I want different fonts for different SVGs but it is better
+#show image: set text(font: "Arial")
+
 
 #align(center)[
   #par(leading: 1em)[#text(10pt)[#for _ in range(3) { linebreak() }]]
@@ -64,50 +67,61 @@ Ziel des Projekts ist es nicht eine Anwendung zu entwickeln, die besonders viele
 // - Die wesentlichen Use-Cases der Anwendung
 //   - Erstellen Sie ein einfaches Use-Case-Diagramm (es müssen keine CRUD-Use-Cases mo-delliert werden)
 //   - Beschreiben Sie die Use-Cases kurz und knapp, so dass der Inhalt nachvollziehbar ist.
-== Funktionale Anforderungen
-- Arbeitszeiterfassung
-  - Nutzende können ihre Arbeitszeiten aufzeichnen.
-  - Nutzende können ihre Arbeitszeiten exportieren.
-  - Nutzende können ihre Arbeitszeiten importieren.
-  - Nutzende können ihre Arbeitszeiten löschen.
-  - Nutzende können ihre Arbeitszeiten bearbeiten.
-- Projekte
-  - Nutzende können Projekte erstellen.
-  - Nutzende können Projekte bearbeiten.
-  - Nutzende können Projekte löschen.
-  - Nutzende können Zeiten zu Projekten.
-- Stopp-Start-Funktionalität
-  - Nutzende müssen ihre Arbeitszeiten stoppen und starten können und die Arbeitszeit wird automatisch aufgezeichnet.
-- Benachrichtigungen
-  - Nutzende können  regelmäßige Benachrichtigungen aktivieren, um sich an das Eintragen der Arbeitszeigen zu erinnern.
-- Die Anwendung soll in Deutsch und Englisch verfügbar sein.
-- Rechtliches (Compliance)
-  - Barrierefreiheit (Accessibility): Die Anwendung soll WCAG 2.2 AA-konform sein.
-- WebAuthn/Sign-in
-  - Nutzende müssen sich mit einem Passkey registrieren können.
-  - Nutzende müssen sich über einen Passkey authentifizieren können.
-  - Nutzende können weitere Passkeys hinzufügen.
-  - Nutzende können Passkeys löschen.
-  - Hinzufügen, Editieren von Recovery-Email
+Im folgenden werden die funktionalen und nicht-funktionalen Anforderungen aufgeführt. Die wesentlichen Use-Cases der Anwendung werden im Kapitel Use-Cases erläutert.
+Manche Anforderungen finden sich in beiden Kategorien wie Accessibility, da dieses zum einen als Compliance festgelegten Kriterien entsprechen muss und zum anderen aber auch nicht-funktional die Zugänglichkeit der Anwendung verbessert.
 
+== Funktionale Anforderungen
++ Arbeitszeiterfassung
+  + Nutzende können ihre Arbeitszeiten aufzeichnen.
+  + Nutzende können ihre Arbeitszeiten exportieren.
+  + Nutzende können ihre Arbeitszeiten importieren.
+  + Nutzende können ihre Arbeitszeiten löschen.
+  + Nutzende können ihre Arbeitszeiten bearbeiten.
++ Projekte
+  + Nutzende können Projekte erstellen.
+  + Nutzende können Projekte bearbeiten.
+  + Nutzende können Projekte löschen.
+  + Nutzende können Zeiten zu Projekten.
++ Organisationen
+  + Nutzende können Organisationen erstellen.
+  + Nutzende können Organisationen bearbeiten.
+  + Nutzende können Organisationen löschen.
+  + Nutzende können Projekte zu Organisationen zuordnen.
+  + Nutzende können Zeiten zu Organisationen über Projekte zuordnen.
+  + Nutzende können Nutzende zu Organisationen einladen.
+  + Nutzende können Nutzende aus Organisationen entfernen.
+  + Nutzende können Nutzende für Organisationen anlegen.
++ Stopp-Start-Funktionalität
+  + Nutzende müssen ihre Arbeitszeiten stoppen und starten können und die Arbeitszeit wird automatisch aufgezeichnet.
++ Benachrichtigungen
+  + Nutzende können  regelmäßige Benachrichtigungen aktivieren, um sich an das Eintragen der Arbeitszeigen zu erinnern.
++ Die Anwendung soll in Deutsch und Englisch verfügbar sein.
++ Rechtliches (Compliance)
+  + Barrierefreiheit (Accessibility): Die Anwendung soll WCAG 2.2 AA-konform sein.
++ WebAuthn/Sign-in
+  + Nutzende müssen sich mit einem Passkey registrieren können.
+  + Nutzende müssen sich über einen Passkey authentifizieren können.
+  + Nutzende können weitere Passkeys hinzufügen.
+  + Nutzende können Passkeys löschen.
+  + Hinzufügen, Editieren von Recovery-Email
 
 
 == Nicht-Funktionale Anforderungen
-- Benutzerfreundlichkeit (Usability)
-  - Die Anwendung soll intuitiv und einfach zu bedienen sein. Dies bedeutet unter anderem, dass die Anwenung eine verständliche visuelle Hierarchie in der Benutzeroberfläche bietet und funktionale Anforderung mit minimalem Aufwand von Nutzenden erfüllt werden kann.
-- Sicherheit (Security)
-  - Daten werden verschlüsselt zwischen Client und Server gesendet.
-  - Daten von Nutzenden sind sicher vor unauthorisierten Zugriffen geschützt.
-- Barrierefreiheit (Accessibility)
-  - Dies ist sowohl ein funktionales als auch eine nicht-funktionale Anforderung. Funktional: Compliance. Nicht-Funktional: "Accessibility beyond WCAG"
-  - In der funktionalen Anforderung soll die Anwendung den Rechtlichen Anforderungen entsprechen.
-- Fokus
-  - Die Anwendung soll sich auf die primären Ziele konzentrieren und diese qualitativ hochwertig umsetzen, anstatt möglichst viele Funktionen anzubieten.
-- Plattformunabhängigkeit
-  - Die Anwendung soll auf verschiedenen Plattformen lauffähig sein. Dazu gehören Windows, macOS, Linux, iOS und Android.
-- Die Serverseitigen Komponenten der Anwendung sollen weitestgehend horizontal skalierbar sein. Auch wenn sie im Zuge des Projektes nicht horizontal skaliert werden.
-- Zuverlässigkeit (Reliability)
-  - Die Anwendung wird ausreichend für Demozwecke bereitgestellt und soll in diesem Umfang verfügbar, leistungsfähig genug sowie zuverlässig sein.
++ Benutzerfreundlichkeit (Usability)
+  + Die Anwendung soll intuitiv und einfach zu bedienen sein. Dies bedeutet unter anderem, dass die Anwenung eine verständliche visuelle Hierarchie in der Benutzeroberfläche bietet und funktionale Anforderung mit minimalem Aufwand von Nutzenden erfüllt werden kann.
++ Sicherheit (Security)
+  + Daten werden verschlüsselt zwischen Client und Server gesendet.
+  + Daten von Nutzenden sind sicher vor unauthorisierten Zugriffen geschützt.
++ Barrierefreiheit (Accessibility)
+  + Dies ist sowohl ein funktionales als auch eine nicht-funktionale Anforderung. Funktional: Compliance. Nicht-Funktional: "Accessibility beyond WCAG"
+  + In der funktionalen Anforderung soll die Anwendung den Rechtlichen Anforderungen entsprechen.
++ Fokus
+  + Die Anwendung soll sich auf die primären Ziele konzentrieren und diese qualitativ hochwertig umsetzen, anstatt möglichst viele Funktionen anzubieten.
++ Plattformunabhängigkeit
+  + Die Anwendung soll auf verschiedenen Plattformen lauffähig sein. Dazu gehören Windows, macOS, Linux, iOS und Android.
++ Die Serverseitigen Komponenten der Anwendung sollen weitestgehend horizontal skalierbar sein. Auch wenn sie im Zuge des Projektes nicht horizontal skaliert werden.
++ Zuverlässigkeit (Reliability)
+  + Die Anwendung wird ausreichend für Demozwecke bereitgestellt und soll in diesem Umfang verfügbar, leistungsfähig genug sowie zuverlässig sein.
 
 // - Klassendiagramm mit den Entitäten
 //   - Erstellen Sie ein Klassendiagramm, in dem Sie die geplanten Entitäten mit ihren Beziehungen darstellen.

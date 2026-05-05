@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   push:
     paths:
-      - "concept/concept.typ"
+      - "concept/**"
       - ".github/workflows/compile-concept.yml"
 
 # Required for actions/deploy-pages@v4 to obtain an OIDC token
