@@ -42,7 +42,7 @@
 //   - Was soll mit der Anwendung gemacht werden?
 //   - Welchen Vorteil haben Nutzende durch die Anwendung?
 
-Die in diesem Projektkonzept beschriebene Anwendung ist als digitale Zeiterfassung für Werkstudenten konzipiert. Für die Priorisierung der Entwicklung wird zwischen einer primären und einer erweiterten Zielgruppe unterschieden. Zur primären Zielgruppe zählen Studierende, die als Werkstudenten tätig sind und ihre Arbeitszeiten außerhalb eines von Arbeitgebern bereitgestellten Zeiterfassungssystems dokumentieren möchten. Die erweiterte Zielgruppe umfasst selbstständig Tätige mit vergleichbaren Anforderungen an die Erfassung von Arbeitszeiten.
+Die in diesem Projektkonzept beschriebene Anwendung ist als digitale Zeiterfassung für Werkstudenten konzipiert. Für die Priorisierung der Entwicklung wird zwischen einer primären und einer erweiterten Zielgruppe unterschieden. Zur primären Zielgruppe zählen Studierende, die als Werkstudenten tätig sind und ihre Arbeitszeiten außerhalb eines von Arbeitgebern bereitgestellten Zeiterfassungssystems dokumentieren möchten. Die Relevanz dieser Zielgruppe ergibt sich daraus, dass Studierende im Nebenerwerb im Jahr 2021 durchschnittlich etwa 12,5 Stunden pro Woche arbeiteten und ihre Arbeitszeit seit 2013 um 1,4 Stunden gestiegen ist @jobvalley_statista. Die erweiterte Zielgruppe umfasst selbstständig Tätige mit vergleichbaren Anforderungen an die Erfassung von Arbeitszeiten.
 
 Die Wahl von Passkeys als Anmeldeverfahren orientiert sich an WebAuthn und an FIDO-Passkeys, die auf kryptografischen Anmeldungen ohne klassische Passwörter beruhen und als phishing-resistente Alternative zu passwortbasierten Verfahren etabliert sind @webauthn_l2 @fido_passkeys.
 
