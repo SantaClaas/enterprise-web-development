@@ -21,3 +21,8 @@ public class FlatApplication {
 	}
 
 }
+
+// @Entity
+// class User {
+
+// }

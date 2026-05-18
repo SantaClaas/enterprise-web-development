@@ -6,3 +6,6 @@ node_modules/
 
 # JS package management
 .pnpm-store/
+
+# No IDE settings
+.idea/

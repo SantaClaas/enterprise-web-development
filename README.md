@@ -6,6 +6,10 @@
 ```bash
 mvn spring-boot:run
 ```
+or
+```bash
+./mvnw spring-boot:run
+```
 
 Vite dev server needs to accept incoming requests to the dev server
 ```bash
