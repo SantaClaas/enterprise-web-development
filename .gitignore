@@ -1,2 +1,8 @@
 *.pdf
 node_modules/
+
+# MacOS system files
+.DS_Store
+
+# JS package management
+.pnpm-store/
