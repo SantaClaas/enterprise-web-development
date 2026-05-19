@@ -1,10 +1,10 @@
-package dev.claas.flat;
+package com.yealch.yealch;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class FlatApplicationTests {
+class YealchApplicationTests {
 
 	@Test
 	void contextLoads() {
