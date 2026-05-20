@@ -1,12 +1,12 @@
 import { createFileRoute, Navigate } from "@tanstack/solid-router";
-import { useContext } from "solid-js";
 
-import UserContext from "../userContext";
+import { useUserContext } from "../userContext";
 
 export const Route = createFileRoute("/")({
   component() {
-    const userContext = useContext(UserContext);
+    const userContext = useUserContext();
 
+    // TODO remove when tanstack router global redirect is implemented
     if (userContext.isSignedIn) {
       return <Navigate to="/times" />;
     }
