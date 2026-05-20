@@ -1,8 +1,7 @@
 import { createFileRoute, useNavigate } from "@tanstack/solid-router";
-import { useContext } from "solid-js";
 
 import Body from "../Body";
-import UserContext from "../userContext";
+import { useUserContext } from "../userContext";
 
 export const Route = createFileRoute("/login")({
   component: Login,
@@ -20,7 +19,7 @@ export const Route = createFileRoute("/login")({
 // Template from Tailwind Plus component
 function Login() {
   const navigate = useNavigate();
-  const userContext = useContext(UserContext);
+  const userContext = useUserContext();
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
