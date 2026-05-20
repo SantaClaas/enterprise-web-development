@@ -36,3 +36,10 @@ Access the H2 console at http://localhost:8080/h2-console. Use the following set
 - Switch away from username password authentication to Passkey authentication
 - User registration
 - Get docker build up and running
+
+# Must haves zum nächsten Mal
+
+Wie notiert vom Dozenten:
+
+- logout
+- Zeiterfassung wesentliche funktionen (Grundzüge der Zeiterfassung)
