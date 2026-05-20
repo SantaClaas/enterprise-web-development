@@ -46,6 +46,7 @@ function Login() {
 
     // Simple state management for now
     userContext.isSignedIn = true;
+    console.debug("Set to signed in state", userContext.isSignedIn);
     await navigate({ to: "/times" });
   }
 
