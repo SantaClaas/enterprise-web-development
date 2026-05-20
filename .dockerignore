@@ -1,3 +1,4 @@
+# Ignore everything by default to avoid accidentally including sensitive files in the image, then explicitly include only what we need to run the app.
 *
 
 !Dockerfile
