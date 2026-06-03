@@ -19,7 +19,7 @@ export const Route = createRootRoute({
     if (context.isSignedIn) return;
 
     console.debug("User is not signed in, redirecting to login page", location.href);
-    const search = location.href === "/" ? undefined : { redirect: location.href };
+    const search = { redirect: location.href === "/" ? undefined : location.href };
     // Throwing will stop any children from attempting to load and is the recommended way to redirect in a beforeLoad
     throw redirect({
       to: SIGN_IN,
