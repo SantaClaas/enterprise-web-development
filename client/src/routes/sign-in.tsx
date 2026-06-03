@@ -1,13 +1,23 @@
-import { createFileRoute, Link } from "@tanstack/solid-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
 
 export const Route = createFileRoute("/sign-in")({
   component: SignIn,
+  validateSearch(search) {
+    return {
+      redirect:
+        typeof search.redirect === "string" && search.redirect ? search.redirect : undefined,
+    };
+  },
 });
 
 function SignIn() {
+  const [error, setError] = createSignal<string | undefined>();
+
+  const navigate = useNavigate();
+  const search = Route.useSearch();
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     console.debug("Signing in...");
@@ -20,10 +30,9 @@ function SignIn() {
     const value = btoa(`${username}:${password}`);
     let response;
     try {
-      response = await fetch("/api/login", {
+      response = await fetch("/api/sign-ins", {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Basic ${value}`,
         },
       });
@@ -38,6 +47,16 @@ function SignIn() {
       return;
     }
 
+    if (!response.ok) {
+      console.error("Login failed", response);
+      setError("An error occurred signing in. Please try again.");
+      return;
+    }
+
+    const redirect = search().redirect;
+
+    await navigate({ to: redirect ?? "/" });
+
     console.debug("Login response", response, await response.json());
 
     const getUsersResponse = await fetch("/api/users", {
@@ -47,7 +66,6 @@ function SignIn() {
     console.debug("Get users response", getUsersResponse, await getUsersResponse.json());
   }
 
-  const [error, setError] = createSignal<string | undefined>();
   return (
     <Body class="h-dvh p-6">
       <main class="grid h-full items-end">
