@@ -1,13 +1,31 @@
-import { createContext, useContext, type ParentProps } from "solid-js";
+import { createContext, createSignal, useContext, type Accessor, type ParentProps } from "solid-js";
 
-const context = createContext({
-  isSignedIn: false,
-});
+async function getUser() {
+  const response = await fetch("/api/user");
+
+  return response.ok;
+}
+
+type Context = {
+  getIsSignedIn: Promise<boolean>;
+  setIsSignedIn(value: boolean): void;
+};
+
+let getIsSignedIn = getUser();
+const initialContext = {
+  getIsSignedIn,
+  setIsSignedIn(value: boolean) {
+    getIsSignedIn = Promise.resolve(value);
+  },
+};
+const context = createContext<Context>(initialContext);
 
 export function UserContextProvider(properties: ParentProps<{}>) {
-  return <context.Provider value={{ isSignedIn: false }}>{properties.children}</context.Provider>;
+  return <context.Provider value={initialContext}>{properties.children}</context.Provider>;
 }
 
 export function useUserContext() {
-  return useContext(context);
+  const current = useContext(context);
+
+  return current;
 }
