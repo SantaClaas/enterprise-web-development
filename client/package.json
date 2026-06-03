@@ -11,6 +11,7 @@
     "format:check": "oxfmt --check"
   },
   "dependencies": {
+    "@claas.dev/material-tailwind": "^0.6.0",
     "@tanstack/solid-router": "^1.169.1",
     "solid-js": "^1.9.11",
     "temporal-polyfill": "^0.3.2"

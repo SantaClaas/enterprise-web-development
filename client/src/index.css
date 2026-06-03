@@ -1,5 +1,34 @@
 @import "tailwindcss";
 
+@plugin "@claas.dev/material-tailwind" {
+  source-color: #0c1aa5;
+}
+
 :root {
-  @apply bg-slate-200 text-slate-900;
+  @apply bg-surface text-on-surface;
+}
+
+/* Not using TSX components as these are supposed to be simple headless components and class merging requires JS to run while this can be done off-thread in CSS */
+@layer components {
+  /* @apply in components is afaik not best practice but the only way to get color variables from plugins as Tailwind CSS v4 does not create variables for those and has the same behavior as in v3 */
+  .text-field {
+    @apply relative block;
+
+    & span {
+      @apply text-on-surface-variant absolute top-1/2 left-4 -translate-y-1/2 transition-all;
+    }
+
+    &:focus-within span {
+      @apply text-body-sm bg-surface text-primary -top-0.5 left-3 px-1;
+    }
+
+    & input {
+      @apply border-outline rounded-extra-small focus-visible:outline-primary text-body-lg col-start-1 row-start-1 w-full border px-4 py-4 leading-6 focus-visible:outline-3;
+    }
+  }
+
+  /* TODO button states */
+  .button[data-variant="primary"] {
+    @apply bg-primary text-on-primary flex w-full items-center justify-center gap-2 rounded-full px-6 py-4;
+  }
 }
