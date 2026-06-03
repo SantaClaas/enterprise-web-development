@@ -1,4 +1,4 @@
-import { createContext, createSignal, useContext, type Accessor, type ParentProps } from "solid-js";
+import { createContext, useContext, type ParentProps } from "solid-js";
 
 async function getUser() {
   const response = await fetch("/api/user");

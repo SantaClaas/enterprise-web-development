@@ -28,6 +28,7 @@ function SignIn() {
 
   const navigate = useNavigate();
   const search = Route.useSearch();
+  const userContext = useUserContext();
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     console.debug("Signing in...");
@@ -63,17 +64,12 @@ function SignIn() {
       return;
     }
 
+    userContext.setIsSignedIn(true);
+
     const redirect = search().redirect;
 
+    console.debug("Login successful, redirecting to", redirect ?? "/");
     await navigate({ to: redirect ?? "/" });
-
-    console.debug("Login response", response, await response.json());
-
-    const getUsersResponse = await fetch("/api/users", {
-      method: "GET",
-    });
-
-    console.debug("Get users response", getUsersResponse, await getUsersResponse.json());
   }
 
   return (

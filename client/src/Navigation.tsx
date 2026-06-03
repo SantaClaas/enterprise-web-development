@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/solid-router";
+import type { JSX, VoidProps } from "solid-js";
 
 import Icon from "./Icon";
 
-export default function Navigation() {
+export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTMLElement>>) {
   return (
-    <nav class="row-start-2">
+    <nav {...properties}>
       <menu class="grid grid-cols-3 text-xs leading-4 font-medium">
         <li>
           <Link to="/times" class="group block py-1.5 text-center">
