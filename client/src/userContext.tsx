@@ -13,7 +13,9 @@ type Context = {
 
 let getIsSignedIn = getUser();
 const initialContext = {
-  getIsSignedIn,
+  get getIsSignedIn() {
+    return getIsSignedIn;
+  },
   setIsSignedIn(value: boolean) {
     getIsSignedIn = Promise.resolve(value);
   },
