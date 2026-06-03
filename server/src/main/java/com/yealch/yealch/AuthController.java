@@ -17,6 +17,7 @@ import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
 
+
 @RestController
 @RequestMapping("/api")
 public class AuthController {
@@ -31,10 +32,12 @@ public class AuthController {
     }
 
 
-    @PostMapping("/login")
-    public ResponseEntity<?> login(
+    @PostMapping("/sign-ins")
+    public ResponseEntity<?> createSignIn(
             // Setting required to false to return 401 instead of 400
             @RequestHeader(value = HttpHeaders.AUTHORIZATION, required = false) String authorizationHeader) {
+
+        logger.info("Received sign-in request");
         String base64Credentials = authorizationHeader.substring("Basic ".length());
         String credentials;
         try {
@@ -74,8 +77,9 @@ public class AuthController {
                 .build();
     }
 
-    @PostMapping("/logout")
-    public ResponseEntity<?> logout() {
+
+    @PostMapping("/sign-outs")
+    public ResponseEntity<?> createSignOut() {
         ResponseCookie cookie = ResponseCookie.from(JwtService.COOKIE_NAME, "")
                 .httpOnly(true)
                 .secure(false)

@@ -44,7 +44,7 @@ public class SecurityConfig {
                 .authenticationProvider(authenticationProvider)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/login", "/api/logout", "/h2-console/**", "/error").permitAll()
+                        .requestMatchers("/api/sign-ins", "/api/sign-outs", "/h2-console/**", "/error").permitAll()
                         .anyRequest().authenticated())
                 .headers(headers -> headers.frameOptions(frame -> frame.disable()))
                 .formLogin(form -> form.disable())
