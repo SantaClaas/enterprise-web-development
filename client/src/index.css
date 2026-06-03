@@ -17,6 +17,8 @@
 
   /* TODO button states */
   .button {
+    @apply text-center;
+
     &[data-variant="primary"] {
       @apply bg-primary text-on-primary flex items-center justify-center gap-2 rounded-full px-6 py-4;
     }
