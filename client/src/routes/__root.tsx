@@ -10,13 +10,12 @@ async function getUser() {
 const SIGN_IN = "/sign-in";
 const REGISTER = "/register";
 export const Route = createRootRoute({
-  beforeLoad({ location }) {
+  async beforeLoad({ location }) {
     getUser();
     if (location.pathname === SIGN_IN || location.pathname === REGISTER) return;
 
     const context = useUserContext();
-    console.debug("Checking if user is signed in", context.isSignedIn);
-    if (context.isSignedIn) return;
+    if (await context.getIsSignedIn) return;
 
     console.debug("User is not signed in, redirecting to login page", location.href);
     const search = { redirect: location.href === "/" ? undefined : location.href };

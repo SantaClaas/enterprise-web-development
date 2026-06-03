@@ -1,7 +1,8 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
+import { useUserContext } from "../userContext";
 
 export const Route = createFileRoute("/sign-in")({
   component: SignIn,
@@ -10,6 +11,15 @@ export const Route = createFileRoute("/sign-in")({
       redirect:
         typeof search.redirect === "string" && search.redirect ? search.redirect : undefined,
     };
+  },
+  async beforeLoad({ search }) {
+    const userContext = useUserContext();
+    if (await userContext.getIsSignedIn) {
+      console.debug("User is already signed in, redirecting to home page");
+      throw redirect({
+        to: search.redirect ?? "/",
+      });
+    }
   },
 });
 
@@ -98,6 +108,7 @@ function SignIn() {
             class="text-field mt-1 w-full"
           />
 
+          {/* TODO loading state */}
           <button type="submit" data-variant="primary" class="button mt-6 w-full">
             Sign in
           </button>
