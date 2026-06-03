@@ -12,19 +12,7 @@
 @layer components {
   /* @apply in components is afaik not best practice but the only way to get color variables from plugins as Tailwind CSS v4 does not create variables for those and has the same behavior as in v3 */
   .text-field {
-    @apply relative block;
-
-    & span {
-      @apply text-on-surface-variant absolute top-1/2 left-4 -translate-y-1/2 transition-all;
-    }
-
-    &:focus-within span {
-      @apply text-body-sm bg-surface text-primary -top-0.5 left-3 px-1;
-    }
-
-    & input {
-      @apply border-outline rounded-extra-small focus-visible:outline-primary text-body-lg col-start-1 row-start-1 w-full border px-4 py-4 leading-6 focus-visible:outline-3;
-    }
+    @apply border-outline rounded-extra-small focus-visible:outline-primary text-body-lg border px-4 py-4 leading-6 focus-visible:outline-3;
   }
 
   /* TODO button states */
