@@ -28,7 +28,7 @@ function Login() {
     const password = formData.get("password");
 
     const value = btoa(`${username}:${password}`);
-    const response = await fetch("/api/login", {
+    const response = await fetch("/api/sign-ins", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
