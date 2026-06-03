@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/solid-router";
+import { createFileRoute, Link } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
@@ -83,9 +83,9 @@ function SignIn() {
           <button type="submit" data-variant="primary" class="button mt-6 w-full">
             Sign in
           </button>
-          <button data-variant="text" class="button mt-4 w-full">
+          <Link to="/register" data-variant="text" class="button mt-4 w-full">
             Register
-          </button>
+          </Link>
         </form>
       </main>
     </Body>

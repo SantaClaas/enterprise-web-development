@@ -8,10 +8,11 @@ async function getUser() {
 }
 
 const SIGN_IN = "/sign-in";
+const REGISTER = "/register";
 export const Route = createRootRoute({
   beforeLoad({ location }) {
     getUser();
-    if (location.pathname === SIGN_IN) return;
+    if (location.pathname === SIGN_IN || location.pathname === REGISTER) return;
 
     const context = useUserContext();
     console.debug("Checking if user is signed in", context.isSignedIn);
