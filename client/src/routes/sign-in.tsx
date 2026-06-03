@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/solid-router";
+import { createSignal } from "solid-js";
 
 import Body from "../Body";
 
@@ -12,16 +13,30 @@ function SignIn() {
     console.debug("Signing in...");
 
     const form = event.currentTarget as HTMLFormElement;
-    const username = form.namedItem("username")?.value;
-    const password = form.namedItem("password")?.value;
+    const usernameInput = form.elements.namedItem("username") as HTMLInputElement;
+    const username = usernameInput.value;
+    const passwordInput = form.elements.namedItem("password") as HTMLInputElement;
+    const password = passwordInput.value;
     const value = btoa(`${username}:${password}`);
-    const response = await fetch("/api/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Basic ${value}`,
-      },
-    });
+    let response;
+    try {
+      response = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Basic ${value}`,
+        },
+      });
+    } catch (error) {
+      console.error("Login error", error);
+      setError("An error occurred connecting to the server. Please try again later.");
+      return;
+    }
+
+    if (response.status === 403) {
+      setError("Invalid username or password");
+      return;
+    }
 
     console.debug("Login response", response, await response.json());
 
@@ -31,11 +46,16 @@ function SignIn() {
 
     console.debug("Get users response", getUsersResponse, await getUsersResponse.json());
   }
+
+  const [error, setError] = createSignal<string | undefined>();
   return (
-    <Body class="h-dvh p-4 md:p-6">
+    <Body class="h-dvh p-6">
       <main class="grid h-full items-end">
-        <h1 class="text-center font-serif text-6xl font-black text-purple-900">Welcome</h1>
-        <form onSubmit={handleSubmit} class="rounded-3xl p-6 text-base leading-6">
+        <h1 class="text-primary text-display-lg text-center font-serif">Welcome</h1>
+        <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">
+          <p class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
+            {error()}
+          </p>
           <label for="username" class="text-label-lg block">
             Username
           </label>
@@ -60,19 +80,13 @@ function SignIn() {
             class="text-field mt-1 w-full"
           />
 
-          <button type="submit" class="button mt-6" data-variant="primary">
+          <button type="submit" data-variant="primary" class="button mt-6 w-full">
             Sign in
           </button>
-        </form>
-        {/* TODO: Button states styles */}
-        {/* <button
-            onClick={handleSignIn}
-            class="bg-primary text-on-primary mt-6 flex w-full items-center justify-center gap-2 rounded-full px-6 py-4"
-          >
-            <Icon class="fill-on-primary size-6" name="passkey" />
-            <span>Sign in with Passkey</span>
+          <button data-variant="text" class="button mt-4 w-full">
+            Register
           </button>
-          <button class="mt-4 block w-full px-6 py-4 text-purple-700">Register</button> */}
+        </form>
       </main>
     </Body>
   );
