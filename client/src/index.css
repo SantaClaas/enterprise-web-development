@@ -5,7 +5,7 @@
 }
 
 :root {
-  @apply bg-surface text-on-surface;
+  @apply bg-surface text-on-surface overscroll-none;
 }
 
 /* Not using TSX components as these are supposed to be simple headless components and class merging requires JS to run while this can be done off-thread in CSS */
@@ -17,7 +17,7 @@
 
   /* TODO button states */
   .button {
-    @apply text-center;
+    @apply cursor-default text-center;
 
     &[data-variant="primary"] {
       @apply bg-primary text-on-primary flex items-center justify-center gap-2 rounded-full px-6 py-4;

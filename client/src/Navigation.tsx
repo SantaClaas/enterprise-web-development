@@ -8,7 +8,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
     <nav {...properties}>
       <menu class="bg-surface-container text-on-surface-variant grid grid-cols-3 text-xs leading-4 font-medium">
         <li>
-          <Link to="/times" class="group block py-1.5 text-center">
+          <Link to="/times" class="group block cursor-default py-1.5 text-center">
             <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
               <Icon name="calendar-month" class="block size-6 group-[.active]:hidden" />
               <Icon name="calendar-month-filled" class="hidden size-6 group-[.active]:block" />
@@ -17,7 +17,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
           </Link>
         </li>
         <li>
-          <Link to="/projects" class="group block py-1.5 text-center">
+          <Link to="/projects" class="group block cursor-default py-1.5 text-center">
             {/* Any way to avoid drawing a box around the icon? */}
             <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
               <Icon
@@ -33,7 +33,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
           </Link>
         </li>
         <li>
-          <Link to="/organizations" class="group block py-1.5 text-center">
+          <Link to="/organizations" class="group block cursor-default py-1.5 text-center">
             <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
               <Icon
                 name="group"
