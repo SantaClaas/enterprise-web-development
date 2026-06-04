@@ -9,6 +9,8 @@ export const ICON_NAME = {
   ASSIGNMENT_FILLED: "assignment-filled",
   PASSKEY: "passkey",
   LOGOUT: "logout",
+  ADD: "add",
+  EDIT: "edit",
 } as const;
 
 type IconName = (typeof ICON_NAME)[keyof typeof ICON_NAME];
