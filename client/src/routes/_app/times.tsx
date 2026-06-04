@@ -5,5 +5,5 @@ export const Route = createFileRoute("/_app/times")({
 });
 
 function Times() {
-  return <main class="bg-slate-50"></main>;
+  return <main class="px-4"></main>;
 }
