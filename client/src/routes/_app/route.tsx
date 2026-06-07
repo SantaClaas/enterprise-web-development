@@ -9,6 +9,18 @@ export const Route = createFileRoute("/_app")({
   component: RouteComponent,
 });
 
+function FloatingActionButton() {
+  return (
+    <a
+      href="/times/new"
+      class="rounded-medium bg-primary text-on-primary focus-within:outline-primary absolute right-4 bottom-20 size-14 content-center justify-items-center outline-offset-4 focus:outline-none"
+    >
+      <span class="sr-only">Log time</span>
+      <Icon name="add" class="fill-on-primary size-6" />
+    </a>
+  );
+}
+
 function RouteComponent() {
   const userContext = useUserContext();
   const navigate = Route.useNavigate();
@@ -41,6 +53,7 @@ function RouteComponent() {
           <span class="sr-only">Sign out</span>
         </button>
       </header>
+      <FloatingActionButton />
       <Outlet />
     </Body>
   );
