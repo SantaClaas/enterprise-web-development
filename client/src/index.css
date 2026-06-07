@@ -25,5 +25,8 @@
     &[data-variant="text"] {
       @apply text-primary block px-6 py-4;
     }
+    &[data-variant="outlined"] {
+      @apply border-outline-variant text-on-surface-variant rounded-full border px-6 py-4;
+    }
   }
 }

@@ -11,6 +11,7 @@ export const ICON_NAME = {
   LOGOUT: "logout",
   ADD: "add",
   EDIT: "edit",
+  CLOSE: "close",
 } as const;
 
 type IconName = (typeof ICON_NAME)[keyof typeof ICON_NAME];

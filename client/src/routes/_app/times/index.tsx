@@ -1,9 +1,9 @@
 import { createFileRoute } from "@tanstack/solid-router";
 import type { VoidProps } from "solid-js";
 
-import Icon from "../../Icon";
+import Icon from "../../../Icon";
 
-export const Route = createFileRoute("/_app/times")({
+export const Route = createFileRoute("/_app/times/")({
   component: Times,
 });
 
@@ -70,7 +70,7 @@ function Day(properties: VoidProps<DayProperties>) {
 }
 function Times() {
   return (
-    <main class="relative grid h-min gap-y-4 px-4">
+    <main class="grid h-min gap-y-4 px-4">
       <Day day={Temporal.Now.plainDateISO()} />
       <Day day={Temporal.Now.plainDateISO().add({ days: 1 })} />
     </main>
