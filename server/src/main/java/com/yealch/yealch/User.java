@@ -1,6 +1,8 @@
 package com.yealch.yealch;
 
 import jakarta.persistence.*;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -17,6 +19,9 @@ public class User {
 
 	@Column(nullable = false)
 	private String password;
+
+	@ManyToMany(mappedBy = "users")
+	private Set<Organization> organizations = new HashSet<>();
 
 	public Long getId() {
 		return id;
