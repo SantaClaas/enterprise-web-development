@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/solid-router";
+import { createFileRoute, Link } from "@tanstack/solid-router";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
@@ -12,10 +12,10 @@ function RouteComponent() {
     <>
       <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
         <header class="bg-surface-container-high text-on-surface flex py-1">
-          <button class="p-4">
+          <Link to="/times" class="cursor-default p-4">
             <span class="sr-only">Discard</span>
             <Icon name="close" class="fill-on-surface size-6" />
-          </button>
+          </Link>
           <h1 class="text-title-lg content-center">Log new time</h1>
         </header>
         <main class="h-min">
@@ -59,9 +59,9 @@ function RouteComponent() {
           </form>
         </main>
         <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
-          <button data-variant="outlined" class="button">
+          <Link to="/times" data-variant="outlined" class="button">
             Cancel
-          </button>
+          </Link>
 
           <button type="submit" form="time" data-variant="primary" class="button">
             Save
