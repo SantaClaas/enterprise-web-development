@@ -52,8 +52,9 @@ function RouteComponent() {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        start: start.toString(),
-        end: end.toString(),
+        // Help poor Java parse the time by removing the time zone name
+        start: start.toString({ timeZoneName: "never" }),
+        end: end.toString({ timeZoneName: "never" }),
       }),
     });
 
