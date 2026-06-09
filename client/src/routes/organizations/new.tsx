@@ -1,73 +1,73 @@
-import { createFileRoute, Link } from "@tanstack/solid-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
+import { useUserContext } from "../../userContext";
 
 export const Route = createFileRoute("/organizations/new")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
+  const userContext = useUserContext();
+  const navigate = useNavigate();
+
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault();
+
+    const form = event.currentTarget as HTMLFormElement;
+    const nameInput = form.elements.namedItem("name") as HTMLInputElement;
+    const name = nameInput.value;
+
+    const userId = await userContext.getUserId;
+    //TODO change the endpoint to just accept text/plain with the new organization name as that is all that is required
+    const response = await fetch(`/api/users/${userId}/organizations`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name,
+      }),
+    });
+
+    if (!response.ok) {
+      // TODO error handling
+      console.error("Error creating organization", await response.text());
+      return;
+    }
+
+    navigate({ to: "/organizations" });
+  }
+
   return (
-    <>
-      <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
-        <header class="bg-surface-container-high text-on-surface flex py-1">
-          <Link to="/times" class="cursor-default p-4">
-            <span class="sr-only">Discard</span>
-            <Icon name="close" class="fill-on-surface size-6" />
-          </Link>
-          <h1 class="text-title-lg content-center">Log new time</h1>
-        </header>
-        <main class="h-min">
-          <form id="time" class="grid h-full grid-cols-2 gap-x-4 p-6">
-            {/* TODO same day toggle */}
-            {/* TODO form validation start < end */}
-            <label for="date" class="text-label-lg text-on-surface-variant col-span-2 block">
-              Date
-            </label>
-            <input
-              type="date"
-              id="date"
-              name="date"
-              value={Temporal.Now.plainDateISO().toString()}
-              required
-              class="text-field col-span-2 mt-1 w-full"
-            />
+    <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
+      <header class="bg-surface-container-high text-on-surface flex py-1">
+        <Link to="/organizations" class="cursor-default p-4">
+          <span class="sr-only">Discard</span>
+          <Icon name="close" class="fill-on-surface size-6" />
+        </Link>
+        <h1 class="text-title-lg content-center">New Organization</h1>
+      </header>
+      <main class="h-min">
+        <form id="organization" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
+          {/* TODO same day toggle */}
+          {/* TODO form validation start < end */}
+          <label for="name" class="text-label-lg text-on-surface-variant col-span-2 block">
+            Name
+          </label>
+          <input type="text" id="name" required class="text-field col-span-2 mt-1 w-full" />
+        </form>
+      </main>
+      <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
+        <Link to="/organizations" data-variant="outlined" class="button">
+          Cancel
+        </Link>
 
-            <label for="start" class="text-label-lg text-on-surface-variant row-start-3 mt-4 block">
-              Start
-            </label>
-            <input
-              type="time"
-              id="start"
-              name="start"
-              required
-              class="text-field row-start-4 mt-1 w-full"
-            />
-
-            <label for="end" class="text-label-lg text-on-surface-variant row-start-3 mt-4 block">
-              End
-            </label>
-            <input
-              type="time"
-              id="end"
-              name="end"
-              required
-              value={Temporal.Now.plainTimeISO().toString().substring(0, 5)}
-              class="text-field row-start-4 mt-1 w-full"
-            />
-          </form>
-        </main>
-        <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
-          <Link to="/times" data-variant="outlined" class="button">
-            Cancel
-          </Link>
-
-          <button type="submit" form="time" data-variant="primary" class="button">
-            Save
-          </button>
-        </footer>
-      </Body>
-    </>
+        <button type="submit" form="organization" data-variant="primary" class="button">
+          Create
+        </button>
+      </footer>
+    </Body>
   );
 }
