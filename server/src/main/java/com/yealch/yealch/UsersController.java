@@ -299,4 +299,28 @@ public class UsersController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(Map.of("error", "user not found")));
     }
+
+    /** Creates a new organization with this user in it */
+    @PostMapping("/api/users/{userId}/organizations")
+    public ResponseEntity<?> createOrganizationForUser(@PathVariable Long userId,
+            @RequestBody Map<String, String> request) {
+        // TODO check on authorization if the user id is the same user that sends the
+        // request
+
+        String organizationName = request.get("name");
+        if (organizationName == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "organization name is required"));
+        }
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> {
+                    Organization organization = new Organization();
+                    organization.setName(organizationName);
+                    organization.addMember(user);
+                    organizationRepository.save(organization);
+
+                    return ResponseEntity.status(HttpStatus.CREATED).build();
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
 }

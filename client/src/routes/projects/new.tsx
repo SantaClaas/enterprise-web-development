@@ -42,7 +42,6 @@ function RouteComponent() {
       return;
     }
 
-    // TODO navigate to project page
     navigate({ to: "/projects" });
   }
 
