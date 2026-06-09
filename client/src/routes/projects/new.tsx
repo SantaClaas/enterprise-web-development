@@ -25,6 +25,7 @@ function RouteComponent() {
     const organizationId = organizationSelect.value;
 
     const userId = await userContext.getUserId;
+    //TODO change the endpoint to just accept text/plain with the new project name as that is all that is required
     const response = await fetch(`/api/users/${userId}/organizations/${organizationId}/projects`, {
       method: "POST",
       headers: {
