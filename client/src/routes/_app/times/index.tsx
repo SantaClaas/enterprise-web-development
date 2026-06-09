@@ -29,13 +29,16 @@ export const Route = createFileRoute("/_app/times/")({
     }
 
     const timeZone = Temporal.Now.timeZoneId();
-    const timesByDate = Object.groupBy(times, (time) => {
+    const timesByDate = Map.groupBy(times, (time) => {
       return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
     });
 
-    return Object.entries(timesByDate).map(([day, times]) => {
-      return [Temporal.PlainDate.from(day), times] as const;
-    });
+    return timesByDate
+      .entries()
+      .map(([day, times]) => {
+        return [Temporal.PlainDate.from(day), times] as const;
+      })
+      .toArray();
   },
 });
 
