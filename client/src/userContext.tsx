@@ -1,5 +1,7 @@
 import { createContext, createResource, useContext, type ParentProps } from "solid-js";
 
+import type { UserId } from "./branded";
+
 async function getUserId() {
   const response = await fetch("/api/users/current/id");
   if (!response.ok)
@@ -10,11 +12,10 @@ async function getUserId() {
   return userId as UserId;
 }
 
-type UserId = string & { __brand: "UserId" };
-
 type Context = {
   getUserId: Promise<UserId | undefined>;
   refresh(): Promise<UserId | undefined>;
+  clear(): void;
 };
 
 let getUserIdFetch = getUserId();
@@ -24,6 +25,9 @@ const initialContext = {
   },
   refresh(): Promise<UserId | undefined> {
     return (getUserIdFetch = getUserId());
+  },
+  clear() {
+    getUserIdFetch = Promise.resolve(undefined);
   },
 };
 const context = createContext<Context>(initialContext);

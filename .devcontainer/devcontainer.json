@@ -17,7 +17,8 @@
 		"vscode": {
 			"extensions": [
 				"oxc.oxc-vscode",
-				"bradlc.vscode-tailwindcss"
+				"bradlc.vscode-tailwindcss",
+				"tekumara.typos-vscode"
 			]
 		}
 	}
