@@ -27,6 +27,20 @@ public class User {
 		return id;
 	}
 
+	public Set<Organization> getOrganizations() {
+		return organizations;
+	}
+
+	public void addOrganization(Organization organization) {
+		organizations.add(organization);
+		organization.getUsers().add(this);
+	}
+
+	public void removeOrganization(Organization organization) {
+		organizations.remove(organization);
+		organization.getUsers().remove(this);
+	}
+
 	public String getName() {
 		return name;
 	}

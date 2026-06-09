@@ -17,15 +17,15 @@ public class Time {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(name = "start_time", nullable = false)
     private OffsetDateTime start;
 
-    @Column(nullable = false)
+    @Column(name = "end_time", nullable = false)
     private OffsetDateTime end;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
-    private Organization project;
+    private Project project;
 
     @Column(name = "project_id", insertable = false, updatable = false)
     private Long projectId;

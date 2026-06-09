@@ -14,7 +14,7 @@ export const Route = createFileRoute("/sign-in")({
   },
   async beforeLoad({ search }) {
     const userContext = useUserContext();
-    if (await userContext.getIsSignedIn) {
+    if (await userContext.getUserId) {
       console.debug("User is already signed in, redirecting to home page");
       throw redirect({
         to: search.redirect ?? "/",
@@ -48,7 +48,7 @@ function SignIn() {
         },
       });
     } catch (error) {
-      console.error("Login error", error);
+      console.error("Sign in error", error);
       setError("An error occurred connecting to the server. Please try again later.");
       return;
     }
@@ -59,16 +59,20 @@ function SignIn() {
     }
 
     if (!response.ok) {
-      console.error("Login failed", response);
+      console.error("Sign in failed", response);
       setError("An error occurred signing in. Please try again.");
       return;
     }
 
-    userContext.setIsSignedIn(true);
+    // Could probably be optimized by having the server return the user ID in the sign-in response, but this is fine for now
+    const userId = await userContext.refresh();
+    if (userId === undefined) {
+      throw new Error("Could not get user id of signed in user after successful sign in");
+    }
 
     const redirect = search().redirect;
 
-    console.debug("Login successful, redirecting to", redirect ?? "/");
+    console.debug("Sign in successful, redirecting to", redirect ?? "/");
     await navigate({ to: redirect ?? "/" });
   }
 

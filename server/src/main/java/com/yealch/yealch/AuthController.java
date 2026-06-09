@@ -9,14 +9,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
 import java.util.Map;
-
 
 @RestController
 @RequestMapping("/api")
@@ -30,7 +28,6 @@ public class AuthController {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
     }
-
 
     @PostMapping("/sign-ins")
     public ResponseEntity<?> createSignIn(
@@ -58,7 +55,7 @@ public class AuthController {
 
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
-        User userDetails = (User) authentication.getPrincipal();
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
 
         String token = jwtService.generateToken(userDetails);
         ResponseCookie cookie = ResponseCookie.from(JwtService.COOKIE_NAME, token)
@@ -76,7 +73,6 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .build();
     }
-
 
     @PostMapping("/sign-outs")
     public ResponseEntity<?> createSignOut() {

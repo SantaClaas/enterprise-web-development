@@ -3,6 +3,7 @@ import { createFileRoute, Outlet } from "@tanstack/solid-router";
 import Body from "../../Body";
 import Icon from "../../Icon";
 import Navigation from "../../Navigation";
+import { useTitle } from "../../Title";
 import { useUserContext } from "../../userContext";
 
 export const Route = createFileRoute("/_app")({
@@ -35,15 +36,19 @@ function RouteComponent() {
       return;
     }
 
-    userContext.setIsSignedIn(false);
+    userContext.setUserId(false);
     await navigate({ to: "/sign-in", search: { redirect: window.location.href } });
   }
+
+  const title = useTitle();
 
   return (
     <Body class="grid h-dvh grid-rows-[auto_1fr_auto]">
       <Navigation class="row-start-3" />
       <header class="grid grid-cols-[3rem_1fr_3rem] gap-1 px-1 py-2">
-        <h1 class="text-title-lg text-on-surface col-start-2 content-center text-center">Times</h1>
+        <h1 class="text-title-lg text-on-surface col-start-2 content-center text-center">
+          {title()}
+        </h1>
         {/* Before element used to guarantee minimum touch target size on coarse pointer devices */}
         <button
           onClick={handleSignOut}

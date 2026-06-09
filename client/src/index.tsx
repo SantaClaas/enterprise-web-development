@@ -4,6 +4,7 @@ import { createRouter, RouterProvider } from "@tanstack/solid-router";
 import { render } from "solid-js/web";
 
 import { routeTree } from "./routeTree.gen";
+import { TitleProvider } from "./Title";
 import { UserContextProvider } from "./userContext";
 
 // Keep polyfill out of the bundle. You can see this as vite generates two js bundles, one with only the polyfill and one without.
@@ -32,9 +33,11 @@ declare module "@tanstack/solid-router" {
 
 render(
   () => (
-    <UserContextProvider>
-      <RouterProvider router={router} />
-    </UserContextProvider>
+    <TitleProvider>
+      <UserContextProvider>
+        <RouterProvider router={router} />
+      </UserContextProvider>
+    </TitleProvider>
   ),
   document.body,
 );

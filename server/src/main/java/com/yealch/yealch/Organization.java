@@ -26,4 +26,30 @@ public class Organization {
     @JoinTable(name = "organization_users", joinColumns = @JoinColumn(name = "organization_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
     private Set<User> users = new HashSet<>();
 
+    public Long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Set<User> getUsers() {
+        return users;
+    }
+
+    public void addUser(User user) {
+        users.add(user);
+        user.getOrganizations().add(this);
+    }
+
+    public void removeUser(User user) {
+        users.remove(user);
+        user.getOrganizations().remove(this);
+    }
+
 }
