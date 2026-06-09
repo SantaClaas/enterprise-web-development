@@ -29,4 +29,37 @@ public class Time {
 
     @Column(name = "project_id", insertable = false, updatable = false)
     private Long projectId;
+
+    public Long getId() {
+        return id;
+    }
+
+    public OffsetDateTime getStart() {
+        return start;
+    }
+
+    public void setStart(OffsetDateTime start) {
+        this.start = start;
+    }
+
+    public OffsetDateTime getEnd() {
+        return end;
+    }
+
+    public void setEnd(OffsetDateTime end) {
+        this.end = end;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
+        this.projectId = project == null ? null : project.getId();
+    }
+
+    public Long getProjectId() {
+        return projectId;
+    }
 }
