@@ -1,5 +1,5 @@
-import { createFileRoute, redirect } from "@tanstack/solid-router";
-import { createResource } from "solid-js";
+import { createFileRoute } from "@tanstack/solid-router";
+import { createResource, For, type VoidProps } from "solid-js";
 
 import { Title } from "../../Title";
 import { useUserContext } from "../../userContext";
@@ -13,6 +13,21 @@ type Organization = {
   id: OrganizationId;
   name: string;
 };
+
+function Card(properties: VoidProps<{ organization: Organization }>) {
+  return (
+    <li class="contents">
+      {/* TODO accessbility, the whole content should not be wrapped in a link as that messes withs screen readers */}
+      <a
+        href={`/organizations/${properties.organization.id}`}
+        class="bg-surface-container rounded-large block p-4"
+      >
+        <span class="sr-only">Open</span>
+        {properties.organization.name}
+      </a>
+    </li>
+  );
+}
 
 function Organizations() {
   const userContext = useUserContext();
@@ -32,7 +47,14 @@ function Organizations() {
   return (
     <>
       <Title>Organizations</Title>
-      <main class="bg-slate-50"></main>
+      {/* TODO overflow, pagination, scrolling */}
+      <main class="text-title-lg px-6">
+        <ul>
+          <For each={organizations()} fallback={<p>Loading organizations...</p>}>
+            {(organization) => <Card organization={organization} />}
+          </For>
+        </ul>
+      </main>
     </>
   );
 }
