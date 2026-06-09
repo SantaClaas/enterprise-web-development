@@ -13,6 +13,7 @@ export const ICON_ID = {
   EDIT: "edit",
   CLOSE: "close",
   ARROW_BACK: "arrow-back",
+  OPEN_IN_NEW_WINDOW: "open-in-new-window",
 } as const;
 
 export type IconId = (typeof ICON_ID)[keyof typeof ICON_ID];

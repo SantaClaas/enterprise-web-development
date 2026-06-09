@@ -11,15 +11,21 @@ export const Route = createFileRoute("/_app/organizations/")({
 
 function Card(properties: VoidProps<{ organization: Organization }>) {
   return (
-    <li class="contents">
+    <li class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4">
+      <span class="ps-3">{properties.organization.name}</span>
       {/* TODO accessibility, the whole content should not be wrapped in a link as that messes withs screen readers */}
-      <Link
-        to="/organizations/$id/members"
-        params={{ id: properties.organization.id }}
-        class="bg-surface-container rounded-large block p-4"
-      >
-        <span class="sr-only">Open</span> {properties.organization.name}
+      <Link to="/organizations/$id/members" params={{ id: properties.organization.id }} class="p-3">
+        <span class="sr-only">Open</span>
+        <Icon name="open-in-new-window" class="fill-on-surface size-6" />
       </Link>
+      <button class="p-3">
+        <span class="sr-only">Edit</span>
+        <Icon name="edit" class="fill-on-surface size-6" />
+      </button>
+      <button class="p-3">
+        <span class="sr-only">Delete</span>
+        <Icon name="close" class="fill-on-surface size-6" />
+      </button>
     </li>
   );
 }
@@ -35,7 +41,7 @@ function Organizations() {
       </Link>
       {/* TODO overflow, pagination, scrolling */}
       <main class="text-title-lg px-6">
-        <ul>
+        <ul class="grid grid-cols-[1fr_auto_auto_auto]">
           <For each={organizations()} fallback={<p>Loading organizations...</p>}>
             {(organization) => <Card organization={organization} />}
           </For>
