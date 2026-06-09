@@ -14,9 +14,11 @@ import java.util.Map;
 public class UsersController {
 
     private final UserRepository userRepository;
+    private final OrganizationRepository organizationRepository;
 
-    public UsersController(UserRepository userRepository) {
+    public UsersController(UserRepository userRepository, OrganizationRepository organizationRepository) {
         this.userRepository = userRepository;
+        this.organizationRepository = organizationRepository;
     }
 
     /**
@@ -70,4 +72,34 @@ public class UsersController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
     }
 
+    record GetUserOrganizationsResponse(Long id, String name) {
+    }
+
+    @GetMapping("/api/users/{userId}/organizations")
+    public ResponseEntity<?> getUserOrganizations(@PathVariable Long userId) {
+        // Controversal opinions:
+        // - The concept of controllers makes little sense when you
+        // start cross-cutting concerns and
+        // suddenly need repositories in the users controller that have nothing to do
+        // with users.
+        // - The "Get or create" pattern can be implemented in many SQL dialects with
+        // just one query but ORMs
+        // need to do at least two to achieve this. This is another reason I prefer to
+        // not use ORMs outside of this project
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> {
+                    if (user.getOrganizations().isEmpty()) {
+                        Organization defaultOrganization = new Organization();
+                        defaultOrganization.setName("Default");
+                        defaultOrganization.addUser(user);
+                        organizationRepository.save(defaultOrganization);
+                    }
+
+                    return ResponseEntity.ok(user.getOrganizations().stream()
+                            .map(org -> new GetUserOrganizationsResponse(org.getId(), org.getName()))
+                            .toList());
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
 }
