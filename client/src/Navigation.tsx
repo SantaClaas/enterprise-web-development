@@ -44,7 +44,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
                 class="hidden size-6 fill-slate-950 group-[.active]:block"
               />
             </div>
-            <span class="mt-1 block">Organization</span>
+            <span class="mt-1 block">Organizations</span>
           </Link>
         </li>
       </menu>

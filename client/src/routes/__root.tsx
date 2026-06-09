@@ -2,20 +2,14 @@ import { createRootRoute, redirect } from "@tanstack/solid-router";
 
 import { useUserContext } from "../userContext";
 
-async function getUser() {
-  const response = await fetch("/api/user");
-  console.debug("User response", response);
-}
-
 const SIGN_IN = "/sign-in";
 const REGISTER = "/register";
 export const Route = createRootRoute({
   async beforeLoad({ location }) {
-    getUser();
     if (location.pathname === SIGN_IN || location.pathname === REGISTER) return;
 
     const context = useUserContext();
-    if (await context.getIsSignedIn) return;
+    if (await context.getUserId) return;
 
     console.debug("User is not signed in, redirecting to login page", location.href);
     const search = { redirect: location.href === "/" ? undefined : location.href };

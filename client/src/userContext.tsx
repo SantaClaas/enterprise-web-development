@@ -1,28 +1,35 @@
-import { createContext, useContext, type ParentProps } from "solid-js";
+import { createContext, createResource, useContext, type ParentProps } from "solid-js";
 
-async function getUser() {
-  const response = await fetch("/api/user");
+async function getUserId() {
+  const response = await fetch("/api/users/current/id");
+  if (!response.ok)
+    // throw new Error(`Error fetching current user ID: ${response.status} ${await response.text()}`);
+    return undefined;
 
-  return response.ok;
+  const userId = await response.text();
+  return userId as UserId;
 }
 
+type UserId = string & { __brand: "UserId" };
+
 type Context = {
-  getIsSignedIn: Promise<boolean>;
-  setIsSignedIn(value: boolean): void;
+  getUserId: Promise<UserId | undefined>;
+  refresh(): Promise<UserId | undefined>;
 };
 
-let getIsSignedIn = getUser();
+let getUserIdFetch = getUserId();
 const initialContext = {
-  get getIsSignedIn() {
-    return getIsSignedIn;
+  get getUserId() {
+    return getUserIdFetch;
   },
-  setIsSignedIn(value: boolean) {
-    getIsSignedIn = Promise.resolve(value);
+  refresh(): Promise<UserId | undefined> {
+    return (getUserIdFetch = getUserId());
   },
 };
 const context = createContext<Context>(initialContext);
 
 export function UserContextProvider(properties: ParentProps<{}>) {
+  const [userId] = createResource(getUserId);
   return <context.Provider value={initialContext}>{properties.children}</context.Provider>;
 }
 
