@@ -20,7 +20,7 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 
-	@ManyToMany(mappedBy = "users")
+	@ManyToMany(mappedBy = "members")
 	private Set<Organization> organizations = new HashSet<>();
 
 	public Long getId() {

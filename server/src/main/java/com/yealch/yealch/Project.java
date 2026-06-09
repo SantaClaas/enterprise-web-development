@@ -26,9 +26,25 @@ public class Project {
     private List<Time> times = new ArrayList<>();
 
     @ManyToOne
-    @JoinColumn(name = "owner_id", nullable = false)
-    private User owner;
+    @JoinColumn(name = "organization_id", nullable = false)
+    private Organization organization;
 
-    @Column(name = "owner_id", insertable = false, updatable = false)
-    private Long ownerId;
+    @Column(name = "organization_id", insertable = false, updatable = false)
+    private Long organizationId;
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
+    public long getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
 }
