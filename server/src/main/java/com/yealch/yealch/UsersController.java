@@ -8,6 +8,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 
 @RestController
@@ -169,5 +172,27 @@ public class UsersController {
                     return ResponseEntity.status(HttpStatus.CREATED).build();
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
+
+    /** Creates a new time entry for a user on a project */
+    @PostMapping("/api/users/{userId}/projects/{projectId}/times")
+    public ResponseEntity<?> createTimeEntry(@PathVariable Long userId, @PathVariable Long projectId,
+            @RequestBody Map<String, String> request) {
+
+        // Parse start and end
+        String startString = request.get("start");
+        String endString = request.get("end");
+        OffsetDateTime start;
+        OffsetDateTime end;
+        try {
+            start = OffsetDateTime.parse(startString);
+            end = OffsetDateTime.parse(endString);
+        } catch (DateTimeParseException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error",
+                            "invalid start or end format, expected ISO 8601 format with timezone offset"));
+        }
+
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 }
