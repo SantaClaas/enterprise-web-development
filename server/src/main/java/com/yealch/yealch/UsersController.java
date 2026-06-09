@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -30,6 +31,18 @@ public class UsersController {
         this.timeRepository = timeRepository;
     }
 
+    static Optional<Long> getUserId(Authentication authentication) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return Optional.empty();
+        }
+
+        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
+            return Optional.of(userDetails.getId());
+        }
+
+        return Optional.empty();
+    }
+
     /**
      * Gets the current user id if authenticated. Used to inspect indirectly whether
      * a
@@ -38,15 +51,13 @@ public class UsersController {
      */
     @GetMapping("/api/users/current/id")
     public ResponseEntity<?> getCurrentUserId(Authentication authentication) {
-        if (authentication == null || !authentication.isAuthenticated()) {
+
+        Optional<Long> userId = getUserId(authentication);
+        if (userId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        if (authentication.getPrincipal() instanceof CustomUserDetails userDetails) {
-            return ResponseEntity.ok(userDetails.getId().toString());
-        }
-
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        return ResponseEntity.ok(userId.get().toString());
     }
 
     record CreateUserRequest(String name, String username, String password) {
@@ -239,35 +250,6 @@ public class UsersController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
 
     }
-
-    // @GetMapping("/api/users/{userId}/times")
-    // public ResponseEntity<?> getUserTimeEntries(@PathVariable Long userId) {
-    // return userRepository.findById(userId)
-    // .<ResponseEntity<?>>map(user -> ResponseEntity.ok(
-    // timeRepository.findAll().stream()
-    // .filter(time -> {
-    // Project project = time.getProject();
-    // if (project == null) {
-    // return false;
-    // }
-    // Organization organization = project.getOrganization();
-    // if (organization == null) {
-    // return false;
-    // }
-    // return organization.getMembers().contains(user);
-    // })
-    // .map(time -> Map.of(
-    // "id", time.getId(),
-    // "start", time.getStart().toString(),
-    // "end", time.getEnd().toString(),
-    // "project", Map.of(
-    // "id", time.getProject().getId(),
-    // "name", time.getProject().getName(),
-    // "organization", Map.of(
-    // "id", time.getProject().getOrganization().getId(),
-    // "name", time.getProject().getOrganization().getName()))))
-    // .toList()));
-    // }
 
     @GetMapping("/api/users/{userId}/times")
     public ResponseEntity<?> getUserTimeEntries(@PathVariable Long userId) {
