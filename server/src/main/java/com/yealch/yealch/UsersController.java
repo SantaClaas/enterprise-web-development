@@ -18,10 +18,15 @@ public class UsersController {
 
     private final UserRepository userRepository;
     private final OrganizationRepository organizationRepository;
+    private final ProjectRepository projectRepository;
+    private final TimeRepository timeRepository;
 
-    public UsersController(UserRepository userRepository, OrganizationRepository organizationRepository) {
+    public UsersController(UserRepository userRepository, OrganizationRepository organizationRepository,
+            ProjectRepository projectRepository, TimeRepository timeRepository) {
         this.userRepository = userRepository;
         this.organizationRepository = organizationRepository;
+        this.projectRepository = projectRepository;
+        this.timeRepository = timeRepository;
     }
 
     /**
@@ -179,7 +184,11 @@ public class UsersController {
     public ResponseEntity<?> createTimeEntry(@PathVariable Long userId, @PathVariable Long projectId,
             @RequestBody Map<String, String> request) {
 
-        // Parse start and end
+        if (request == null || request.get("start") == null || request.get("end") == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "start and end are required"));
+        }
+
         String startString = request.get("start");
         String endString = request.get("end");
         OffsetDateTime start;
@@ -193,6 +202,40 @@ public class UsersController {
                             "invalid start or end format, expected ISO 8601 format with timezone offset"));
         }
 
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        if (!start.isBefore(end)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "start must be before end"));
+        }
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> projectRepository.findById(projectId)
+                        .<ResponseEntity<?>>map(project -> {
+                            Organization organization = project.getOrganization();
+                            if (organization == null || !organization.getMembers().contains(user)) {
+                                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                        .body(Map.of("error", "project not found or user is not a member"));
+                            }
+
+                            Time time = new Time();
+                            time.setStart(start);
+                            time.setEnd(end);
+                            time.setProject(project);
+                            timeRepository.save(time);
+
+                            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
+                                    "id", time.getId(),
+                                    "start", time.getStart().toString(),
+                                    "end", time.getEnd().toString(),
+                                    "project", Map.of(
+                                            "id", project.getId(),
+                                            "name", project.getName(),
+                                            "organization", Map.of(
+                                                    "id", organization.getId(),
+                                                    "name", organization.getName()))));
+                        })
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(Map.of("error", "project not found"))))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+
     }
 }

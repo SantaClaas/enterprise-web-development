@@ -47,4 +47,8 @@ public class Project {
     public String getName() {
         return name;
     }
+
+    public Organization getOrganization() {
+        return organization;
+    }
 }

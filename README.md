@@ -8,6 +8,8 @@
 mvn spring-boot:run
 ```
 
+<!-- Compile is mvn compile? -->
+
 or
 
 ```bash
