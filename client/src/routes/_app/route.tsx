@@ -32,7 +32,7 @@ function RouteComponent() {
   const title = useTitle();
 
   return (
-    <Body class="grid h-dvh grid-rows-[auto_1fr_auto]">
+    <Body class="relative grid h-dvh grid-rows-[auto_1fr_auto]">
       <Navigation class="row-start-3" />
       <TopAppBar
         title={title()}

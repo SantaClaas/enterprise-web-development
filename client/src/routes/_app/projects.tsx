@@ -25,7 +25,7 @@ function Projects() {
       <Title title="Projects" />
       <main>
         <main class="text-title-lg px-6">
-          <ul class="mt-6 flex flex-col gap-4">
+          <ul class="flex flex-col gap-4">
             <For each={projects()} fallback={<p>Loading projects...</p>}>
               {(project) => <Card project={project} />}
             </For>
