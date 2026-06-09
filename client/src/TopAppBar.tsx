@@ -12,7 +12,7 @@ export type ActionButtonProperties = JSX.ButtonHTMLAttributes<HTMLButtonElement>
 };
 
 /**
- * @deprecated use the CSS class "action-button" instead as it does not require JS to overwrite CSS
+ * @deprecated use the CSS component class "action-button" instead as it does not require JS to overwrite CSS
  * classes and uses CSS layering instead
  */
 export function ActionButton(properties: VoidProps<ActionButtonProperties>) {

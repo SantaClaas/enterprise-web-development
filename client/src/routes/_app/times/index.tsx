@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/solid-router";
+import { createFileRoute, Link } from "@tanstack/solid-router";
 import type { VoidProps } from "solid-js";
 
 import Icon from "../../../Icon";
@@ -19,6 +19,10 @@ const dayFormatter = new Intl.DateTimeFormat(undefined, { weekday: "long" });
 function Day(properties: VoidProps<DayProperties>) {
   return (
     <>
+      <Link to="/times/new" class="floating-action-button bottom-22">
+        <span class="sr-only">Log time</span>
+        <Icon name="add" class="fill-on-primary size-6" />
+      </Link>
       <section
         data-is-today={properties.day.equals(today) ? "" : undefined}
         class="bg-surface-container data-is-today:bg-primary-container text-on-surface data-is-primary:text-on-primary-container rounded-large relative grid grid-cols-[1fr_1fr_auto] gap-2 p-4"
@@ -74,7 +78,7 @@ function Day(properties: VoidProps<DayProperties>) {
 function Times() {
   return (
     <>
-      <Title>Times</Title>
+      <Title title="Times" />
       <main class="grid h-min gap-y-4 px-4">
         <Day day={Temporal.Now.plainDateISO()} />
         <Day day={Temporal.Now.plainDateISO().add({ days: 1 })} />

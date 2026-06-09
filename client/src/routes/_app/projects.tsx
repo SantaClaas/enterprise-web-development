@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/solid-router";
+import { createFileRoute, Link } from "@tanstack/solid-router";
 import { createResource, For, type VoidProps } from "solid-js";
 
 import type { ProjectId } from "../../branded";
+import Icon from "../../Icon";
 import { Title } from "../../Title";
 import { useUserContext } from "../../userContext";
 
@@ -33,6 +34,10 @@ function Projects() {
 
   return (
     <>
+      <Link to="/projects/new" class="floating-action-button bottom-22">
+        <span class="sr-only">Create project</span>
+        <Icon name="add" class="fill-on-primary size-6" />
+      </Link>
       <Title title="Projects" />
       <main class="bg-slate-50">
         <main class="text-title-lg px-6">

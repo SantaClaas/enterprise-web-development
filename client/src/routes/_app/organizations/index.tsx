@@ -1,18 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { createResource, For, type VoidProps } from "solid-js";
+import { For, type VoidProps } from "solid-js";
 
+import Icon from "../../../Icon";
 import { Title } from "../../../Title";
-import { useUserContext } from "../../../userContext";
+import { useOrganizations, type Organization } from "../../../useOrganizations";
 
 export const Route = createFileRoute("/_app/organizations/")({
   component: Organizations,
 });
-
-type OrganizationId = string & { __brand: "OrganizationId" };
-type Organization = {
-  id: OrganizationId;
-  name: string;
-};
 
 function Card(properties: VoidProps<{ organization: Organization }>) {
   return (
@@ -30,23 +25,14 @@ function Card(properties: VoidProps<{ organization: Organization }>) {
 }
 
 function Organizations() {
-  const userContext = useUserContext();
-
-  const [organizations] = createResource(async () => {
-    const userId = await userContext.getUserId;
-
-    const response = await fetch(`/api/users/${userId}/organizations`, {
-      method: "GET",
-    });
-
-    if (!response.ok)
-      throw new Error(`Error fetching organizations: ${response.status} ${await response.text()}`);
-
-    return (await response.json()) as Organization[];
-  });
+  const organizations = useOrganizations();
   return (
     <>
-      <Title title="Organizations"></Title>
+      <Title title="Organizations" />
+      <Link to="/organizations/new" class="floating-action-button bottom-22">
+        <span class="sr-only">Create organization</span>
+        <Icon name="add" class="fill-on-primary size-6" />
+      </Link>
       {/* TODO overflow, pagination, scrolling */}
       <main class="text-title-lg px-6">
         <ul>

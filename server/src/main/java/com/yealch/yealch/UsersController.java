@@ -141,4 +141,33 @@ public class UsersController {
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
     }
+
+    /**
+     * Creates a new project for a user within a specific organization.
+     */
+    @PostMapping("/api/users/{userId}/organizations/{organizationId}/projects")
+    public ResponseEntity<?> createProjectForUser(@PathVariable Long userId, @PathVariable Long organizationId,
+            @RequestBody Map<String, String> request) {
+        String projectName = request.get("name");
+        if (projectName == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "project name is required"));
+        }
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> {
+                    Organization organization = organizationRepository.findById(organizationId).orElse(null);
+                    if (organization == null || !organization.getMembers().contains(user)) {
+                        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(Map.of("error", "organization not found or user is not a member"));
+                    }
+
+                    Project project = new Project();
+                    project.setName(projectName);
+                    organization.addProject(project);
+                    organizationRepository.save(organization);
+
+                    return ResponseEntity.status(HttpStatus.CREATED).build();
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
 }

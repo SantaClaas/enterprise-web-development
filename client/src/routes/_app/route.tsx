@@ -1,7 +1,6 @@
 import { createFileRoute, Outlet } from "@tanstack/solid-router";
 
 import Body from "../../Body";
-import Icon from "../../Icon";
 import Navigation from "../../Navigation";
 import { useTitle } from "../../Title";
 import { ActionButton, TopAppBar } from "../../TopAppBar";
@@ -10,18 +9,6 @@ import { useUserContext } from "../../userContext";
 export const Route = createFileRoute("/_app")({
   component: RouteComponent,
 });
-
-function FloatingActionButton() {
-  return (
-    <a
-      href="/times/new"
-      class="rounded-medium bg-primary text-on-primary focus-within:outline-primary absolute right-6 bottom-22 size-14 cursor-default content-center justify-items-center outline-offset-4 focus:outline-none"
-    >
-      <span class="sr-only">Log time</span>
-      <Icon name="add" class="fill-on-primary size-6" />
-    </a>
-  );
-}
 
 function RouteComponent() {
   const userContext = useUserContext();
@@ -57,7 +44,6 @@ function RouteComponent() {
           />
         }
       />
-      <FloatingActionButton />
       <Outlet />
     </Body>
   );
