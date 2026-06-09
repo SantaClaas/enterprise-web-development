@@ -92,12 +92,51 @@ public class UsersController {
                     if (user.getOrganizations().isEmpty()) {
                         Organization defaultOrganization = new Organization();
                         defaultOrganization.setName("Default");
-                        defaultOrganization.addUser(user);
+                        defaultOrganization.addMember(user);
                         organizationRepository.save(defaultOrganization);
                     }
 
                     return ResponseEntity.ok(user.getOrganizations().stream()
                             .map(org -> new GetUserOrganizationsResponse(org.getId(), org.getName()))
+                            .toList());
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
+
+    /**
+     * Gets the projects of a user. The projects are assigned to the user through
+     * their organization. If the user does not have any organizations, a default
+     * organization is created for them and they are added to it.
+     * If the organization they are part of doesn't have any projects, a default
+     * project is created for them and assigned to the organization.
+     */
+    @GetMapping("/api/users/{userId}/projects")
+    public ResponseEntity<?> getUserProjects(@PathVariable Long userId) {
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> {
+                    if (user.getOrganizations().isEmpty()) {
+                        Organization defaultOrganization = new Organization();
+                        defaultOrganization.setName("Default");
+                        defaultOrganization.addMember(user);
+                        organizationRepository.save(defaultOrganization);
+                    }
+
+                    user.getOrganizations().forEach(organization -> {
+                        if (organization.getProjects().isEmpty()) {
+                            Project defaultProject = new Project();
+                            defaultProject.setName("Default");
+                            organization.addProject(defaultProject);
+                            organizationRepository.save(organization);
+                        }
+                    });
+
+                    return ResponseEntity.ok(user.getOrganizations().stream()
+                            .flatMap(organization -> organization.getProjects().stream()
+                                    .map(project -> Map.of(
+                                            "id", project.getId(),
+                                            "name", project.getName(),
+                                            "organization",
+                                            Map.of("id", organization.getId(), "name", organization.getName()))))
                             .toList());
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
