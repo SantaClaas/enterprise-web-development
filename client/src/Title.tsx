@@ -6,6 +6,7 @@ import {
   type Accessor,
   type ParentProps,
   type Signal,
+  type VoidProps,
 } from "solid-js";
 
 const context = createContext<Signal<string> | undefined>(undefined);
@@ -29,15 +30,16 @@ export function useTitle(): Accessor<string> {
   return title;
 }
 
-export function Title(properties: { children: string }) {
-  console.debug("Setting title to", properties.children);
+//TODO figure out a better API or name as the property has the same name as the component
+export function Title(properties: VoidProps<{ title: string }>) {
+  console.debug("Setting title to", properties.title);
   const titleSignal = useContext(context);
   if (!titleSignal) throw new Error("Title must be used within a TitleProvider");
 
   const [, setTitle] = titleSignal;
   createEffect(() => {
-    setTitle(properties.children);
+    setTitle(properties.title);
   });
 
-  return null;
+  return undefined;
 }

@@ -23,8 +23,8 @@ public class Organization {
     private String name;
 
     @ManyToMany
-    @JoinTable(name = "organization_users", joinColumns = @JoinColumn(name = "organization_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> users = new HashSet<>();
+    @JoinTable(name = "organization_members", joinColumns = @JoinColumn(name = "organization_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
+    private Set<User> members = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -38,17 +38,17 @@ public class Organization {
         this.name = name;
     }
 
-    public Set<User> getUsers() {
-        return users;
+    public Set<User> getMembers() {
+        return members;
     }
 
-    public void addUser(User user) {
-        users.add(user);
+    public void addMember(User user) {
+        members.add(user);
         user.getOrganizations().add(this);
     }
 
-    public void removeUser(User user) {
-        users.remove(user);
+    public void removeMember(User user) {
+        members.remove(user);
         user.getOrganizations().remove(this);
     }
 

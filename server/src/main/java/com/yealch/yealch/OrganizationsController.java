@@ -49,8 +49,13 @@ public class OrganizationsController {
                         .body(Map.of("error", "organization not found")));
     }
 
-    @PostMapping("/{organizationId}/users/{userId}")
-    public ResponseEntity<?> addUserToOrganization(@PathVariable Long organizationId, @PathVariable Long userId) {
+    /**
+     * Creates a registration of a user as a member of an organization
+     */
+    @PostMapping("/{organizationId}/members/registrations")
+    public ResponseEntity<?> addMemberToOrganization(@PathVariable Long organizationId, @PathVariable Long userId) {
+        // TODO implement roles permissions to disallow any organization member to add
+        // or remove members
         Optional<Organization> organizationOptional = organizationRepository.findById(organizationId);
         Optional<User> userOptional = userRepository.findById(userId);
 
@@ -60,14 +65,15 @@ public class OrganizationsController {
 
         Organization organization = organizationOptional.get();
         User user = userOptional.get();
-        organization.addUser(user);
+        organization.addMember(user);
         organizationRepository.save(organization);
 
         return ResponseEntity.ok(toResponse(organization));
     }
 
-    @DeleteMapping("/{organizationId}/users/{userId}")
-    public ResponseEntity<?> removeUserFromOrganization(@PathVariable Long organizationId, @PathVariable Long userId) {
+    @DeleteMapping("/{organizationId}/members/{userId}")
+    public ResponseEntity<?> removeMemberFromOrganization(@PathVariable Long organizationId,
+            @PathVariable Long userId) {
         Optional<Organization> organizationOptional = organizationRepository.findById(organizationId);
         Optional<User> userOptional = userRepository.findById(userId);
 
@@ -77,16 +83,32 @@ public class OrganizationsController {
 
         Organization organization = organizationOptional.get();
         User user = userOptional.get();
-        organization.removeUser(user);
+        organization.removeMember(user);
         organizationRepository.save(organization);
 
         return ResponseEntity.ok(toResponse(organization));
+    }
+
+    private Map<String, Object> toUserResponse(User user) {
+        return Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "username", user.getUsername());
+    }
+
+    @GetMapping("/{organizationId}/users")
+    public ResponseEntity<?> getOrganizationUsers(@PathVariable Long organizationId) {
+        return organizationRepository.findById(organizationId)
+                .<ResponseEntity<?>>map(organization -> ResponseEntity
+                        .ok(organization.getMembers().stream().map(this::toUserResponse).toList()))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "organization not found")));
     }
 
     private Map<String, Object> toResponse(Organization organization) {
         return Map.of(
                 "id", organization.getId(),
                 "name", organization.getName(),
-                "userIds", organization.getUsers().stream().map(User::getId).toList());
+                "users", organization.getMembers().stream().map(this::toUserResponse).toList());
     }
 }

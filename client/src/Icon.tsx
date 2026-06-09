@@ -1,6 +1,6 @@
 import type { VoidProps } from "solid-js";
 
-export const ICON_NAME = {
+export const ICON_ID = {
   CALENDAR_MONTH: "calendar-month",
   CALENDAR_MONTH_FILLED: "calendar-month-filled",
   GROUP: "group",
@@ -12,10 +12,11 @@ export const ICON_NAME = {
   ADD: "add",
   EDIT: "edit",
   CLOSE: "close",
+  ARROW_BACK: "arrow-back",
 } as const;
 
-type IconName = (typeof ICON_NAME)[keyof typeof ICON_NAME];
-type Properties = VoidProps<{ name: IconName; class?: string }>;
+export type IconId = (typeof ICON_ID)[keyof typeof ICON_ID];
+type Properties = VoidProps<{ name: IconId; class?: string }>;
 export default function Icon(properties: Properties) {
   return (
     <svg class={properties.class}>

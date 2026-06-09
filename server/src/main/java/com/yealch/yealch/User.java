@@ -33,12 +33,12 @@ public class User {
 
 	public void addOrganization(Organization organization) {
 		organizations.add(organization);
-		organization.getUsers().add(this);
+		organization.getMembers().add(this);
 	}
 
 	public void removeOrganization(Organization organization) {
 		organizations.remove(organization);
-		organization.getUsers().remove(this);
+		organization.getMembers().remove(this);
 	}
 
 	public String getName() {
