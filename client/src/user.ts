@@ -1,12 +1,17 @@
 import { queryOptions } from "@tanstack/solid-query";
 
-import type { UserId } from "./branded";
+export type Id = string & { __brand: "UserId" };
 
 /** Custom error to differentiate between network, server and authentication errors */
 export class UnauthenticatedError extends Error {}
 
-export const idQueryOptions = queryOptions({
-  queryKey: ["user", "id"],
+/**
+ * Sharable reference to the part of the user query that invalidates all user dependent data. Also
+ * used to avoid spelling mistakes and find references easier.
+ */
+export const QUERY_BASE = "user";
+export const idQuery = queryOptions({
+  queryKey: [QUERY_BASE, "id"],
   async queryFn() {
     const response = await fetch("/api/users/current/id");
 
@@ -18,7 +23,7 @@ export const idQueryOptions = queryOptions({
       );
 
     // Safe cast because parsing requires the expectation we know what the API returns
-    return (await response.text()) as UserId;
+    return (await response.text()) as Id;
   },
   // The user id is valid for the whole runtime of the application and needs to be invalidated manually when the user signs out
   staleTime: Infinity,

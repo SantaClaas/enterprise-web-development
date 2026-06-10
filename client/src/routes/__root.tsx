@@ -1,7 +1,7 @@
 import type { QueryClient } from "@tanstack/solid-query";
 import { createRootRouteWithContext, redirect } from "@tanstack/solid-router";
 
-import { idQueryOptions, UnauthenticatedError } from "../user";
+import { idQuery, UnauthenticatedError } from "../user";
 import { Route as SignInRoute } from "./sign-in";
 import { Route as SignUpRoute } from "./sign-up";
 
@@ -18,7 +18,7 @@ export const Route = createRootRoute({
     // At the start of the application we prefetch the user id so that when this is run for the first time, it will resolve quickly. The result is also cached so that subsquent fetch calls will resolve immediately
     try {
       // We do not need the user id here for anything further. Successful resolution means the user is authenticated and can access the application, failure means they need to sign in. So we can ignore the result
-      void (await queryClient.fetchQuery(idQueryOptions));
+      void (await queryClient.fetchQuery(idQuery));
     } catch (error) {
       // Not a fan of the nesting here but extracting this would create more complexity
       if (!(error instanceof UnauthenticatedError))

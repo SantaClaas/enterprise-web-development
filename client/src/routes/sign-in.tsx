@@ -1,8 +1,9 @@
+import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
-import { useUserContext } from "../userContext";
+import { idQuery, type Id as UserId } from "../user";
 
 export const Route = createFileRoute("/sign-in")({
   component: SignIn,
@@ -12,9 +13,8 @@ export const Route = createFileRoute("/sign-in")({
         typeof search.redirect === "string" && search.redirect ? search.redirect : undefined,
     };
   },
-  async beforeLoad({ search }) {
-    const userContext = useUserContext();
-    if (await userContext.getUserId) {
+  async beforeLoad({ search, context: { queryClient } }) {
+    if (await queryClient.fetchQuery(idQuery)) {
       console.debug("User is already signed in, redirecting to home page");
       throw redirect({
         to: search.redirect ?? "/",
@@ -28,7 +28,7 @@ function SignIn() {
 
   const navigate = useNavigate();
   const search = Route.useSearch();
-  const userContext = useUserContext();
+  const queryClient = useQueryClient();
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
     console.debug("Signing in...");
@@ -64,11 +64,9 @@ function SignIn() {
       return;
     }
 
-    // Could probably be optimized by having the server return the user ID in the sign-in response, but this is fine for now
-    const userId = await userContext.refresh();
-    if (userId === undefined) {
-      throw new Error("Could not get user id of signed in user after successful sign in");
-    }
+    // Safe cast because we are parsing the response and expect the server to behave like this
+    const userId = (await response.text()) as UserId;
+    queryClient.setQueryData(idQuery.queryKey, userId);
 
     const redirect = search().redirect;
 
@@ -109,7 +107,7 @@ function SignIn() {
           />
 
           {/* TODO loading state */}
-          <button type="submit" data-variant="primary" class="button mt-6 w-full">
+          <button type="submit" data-variant="filled" class="button mt-6 w-full">
             Sign in
           </button>
           <Link to="/sign-up" data-variant="text" class="button mt-4 w-full">

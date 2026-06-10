@@ -35,7 +35,7 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
-    private ResponseCookie authenticate(String username, String password) {
+    private ResponseEntity<?> authenticate(String username, String password) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(username, password));
 
@@ -53,7 +53,12 @@ public class AuthController {
                 .maxAge(Duration.ofMinutes(60))
                 .build();
 
-        return cookie;
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                // Returnin the user id to avoid unecessary round trip the client would need to
+                // do to get the user id as the cookie which could contain the id is not exposed
+                // to JS
+                .body(userDetails.getId().toString());
     }
 
     @PostMapping("/sign-ins")
@@ -80,11 +85,7 @@ public class AuthController {
 
         logger.info("Login attempt for user: {}", username);
 
-        var cookie = authenticate(username, password);
-
-        return ResponseEntity.noContent()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .build();
+        return authenticate(username, password);
     }
 
     @PostMapping("/sign-outs")
@@ -125,10 +126,7 @@ public class AuthController {
         user.setPassword(passwordEncoder.encode(signUpRequest.password));
         userRepository.save(user);
 
-        var cookie = authenticate(signUpRequest.username, signUpRequest.password);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(user.getId().toString());
+        // Doing an unnecessary round trip checkin the password again but oh well
+        return authenticate(signUpRequest.username, signUpRequest.password);
     }
 }

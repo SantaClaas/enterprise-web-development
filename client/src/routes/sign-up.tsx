@@ -1,15 +1,14 @@
+import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
-import type { UserId } from "../branded";
-import { useUserContext } from "../userContext";
+import { idQuery, type Id as UserId } from "../user";
 
 export const Route = createFileRoute("/sign-up")({
   component: RouteComponent,
-  async beforeLoad({ location }) {
-    const context = useUserContext();
-    if (await context.getUserId) {
+  async beforeLoad({ location, context: { queryClient } }) {
+    if (await queryClient.fetchQuery(idQuery)) {
       console.debug("User is already signed in, redirecting to home page", location.href);
       throw redirect({
         to: "/",
@@ -21,7 +20,8 @@ export const Route = createFileRoute("/sign-up")({
 function RouteComponent() {
   const [error, setError] = createSignal<string | undefined>();
   const navigate = useNavigate();
-  const userContext = useUserContext();
+  const queryClient = useQueryClient();
+
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
 
@@ -63,9 +63,9 @@ function RouteComponent() {
       return;
     }
 
-    const userId = await response.text();
     // Safe cast because we are parsing the response
-    userContext.setUserId(userId as UserId);
+    const userId = (await response.text()) as UserId;
+    queryClient.setQueryData(idQuery.queryKey, userId);
 
     // Sign up successful
     console.debug("Sign up successful, redirecting to sign in page");
@@ -116,7 +116,7 @@ function RouteComponent() {
           />
 
           {/* TODO loading state */}
-          <button type="submit" data-variant="primary" class="button mt-6 w-full">
+          <button type="submit" data-variant="filled" class="button mt-6 w-full">
             Sign up
           </button>
           {/* Do not need to pass redirect as a user that signs up should not have been on the app before to be redirected to where they left off */}

@@ -1,16 +1,17 @@
+import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
-import { useUserContext } from "../../userContext";
+import { idQuery } from "../../user";
 
 export const Route = createFileRoute("/organizations/new")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const userContext = useUserContext();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -19,7 +20,7 @@ function RouteComponent() {
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const name = nameInput.value;
 
-    const userId = await userContext.getUserId;
+    const userId = await queryClient.fetchQuery(idQuery);
     //TODO change the endpoint to just accept text/plain with the new organization name as that is all that is required
     const response = await fetch(`/api/users/${userId}/organizations`, {
       method: "POST",
@@ -64,7 +65,7 @@ function RouteComponent() {
           Cancel
         </Link>
 
-        <button type="submit" form="organization" data-variant="primary" class="button">
+        <button type="submit" form="organization" data-variant="filled" class="button">
           Create
         </button>
       </footer>

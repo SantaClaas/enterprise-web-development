@@ -1,10 +1,11 @@
+import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { For } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
 import { useProjects } from "../../useProjects";
-import { useUserContext } from "../../userContext";
+import { idQuery } from "../../user";
 
 export const Route = createFileRoute("/times/new")({
   component: RouteComponent,
@@ -15,7 +16,7 @@ const timeZone = Temporal.Now.timeZoneId();
 
 function RouteComponent() {
   const projects = useProjects();
-  const userContext = useUserContext();
+  const queryClient = useQueryClient();
 
   const navigate = useNavigate();
 
@@ -44,8 +45,7 @@ function RouteComponent() {
     const projectSelect = form.elements.namedItem("project") as HTMLSelectElement;
     const projectId = projectSelect.value;
 
-    const userId = await userContext.getUserId;
-    //TODO change the endpoint to just accept text/plain with the new time entry details as that is all that is required
+    const userId = await queryClient.fetchQuery(idQuery);
     const response = await fetch(`/api/users/${userId}/projects/${projectId}/times`, {
       method: "POST",
       headers: {
@@ -138,7 +138,7 @@ function RouteComponent() {
             Cancel
           </Link>
 
-          <button type="submit" form="time" data-variant="primary" class="button">
+          <button type="submit" form="time" data-variant="filled" class="button">
             Save
           </button>
         </footer>

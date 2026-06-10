@@ -1,9 +1,9 @@
-import { createFileRoute, Link, redirect } from "@tanstack/solid-router";
+import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, type VoidProps } from "solid-js";
 
 import Icon from "../../../Icon";
 import { Title } from "../../../Title";
-import { useUserContext } from "../../../userContext";
+import { idQuery } from "../../../user";
 
 type Time = {
   id: string;
@@ -12,14 +12,8 @@ type Time = {
 };
 export const Route = createFileRoute("/_app/times/")({
   component: Times,
-  async loader() {
-    const userContext = useUserContext();
-
-    const userId = await userContext.getUserId;
-    if (!userId) {
-      console.error("User is not signed in, redirecting to sign-in page");
-      throw redirect({ to: "/sign-in", search: { redirect: window.location.href } });
-    }
+  async loader({ context: { queryClient } }) {
+    const userId = await queryClient.ensureQueryData(idQuery);
 
     const response = await fetch(`/api/users/${userId}/times`);
     const times: Time[] = await response.json();

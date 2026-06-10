@@ -1,17 +1,18 @@
+import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Outlet } from "@tanstack/solid-router";
 
 import Body from "../../Body";
 import Navigation from "../../Navigation";
 import { useTitle } from "../../Title";
 import { ActionButton, TopAppBar } from "../../TopAppBar";
-import { useUserContext } from "../../userContext";
+import { QUERY_BASE } from "../../user";
 
 export const Route = createFileRoute("/_app")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const userContext = useUserContext();
+  const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
 
   async function handleSignOut() {
@@ -24,7 +25,7 @@ function RouteComponent() {
       return;
     }
 
-    userContext.clear();
+    await queryClient.invalidateQueries({ queryKey: [QUERY_BASE] });
 
     await navigate({ to: "/sign-in", search: { redirect: window.location.href } });
   }

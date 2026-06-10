@@ -1,19 +1,21 @@
+import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
-import { For } from "solid-js";
+import { For, Suspense } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
-import { useOrganizations } from "../../useOrganizations";
-import { useUserContext } from "../../userContext";
+import { query } from "../../organization";
+import { idQuery } from "../../user";
 
 export const Route = createFileRoute("/projects/new")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const userContext = useUserContext();
-  const organizations = useOrganizations();
+  const userIdQuery = useQuery(() => idQuery);
+  const organizations = useQuery(() => query(userIdQuery.data));
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -24,7 +26,8 @@ function RouteComponent() {
     const organizationSelect = form.elements.namedItem("organization") as HTMLSelectElement;
     const organizationId = organizationSelect.value;
 
-    const userId = await userContext.getUserId;
+    //TODO there is probably a better way to combine this with the same query usage above
+    const userId = await queryClient.fetchQuery(idQuery);
     //TODO change the endpoint to just accept text/plain with the new project name as that is all that is required
     const response = await fetch(`/api/users/${userId}/organizations/${organizationId}/projects`, {
       method: "POST",
@@ -70,17 +73,17 @@ function RouteComponent() {
             Organization
           </label>
           <select id="organization" required class="text-field col-span-2 mt-1 w-full">
-            {/* TODO disable submit while loading organizations */}
-            <For
-              each={organizations()}
+            <Suspense
               fallback={
                 <option value="" disabled>
                   Loading...
                 </option>
               }
             >
-              {(organization) => <option value={organization.id}>{organization.name}</option>}
-            </For>
+              <For each={organizations.data}>
+                {(organization) => <option value={organization.id}>{organization.name}</option>}
+              </For>
+            </Suspense>
           </select>
         </form>
       </main>
@@ -89,7 +92,13 @@ function RouteComponent() {
           Cancel
         </Link>
 
-        <button type="submit" form="project" data-variant="primary" class="button">
+        <button
+          type="submit"
+          form="project"
+          disabled={organizations.isLoading}
+          data-variant="filled"
+          class="button"
+        >
           Create
         </button>
       </footer>

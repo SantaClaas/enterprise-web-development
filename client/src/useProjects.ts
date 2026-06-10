@@ -1,15 +1,16 @@
+import { useQueryClient } from "@tanstack/solid-query";
 import { createResource } from "solid-js";
 
 import type { ProjectId } from "./branded";
-import { useUserContext } from "./userContext";
+import { idQuery } from "./user";
 
 export type Project = { id: ProjectId; name: string };
 
 export function useProjects() {
-  const userContext = useUserContext();
+  const queryClient = useQueryClient();
 
   const [projects] = createResource(async () => {
-    const userId = await userContext.getUserId;
+    const userId = queryClient.fetchQuery(idQuery);
 
     const response = await fetch(`/api/users/${userId}/projects`, {
       method: "GET",

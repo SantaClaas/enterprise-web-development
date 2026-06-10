@@ -1,24 +1,20 @@
-import { queryOptions, useMutation } from "@tanstack/solid-query";
+import { useMutation } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, type VoidProps } from "solid-js";
 
-import type { OrganizationId } from "../../../branded";
 import Icon from "../../../Icon";
+import { query, type Organization, type Id as OrganizationId } from "../../../organization";
 import { Title } from "../../../Title";
-import { useOrganizations, type Organization } from "../../../useOrganizations";
-import { useUserContext } from "../../../userContext";
-
-const organizationsQuery = queryOptions({
-  queryKey: ["organizations"],
-  async queryFn() {
-    //TODO look into whether we can put getting the user id into a query and make the organizations query dependent on that query
-    const userContext = useUserContext();
-    const userId = await userContext.getUserId;
-  },
-});
+import { idQuery } from "../../../user";
 
 export const Route = createFileRoute("/_app/organizations/")({
   component: Organizations,
+  async loader({ context: { queryClient } }) {
+    const userId = await queryClient.ensureQueryData(idQuery);
+    const organizations = await queryClient.ensureQueryData(query(userId));
+
+    return organizations;
+  },
 });
 
 function Card(
@@ -45,7 +41,7 @@ function Card(
 }
 
 function Organizations() {
-  const organizations = useOrganizations();
+  const organizations = Route.useLoaderData();
 
   const deleteMutation = useMutation(() => ({
     async mutationFn(organizationId: OrganizationId) {

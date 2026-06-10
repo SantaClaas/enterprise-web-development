@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, Show, type ParentProps } from "solid-js";
 
-import type { OrganizationId, UserId } from "../../../../branded";
 import Icon from "../../../../Icon";
+import type { Id as OrganizationId } from "../../../../organization";
 import { Title } from "../../../../Title";
 import { TopAppBar } from "../../../../TopAppBar";
+import type { Id as UserId } from "../../../../user";
 
 type Organization = {
   id: OrganizationId;

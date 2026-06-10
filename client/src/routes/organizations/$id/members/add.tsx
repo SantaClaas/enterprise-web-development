@@ -43,7 +43,7 @@ function RouteComponent() {
             Cancel
           </Link>
 
-          <button type="submit" form="time" data-variant="primary" class="button">
+          <button type="submit" form="time" data-variant="filled" class="button">
             Add
           </button>
         </footer>
