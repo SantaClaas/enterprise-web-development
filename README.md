@@ -38,6 +38,7 @@ Access the H2 console at http://localhost:8080/h2-console. Use the following set
 - Switch away from username password authentication to Passkey authentication
 - User registration
 - Get docker build up and running
+- Check out minikube for local kubernetes cluster or in docker desktop
 
 # Must haves zum nächsten Mal
 
