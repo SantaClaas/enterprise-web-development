@@ -6,6 +6,7 @@ import { render } from "solid-js/web";
 
 import { routeTree } from "./routeTree.gen";
 import { TitleProvider } from "./Title";
+import { idQueryOptions } from "./user";
 import { UserContextProvider } from "./userContext";
 
 // Keep polyfill out of the bundle. You can see this as vite generates two js bundles, one with only the polyfill and one without.
@@ -17,13 +18,19 @@ if (!("Temporal" in globalThis)) {
   // @ts-expect-error
   Date.prototype.toTemporalInstant = toTemporalInstant;
 }
+// Using Tanstack Query as async state management is essential for applications to me. For example this makes deleting an organization and showing that something is happening easier. It also allows for easy implementation for optimistic updates
+const queryClient = new QueryClient();
+// Start fetching the user id as that is our indicator if we are signed in and is needed everywhere in the application
+void queryClient.prefetchQuery(idQueryOptions);
 
+// Using Tanstack Router for type safety on the routes and making view transition implementation easier
 const router = createRouter({
   routeTree,
   defaultPreload: "intent",
-  defaultStaleTime: 5000,
+  defaultStaleTime: 5_000,
   scrollRestoration: true,
   defaultViewTransition: true,
+  context: { queryClient },
 });
 
 // Register things for typesafety
@@ -32,8 +39,6 @@ declare module "@tanstack/solid-router" {
     router: typeof router;
   }
 }
-
-const queryClient = new QueryClient();
 
 render(
   () => (

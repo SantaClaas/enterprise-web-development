@@ -1,22 +1,35 @@
-import { createRootRoute, redirect } from "@tanstack/solid-router";
+import type { QueryClient } from "@tanstack/solid-query";
+import { createRootRouteWithContext, redirect } from "@tanstack/solid-router";
 
-import { useUserContext } from "../userContext";
+import { idQueryOptions, UnauthenticatedError } from "../user";
+import { Route as SignInRoute } from "./sign-in";
+import { Route as SignUpRoute } from "./sign-up";
 
-const SIGN_IN = "/sign-in";
-const SIGN_UP = "/sign-up";
+type Context = {
+  queryClient: QueryClient;
+};
+
+const createRootRoute = createRootRouteWithContext<Context>();
+
 export const Route = createRootRoute({
-  async beforeLoad({ location }) {
-    if (location.pathname === SIGN_IN || location.pathname === SIGN_UP) return;
+  async beforeLoad({ location, context: { queryClient } }) {
+    if (location.pathname === SignInRoute.path || location.pathname === SignUpRoute.path) return;
 
-    const context = useUserContext();
-    if (await context.getUserId) return;
+    // At the start of the application we prefetch the user id so that when this is run for the first time, it will resolve quickly. The result is also cached so that subsquent fetch calls will resolve immediately
+    try {
+      // We do not need the user id here for anything further. Successful resolution means the user is authenticated and can access the application, failure means they need to sign in. So we can ignore the result
+      void (await queryClient.fetchQuery(idQueryOptions));
+    } catch (error) {
+      // Not a fan of the nesting here but extracting this would create more complexity
+      if (!(error instanceof UnauthenticatedError))
+        throw new Error(`Error fetching user id`, { cause: error });
 
-    console.debug("User is not signed in, redirecting to login page", location.href);
-    const search = { redirect: location.href === "/" ? undefined : location.href };
-    // Throwing will stop any children from attempting to load and is the recommended way to redirect in a beforeLoad
-    throw redirect({
-      to: SIGN_IN,
-      search,
-    });
+      const search = { redirect: location.href === "/" ? undefined : location.href };
+      // Throwing will stop any children from attempting to load and is the recommended way to redirect in a beforeLoad
+      throw redirect({
+        to: SignInRoute.path,
+        search,
+      });
+    }
   },
 });
