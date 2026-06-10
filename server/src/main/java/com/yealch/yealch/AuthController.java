@@ -9,6 +9,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.charset.StandardCharsets;
@@ -23,10 +24,36 @@ public class AuthController {
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private final PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
 
-    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService) {
+    public AuthController(AuthenticationManager authenticationManager, JwtService jwtService,
+            PasswordEncoder passwordEncoder, UserRepository userRepository) {
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.passwordEncoder = passwordEncoder;
+        this.userRepository = userRepository;
+    }
+
+    private ResponseCookie authenticate(String username, String password) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(username, password));
+
+        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
+
+        String token = jwtService.generateToken(userDetails);
+        ResponseCookie cookie = ResponseCookie.from(JwtService.COOKIE_NAME, token)
+                .httpOnly(true)
+                // Disable this as localhost is not seen as secure in Safari
+                .secure(true)
+                .path("/")
+                // API is proxied in localhost development and frontend is hosted by this server
+                // in production
+                .sameSite("Strict")
+                .maxAge(Duration.ofMinutes(60))
+                .build();
+
+        return cookie;
     }
 
     @PostMapping("/sign-ins")
@@ -53,21 +80,7 @@ public class AuthController {
 
         logger.info("Login attempt for user: {}", username);
 
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(username, password));
-        CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
-
-        String token = jwtService.generateToken(userDetails);
-        ResponseCookie cookie = ResponseCookie.from(JwtService.COOKIE_NAME, token)
-                .httpOnly(true)
-                // Disable this as localhost is not seen as secure in Safari
-                .secure(true)
-                .path("/")
-                // API is proxied in localhost development and frontend is hosted by this server
-                // in production
-                .sameSite("Strict")
-                .maxAge(Duration.ofMinutes(60))
-                .build();
+        var cookie = authenticate(username, password);
 
         return ResponseEntity.noContent()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
@@ -87,5 +100,35 @@ public class AuthController {
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
                 .body(Map.of("status", "logged out"));
+    }
+
+    record SignUpRequest(String name, String username, String password) {
+    }
+
+    @PostMapping("/sign-ups")
+    public ResponseEntity<?> createSignUp(@RequestBody SignUpRequest signUpRequest) {
+        if (signUpRequest.username == null || signUpRequest.password == null
+                || signUpRequest.name == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
+        }
+
+        // TODO this allows attackers to scope out who is using the service. This needs
+        // to be changed to a generic error message or some other solution
+        if (userRepository.findByUsername(signUpRequest.username).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(Map.of("error", "Username already exists"));
+        }
+
+        var user = new User();
+        user.setName(signUpRequest.name);
+        user.setUsername(signUpRequest.username);
+        user.setPassword(passwordEncoder.encode(signUpRequest.password));
+        userRepository.save(user);
+
+        var cookie = authenticate(signUpRequest.username, signUpRequest.password);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, cookie.toString())
+                .body(user.getId().toString());
     }
 }

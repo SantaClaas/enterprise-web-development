@@ -16,6 +16,7 @@ type Context = {
   getUserId: Promise<UserId | undefined>;
   refresh(): Promise<UserId | undefined>;
   clear(): void;
+  setUserId(userId: UserId): void;
 };
 
 let getUserIdFetch = getUserId();
@@ -28,6 +29,9 @@ const initialContext = {
   },
   clear() {
     getUserIdFetch = Promise.resolve(undefined);
+  },
+  setUserId(userId: UserId) {
+    getUserIdFetch = Promise.resolve(userId);
   },
 };
 const context = createContext<Context>(initialContext);

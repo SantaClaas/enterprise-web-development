@@ -84,7 +84,7 @@ function SignIn() {
           <p class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
             {error()}
           </p>
-          <label for="username" class="text-label-lg block">
+          <label for="username" class="text-label-lg text-on-surface-variant block">
             Username
           </label>
           <input
@@ -112,8 +112,8 @@ function SignIn() {
           <button type="submit" data-variant="primary" class="button mt-6 w-full">
             Sign in
           </button>
-          <Link to="/register" data-variant="text" class="button mt-4 w-full">
-            Register
+          <Link to="/sign-up" data-variant="text" class="button mt-4 w-full">
+            Sign up for an account
           </Link>
         </form>
       </main>

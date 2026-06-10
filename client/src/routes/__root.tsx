@@ -3,10 +3,10 @@ import { createRootRoute, redirect } from "@tanstack/solid-router";
 import { useUserContext } from "../userContext";
 
 const SIGN_IN = "/sign-in";
-const REGISTER = "/register";
+const SIGN_UP = "/sign-up";
 export const Route = createRootRoute({
   async beforeLoad({ location }) {
-    if (location.pathname === SIGN_IN || location.pathname === REGISTER) return;
+    if (location.pathname === SIGN_IN || location.pathname === SIGN_UP) return;
 
     const context = useUserContext();
     if (await context.getUserId) return;
