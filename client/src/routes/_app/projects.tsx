@@ -2,8 +2,8 @@ import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, type VoidProps } from "solid-js";
 
 import Icon from "../../Icon";
+import { useProjects, type Project } from "../../project";
 import { Title } from "../../Title";
-import { useProjects, type Project } from "../../useProjects";
 
 export const Route = createFileRoute("/_app/projects")({
   component: Projects,

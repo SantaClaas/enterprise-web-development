@@ -1,11 +1,12 @@
-import { useQueryClient } from "@tanstack/solid-query";
+import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
-import { For } from "solid-js";
+import { For, Suspense } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
-import { useProjects } from "../../useProjects";
+import { query } from "../../project";
 import { idQuery } from "../../user";
+import { Route as TimesIndexRoute } from "../_app/times";
 
 export const Route = createFileRoute("/times/new")({
   component: RouteComponent,
@@ -15,7 +16,8 @@ export const Route = createFileRoute("/times/new")({
 const timeZone = Temporal.Now.timeZoneId();
 
 function RouteComponent() {
-  const projects = useProjects();
+  const userId = useQuery(() => idQuery);
+  const projects = useQuery(() => query(userId.data));
   const queryClient = useQueryClient();
 
   const navigate = useNavigate();
@@ -64,14 +66,14 @@ function RouteComponent() {
       return;
     }
 
-    navigate({ to: "/times" });
+    navigate({ to: TimesIndexRoute.path });
   }
 
   return (
     <>
       <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
         <header class="bg-surface-container-high text-on-surface flex py-1">
-          <Link to="/times" class="cursor-default p-4">
+          <Link to={TimesIndexRoute.path} class="cursor-default p-4">
             <span class="sr-only">Discard</span>
             <Icon name="close" class="fill-on-surface size-6" />
           </Link>
@@ -127,18 +129,26 @@ function RouteComponent() {
               required
               class="text-field col-span-full mt-1 w-full"
             >
-              <For each={projects()} fallback={<option disabled>Loading projects...</option>}>
-                {(project) => <option value={project.id}>{project.name}</option>}
-              </For>
+              <Suspense fallback={<option disabled>Loading projects...</option>}>
+                <For each={projects.data}>
+                  {(project) => <option value={project.id}>{project.name}</option>}
+                </For>
+              </Suspense>
             </select>
           </form>
         </main>
         <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
-          <Link to="/times" data-variant="outlined" class="button">
+          <Link to={TimesIndexRoute.path} data-variant="outlined" class="button">
             Cancel
           </Link>
 
-          <button type="submit" form="time" data-variant="filled" class="button">
+          <button
+            type="submit"
+            form="time"
+            data-variant="filled"
+            disabled={projects.isLoading}
+            class="button"
+          >
             Save
           </button>
         </footer>

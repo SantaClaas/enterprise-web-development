@@ -1,6 +1,7 @@
 import type { QueryClient } from "@tanstack/solid-query";
 import { createRootRouteWithContext, redirect } from "@tanstack/solid-router";
 
+import { ErrorDetails } from "../ErrorDetails";
 import { idQuery, UnauthenticatedError } from "../user";
 import { Route as SignInRoute } from "./sign-in";
 import { Route as SignUpRoute } from "./sign-up";
@@ -13,7 +14,10 @@ const createRootRoute = createRootRouteWithContext<Context>();
 
 export const Route = createRootRoute({
   async beforeLoad({ location, context: { queryClient } }) {
-    if (location.pathname === SignInRoute.path || location.pathname === SignUpRoute.path) return;
+    if (location.pathname === SignInRoute.fullPath || location.pathname === SignUpRoute.fullPath) {
+      console.debug("User is trying to access auth page, allowing without authentication");
+      return;
+    }
 
     // At the start of the application we prefetch the user id so that when this is run for the first time, it will resolve quickly. The result is also cached so that subsquent fetch calls will resolve immediately
     try {
@@ -24,12 +28,25 @@ export const Route = createRootRoute({
       if (!(error instanceof UnauthenticatedError))
         throw new Error(`Error fetching user id`, { cause: error });
 
+      console.debug("Error", error, "Redirecting to sign in page", {
+        pathname: location.pathname,
+        SignInRoute: SignInRoute.path,
+        fullPath: SignInRoute.fullPath,
+      });
+
       const search = { redirect: location.href === "/" ? undefined : location.href };
       // Throwing will stop any children from attempting to load and is the recommended way to redirect in a beforeLoad
       throw redirect({
-        to: SignInRoute.path,
+        to: SignInRoute.fullPath,
         search,
       });
     }
   },
+  errorComponent: (properties) => (
+    <ErrorDetails
+      {...properties}
+      title="Error"
+      explainer="Sorry, an unexpected error occurred. Please try again later."
+    />
+  ),
 });

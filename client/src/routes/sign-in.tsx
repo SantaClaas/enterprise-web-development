@@ -14,12 +14,19 @@ export const Route = createFileRoute("/sign-in")({
     };
   },
   async beforeLoad({ search, context: { queryClient } }) {
-    if (await queryClient.fetchQuery(idQuery)) {
-      console.debug("User is already signed in, redirecting to home page");
-      throw redirect({
-        to: search.redirect ?? "/",
-      });
+    let id;
+    try {
+      id = await queryClient.fetchQuery(idQuery);
+    } catch (_error) {
+      return;
     }
+
+    if (!id) return;
+    console.debug("User is already signed in, redirecting to home page");
+
+    throw redirect({
+      to: search.redirect ?? "/",
+    });
   },
 });
 

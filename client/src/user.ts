@@ -16,7 +16,8 @@ export const idQuery = queryOptions({
     const response = await fetch("/api/users/current/id");
 
     // Tanstack query will bubble the error in the beforeLoad handler for the root path that checks authentication
-    if (response.status === 401) throw new UnauthenticatedError("User is not authenticated");
+    if (response.status === 401 || response.status === 403)
+      throw new UnauthenticatedError("User is not authenticated");
     if (!response.ok)
       throw new Error(
         `Error fetching current user ID: ${response.status} ${await response.text()}`,
@@ -27,4 +28,6 @@ export const idQuery = queryOptions({
   },
   // The user id is valid for the whole runtime of the application and needs to be invalidated manually when the user signs out
   staleTime: Infinity,
+  gcTime: Infinity,
+  retry: false,
 });

@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { For, Show, type ParentProps } from "solid-js";
+import { For, type ParentProps } from "solid-js";
 
+import { ErrorDetails } from "../../../../ErrorDetails";
 import Icon from "../../../../Icon";
 import type { Id as OrganizationId } from "../../../../organization";
 import { Title } from "../../../../Title";
@@ -44,36 +45,15 @@ export const Route = createFileRoute("/organizations/$id/members/")({
     return (await response.json()) as Organization;
   },
   // TODO error component, pending component
-  errorComponent({ error, info, reset }) {
-    console.debug("Error loading organization", { error, info });
+  errorComponent(properties) {
     return (
-      <>
-        <Page title="Error">
-          <article class="bg-error-container text-on-error-container grid grid-cols-[1fr_auto] rounded p-6">
-            <h2 class="text-title-lg col-span-full">Error loading organization</h2>
-            <p class="text-body-lg col-span-full mt-2">
-              Sorry, an error occurred while loading the organization. Please try again later.
-            </p>
-
-            <Show when={error || info}>
-              <details class="col-span-full mt-4">
-                <summary>Technical details</summary>
-
-                <Show when={error}>
-                  <pre>{error.stack}</pre>
-                </Show>
-                <Show when={info}>
-                  <pre>{JSON.stringify(info, null, 2)}</pre>
-                </Show>
-              </details>
-            </Show>
-
-            <button onClick={reset} class="text-label-lg text-on-error-container col-start-2">
-              Retry
-            </button>
-          </article>
-        </Page>
-      </>
+      <Page title="Error">
+        <ErrorDetails
+          {...properties}
+          title="Error loading organization"
+          explainer="Sorry, an error occurred while loading the organization. Please try again later."
+        />{" "}
+      </Page>
     );
   },
 });
