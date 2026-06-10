@@ -11,6 +11,9 @@ importers:
       '@claas.dev/material-tailwind':
         specifier: ^0.6.0
         version: 0.6.0
+      '@tanstack/solid-query':
+        specifier: ^5.101.0
+        version: 5.101.0(solid-js@1.9.12)
       '@tanstack/solid-router':
         specifier: ^1.169.1
         version: 1.169.1(solid-js@1.9.12)
@@ -571,6 +574,9 @@ packages:
     resolution: {integrity: sha512-NaOGLRrddszbQj9upGat6HG/4TKvXLvu+osAIgfxPYA+eIvYKv8GKDJOrY2D3/U9MRnKfMWD7bU4jeD4xmqyIg==}
     engines: {node: '>=20.19'}
 
+  '@tanstack/query-core@5.101.0':
+    resolution: {integrity: sha512-cQetA74EB+seWySv1TTKr828TnP0u39m6LykwDXIo84SNortpDkp30TMEjkqtYCNP9c40uT/iwl6MLiufEt0Ow==}
+
   '@tanstack/router-core@1.169.1':
     resolution: {integrity: sha512-x+2gIGKTTE1qAn7tLieGfrB5ciOviDmmi2ox9fAWUubRV+yTU5ruGFXocoCIWF+lB+SOtnHjo2E9BLSWyYoEmA==}
     engines: {node: '>=20.19'}
@@ -605,6 +611,11 @@ packages:
   '@tanstack/router-utils@1.161.7':
     resolution: {integrity: sha512-VkY0u7ax/GD0qU6ZLLnfPC+UMxVzxRbvZp4yV4iUSXjgJZ/siAT5/QlLm9FEDJ9QDoC0VD9W7f00tKKreUI7Ng==}
     engines: {node: '>=20.19'}
+
+  '@tanstack/solid-query@5.101.0':
+    resolution: {integrity: sha512-XoPWynbaWquvSisMvUirakfD9OmLas1cOwt1gBDUTn8HC2CVkZm+O/jBgEa5SL5LrY6vxmWjzzskhXkywLfymw==}
+    peerDependencies:
+      solid-js: ^1.6.0
 
   '@tanstack/solid-router@1.169.1':
     resolution: {integrity: sha512-Ij0kD/nh8h7JupF6obPZvmYFLPF74tlPDuwIGdWWS3vJWYx8SXuDrI11rMTJPmftnkgYDfhrwvhYQzz4K3/+cQ==}
@@ -1533,6 +1544,8 @@ snapshots:
 
   '@tanstack/history@1.161.6': {}
 
+  '@tanstack/query-core@5.101.0': {}
+
   '@tanstack/router-core@1.169.1':
     dependencies:
       '@tanstack/history': 1.161.6
@@ -1587,6 +1600,11 @@ snapshots:
       tinyglobby: 0.2.15
     transitivePeerDependencies:
       - supports-color
+
+  '@tanstack/solid-query@5.101.0(solid-js@1.9.12)':
+    dependencies:
+      '@tanstack/query-core': 5.101.0
+      solid-js: 1.9.12
 
   '@tanstack/solid-router@1.169.1(solid-js@1.9.12)':
     dependencies:

@@ -1,4 +1,5 @@
 import "./index.css";
+import { QueryClient, QueryClientProvider } from "@tanstack/solid-query";
 import { createRouter, RouterProvider } from "@tanstack/solid-router";
 /* @refresh reload */
 import { render } from "solid-js/web";
@@ -32,13 +33,17 @@ declare module "@tanstack/solid-router" {
   }
 }
 
+const queryClient = new QueryClient();
+
 render(
   () => (
-    <TitleProvider>
-      <UserContextProvider>
-        <RouterProvider router={router} />
-      </UserContextProvider>
-    </TitleProvider>
+    <QueryClientProvider client={queryClient}>
+      <TitleProvider>
+        <UserContextProvider>
+          <RouterProvider router={router} />
+        </UserContextProvider>
+      </TitleProvider>
+    </QueryClientProvider>
   ),
   document.body,
 );
