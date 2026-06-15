@@ -1,6 +1,6 @@
-import { queryOptions } from "@tanstack/solid-query";
+import { mutationOptions, queryOptions } from "@tanstack/solid-query";
 
-import { QUERY_BASE, type Id as UserId } from "./user";
+import { idQuery, QUERY_BASE, type Id as UserId } from "./user";
 
 export type Id = string & { __brand: "OrganizationId" };
 export type Organization = {
@@ -8,10 +8,12 @@ export type Organization = {
   name: string;
 };
 
+export type OptimisticOrganization = Omit<Organization, "id">;
+
 export const query = (userId: UserId | undefined) =>
   queryOptions({
     queryKey: [QUERY_BASE, userId, "organizations"],
-    async queryFn() {
+    async queryFn(): Promise<(Organization | OptimisticOrganization)[]> {
       const response = await fetch(`/api/users/${userId}/organizations`, {
         method: "GET",
       });

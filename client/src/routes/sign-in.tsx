@@ -4,14 +4,15 @@ import { createSignal } from "solid-js";
 
 import Body from "../Body";
 import { idQuery, type Id as UserId } from "../user";
+import { Route as TimesRoute } from "./_app/times";
 
 export const Route = createFileRoute("/sign-in")({
   component: SignIn,
   validateSearch(search) {
-    return {
-      redirect:
-        typeof search.redirect === "string" && search.redirect ? search.redirect : undefined,
-    };
+    if (typeof search.redirect === "string" && search.redirect)
+      return { redirect: search.redirect };
+
+    return {};
   },
   async beforeLoad({ search, context: { queryClient } }) {
     let id;
@@ -25,7 +26,7 @@ export const Route = createFileRoute("/sign-in")({
     console.debug("User is already signed in, redirecting to home page");
 
     throw redirect({
-      to: search.redirect ?? "/",
+      to: search?.redirect ?? TimesRoute.fullPath,
     });
   },
 });
@@ -75,7 +76,7 @@ function SignIn() {
     const userId = (await response.text()) as UserId;
     queryClient.setQueryData(idQuery.queryKey, userId);
 
-    const redirect = search().redirect;
+    const redirect = search()?.redirect;
 
     console.debug("Sign in successful, redirecting to", redirect ?? "/");
     await navigate({ to: redirect ?? "/" });

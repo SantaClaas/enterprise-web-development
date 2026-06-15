@@ -1,11 +1,17 @@
-import { useQueryClient } from "@tanstack/solid-query";
+import { useMutation, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
+import { query } from "../../organization";
 import { idQuery } from "../../user";
 
 export const Route = createFileRoute("/organizations/new")({
+  validateSearch(search) {
+    if (search.name && typeof search.name === "string") return { name: search.name };
+
+    return {};
+  },
   component: RouteComponent,
 });
 
@@ -13,32 +19,59 @@ function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
 
-  async function handleSubmit(event: SubmitEvent) {
+  const createMutation = useMutation(() => ({
+    async mutationFn(name: string, context) {
+      const userId = await context.client.fetchQuery(idQuery);
+      //TODO change the endpoint to just accept text/plain with the new organization name as that is all that is required
+      const response = await fetch(`/api/users/${userId}/organizations`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+        }),
+      });
+
+      if (!response.ok) {
+        // TODO error handling
+        console.error("Error creating organization", await response.text());
+        throw new Error("Failed to create organization. See console for more details.");
+      }
+    },
+    onMutate: async (variables, context) => {
+      const userId = await context.client.fetchQuery(idQuery);
+      const queryOptions = query(userId);
+      // Cancel any outgoing refetches
+      // (so they don't overwrite our optimistic update)
+      await context.client.cancelQueries(queryOptions);
+
+      // Snapshot the previous value
+      const previous = context.client.getQueryData(queryOptions.queryKey);
+
+      // Optimistically update to the new value
+      context.client.setQueryData(queryOptions.queryKey, (old) => {
+        if (!Array.isArray(old)) return [{ name: variables }];
+        return [...old, { name: variables }];
+      });
+
+      // Return the snapshotted value
+      return { userId, previous };
+    },
+
+    async onError(_error, name, onMutateResult, context) {
+      context.client.setQueryData(query(onMutateResult?.userId).queryKey, onMutateResult?.previous);
+      navigate({ to: Route.fullPath, search: { name } });
+    },
+  }));
+
+  function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
 
     const form = event.currentTarget as HTMLFormElement;
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const name = nameInput.value;
-
-    const userId = await queryClient.fetchQuery(idQuery);
-    //TODO change the endpoint to just accept text/plain with the new organization name as that is all that is required
-    const response = await fetch(`/api/users/${userId}/organizations`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        name,
-      }),
-    });
-
-    if (!response.ok) {
-      // TODO error handling
-      console.error("Error creating organization", await response.text());
-      return;
-    }
-
-    navigate({ to: "/organizations" });
+    createMutation.mutate(name);
   }
 
   return (

@@ -34,7 +34,7 @@ export const Route = createRootRoute({
         fullPath: SignInRoute.fullPath,
       });
 
-      const search = { redirect: location.href === "/" ? undefined : location.href };
+      const search = location.href === "/" ? undefined : { redirect: location.href };
       // Throwing will stop any children from attempting to load and is the recommended way to redirect in a beforeLoad
       throw redirect({
         to: SignInRoute.fullPath,

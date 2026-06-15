@@ -89,6 +89,16 @@ public class OrganizationsController {
         return ResponseEntity.ok(toResponse(organization));
     }
 
+    @DeleteMapping("/{organizationId}")
+    public ResponseEntity<?> deleteOrganization(@PathVariable Long organizationId) {
+        Optional<Organization> organizationOptional = organizationRepository.findById(organizationId);
+        if (organizationOptional.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "organization not found"));
+        }
+        organizationRepository.delete(organizationOptional.get());
+        return ResponseEntity.noContent().build();
+    }
+
     private Map<String, Object> toUserResponse(User user) {
         return Map.of(
                 "id", user.getId(),

@@ -40,4 +40,11 @@
   .floating-action-button {
     @apply rounded-medium bg-primary text-on-primary focus-within:outline-primary absolute right-6 bottom-6 size-14 cursor-default content-center justify-items-center outline-offset-4 focus:outline-none;
   }
+
+  .icon-button {
+    &[data-variant="standard"] {
+      /* Default size */
+      @apply fill-on-surface-variant disabled:fill-on-surface/38 hover:not-disabled:bg-on-surface-variant/8 focus-visible:bg-on-surface-variant/10 active:bg-on-surface-variant/10 cursor-default rounded-full p-2;
+    }
+  }
 }
