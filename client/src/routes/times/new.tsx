@@ -4,9 +4,8 @@ import { For, Suspense } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
-import { query } from "../../project";
+import { isProject, query } from "../../project";
 import { idQuery } from "../../user";
-import { Route as TimesIndexRoute } from "../_app/times";
 
 export const Route = createFileRoute("/times/new")({
   component: RouteComponent,
@@ -66,14 +65,15 @@ function RouteComponent() {
       return;
     }
 
-    navigate({ to: TimesIndexRoute.path });
+    navigate({ to: "/times" });
   }
 
+  const selectableProjects = () => projects.data?.filter(isProject);
   return (
     <>
       <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
         <header class="bg-surface-container-high text-on-surface flex py-1">
-          <Link to={TimesIndexRoute.path} class="cursor-default p-4">
+          <Link to="/times" class="cursor-default p-4">
             <span class="sr-only">Discard</span>
             <Icon name="close" class="fill-on-surface size-6" />
           </Link>
@@ -130,7 +130,7 @@ function RouteComponent() {
               class="text-field col-span-full mt-1 w-full"
             >
               <Suspense fallback={<option disabled>Loading projects...</option>}>
-                <For each={projects.data}>
+                <For each={selectableProjects()}>
                   {(project) => <option value={project.id}>{project.name}</option>}
                 </For>
               </Suspense>
@@ -138,7 +138,7 @@ function RouteComponent() {
           </form>
         </main>
         <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
-          <Link to={TimesIndexRoute.path} data-variant="outlined" class="button">
+          <Link to="/times" data-variant="outlined" class="button">
             Cancel
           </Link>
 
