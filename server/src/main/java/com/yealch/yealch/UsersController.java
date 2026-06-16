@@ -112,7 +112,7 @@ public class UsersController {
                 .<ResponseEntity<?>>map(user -> {
                     if (user.getOrganizations().isEmpty()) {
                         Organization defaultOrganization = new Organization();
-                        defaultOrganization.setName("Default");
+                        defaultOrganization.setName(user.getName() + " Organization");
                         defaultOrganization.addMember(user);
                         organizationRepository.save(defaultOrganization);
                     }
@@ -137,7 +137,7 @@ public class UsersController {
                 .<ResponseEntity<?>>map(user -> {
                     if (user.getOrganizations().isEmpty()) {
                         Organization defaultOrganization = new Organization();
-                        defaultOrganization.setName("Default");
+                        defaultOrganization.setName(user.getName() + " Organization");
                         defaultOrganization.addMember(user);
                         organizationRepository.save(defaultOrganization);
                     }
@@ -145,7 +145,7 @@ public class UsersController {
                     user.getOrganizations().forEach(organization -> {
                         if (organization.getProjects().isEmpty()) {
                             Project defaultProject = new Project();
-                            defaultProject.setName("Default");
+                            defaultProject.setName(organization.getName() + " Project");
                             organization.addProject(defaultProject);
                             organizationRepository.save(organization);
                         }
