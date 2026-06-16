@@ -1,31 +1,37 @@
 import { useMutation, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 
-import Body from "../../Body";
-import Icon from "../../Icon";
-import { createOrganization, query } from "../../organization";
-import { idQuery } from "../../user";
+import Body from "../../../Body";
+import Icon from "../../../Icon";
+import { query, updateOrganizationName, type Id as OrganizationId } from "../../../organization";
+import { idQuery, type Id as UserId } from "../../../user";
+import { Route as OrganizationsRoute } from "../../_app/organizations";
 
-export const Route = createFileRoute("/organizations/new")({
+export const Route = createFileRoute("/organizations/$id/edit")({
+  component: RouteComponent,
+  async loader({ context }) {
+    const userId = await context.queryClient.ensureQueryData(idQuery);
+    return { userId };
+  },
   validateSearch(search) {
     if (search.name && typeof search.name === "string") return { name: search.name };
 
     return {};
   },
-  component: RouteComponent,
 });
 
 function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const search = Route.useSearch();
+  const loaderData = Route.useLoaderData();
+  const parameters = Route.useParams();
 
-  const createMutation = useMutation(() => ({
-    async mutationFn(name: string, context) {
-      const userId = await context.client.fetchQuery(idQuery);
-      await createOrganization(userId, name);
+  const updateNameMutation = useMutation(() => ({
+    async mutationFn({ userId, id, name }: { userId: UserId; id: OrganizationId; name: string }) {
+      await updateOrganizationName(userId, id, name);
     },
-    onMutate: async (variables, context) => {
+    async onMutate(variables, context) {
       const userId = await context.client.fetchQuery(idQuery);
       const queryOptions = query(userId);
       // Cancel any outgoing refetches
@@ -37,20 +43,29 @@ function RouteComponent() {
 
       // Optimistically update to the new value
       context.client.setQueryData(queryOptions.queryKey, (old) => {
-        if (!Array.isArray(old)) return [{ name: variables }];
-        return [...old, { name: variables }];
+        const org = old?.find(
+          (organization) => "id" in organization && organization.id === variables.id,
+        );
+        if (org) {
+          org.name = variables.name;
+        }
+        return old;
       });
 
       // Return the snapshotted value
       return { userId, previous };
     },
 
-    async onError(_error, name, onMutateResult, context) {
+    async onError(_error, variables, onMutateResult, context) {
       context.client.setQueryData(query(onMutateResult?.userId).queryKey, onMutateResult?.previous);
-      await navigate({ to: Route.fullPath, search: { name } });
+      await navigate({
+        to: "/organizations/$id/edit",
+        params: { id: variables.id },
+        search: { name: variables.name },
+      });
     },
-    async onSettled(_data, _error, _variables, context) {
-      await queryClient.invalidateQueries({ queryKey: query(context?.userId).queryKey });
+    async onSuccess(_data, _error, variables) {
+      await queryClient.invalidateQueries({ queryKey: query(variables.userId).queryKey });
     },
   }));
 
@@ -60,7 +75,9 @@ function RouteComponent() {
     const form = event.currentTarget as HTMLFormElement;
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const name = nameInput.value;
-    createMutation.mutate(name);
+    const userId = loaderData().userId;
+    //TODO find more elegant way to casting to OrganizationId
+    updateNameMutation.mutate({ userId, id: parameters().id as OrganizationId, name });
     await navigate({ to: "/organizations" });
   }
 
@@ -71,7 +88,7 @@ function RouteComponent() {
           <span class="sr-only">Discard</span>
           <Icon name="close" class="fill-on-surface size-6" />
         </Link>
-        <h1 class="text-title-lg content-center">New Organization</h1>
+        <h1 class="text-title-lg content-center">Edit Organization</h1>
       </header>
       <main class="h-min">
         <form id="organization" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
@@ -95,7 +112,7 @@ function RouteComponent() {
         </Link>
 
         <button type="submit" form="organization" data-variant="filled" class="button">
-          Create
+          Save
         </button>
       </footer>
     </Body>

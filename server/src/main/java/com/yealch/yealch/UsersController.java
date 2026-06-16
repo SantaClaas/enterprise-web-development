@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.OffsetDateTime;
@@ -303,6 +304,32 @@ public class UsersController {
 
                     return ResponseEntity.status(HttpStatus.CREATED).build();
                 })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
+
+    @PutMapping("/api/users/{userId}/organizations/{organizationId}/name")
+    public ResponseEntity<?> updateOrganizationName(@PathVariable Long userId, @PathVariable Long organizationId,
+            @RequestBody String newName) {
+
+        if (newName == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "organization name is required"));
+        }
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> organizationRepository.findById(organizationId)
+                        .<ResponseEntity<?>>map(organization -> {
+                            if (!organization.getMembers().contains(user)) {
+                                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                        .body(Map.of("error", "user is not a member of the organization"));
+                            }
+
+                            organization.setName(newName);
+                            organizationRepository.save(organization);
+
+                            return ResponseEntity.ok().build();
+                        })
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(Map.of("error", "organization not found"))))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
     }
 }

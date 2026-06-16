@@ -12,7 +12,6 @@ import {
 } from "../../../organization";
 import { Title } from "../../../Title";
 import { idQuery } from "../../../user";
-import { Route as MembersRoute } from "../../organizations/$id/members";
 
 export const Route = createFileRoute("/_app/organizations/")({
   component: Organizations,
@@ -73,33 +72,36 @@ function Organizations() {
 
                     <Show when={isOrganization(organization) && organization.id}>
                       {(id) => (
-                        <Link
-                          to={MembersRoute.path}
-                          params={{ id: id() }}
-                          data-variant="standard"
-                          class="icon-button"
-                        >
-                          <span class="sr-only">Open</span>
-                          <Icon name="open-in-new-window" class="fill-on-surface size-6" />
-                        </Link>
-                      )}
-                    </Show>
-                    <button data-variant="standard" class="icon-button">
-                      <span class="sr-only">Edit</span>
-                      <Icon name="edit" class="fill-on-surface size-6" />
-                    </button>
+                        <>
+                          <Link
+                            to="/organizations/$id/members"
+                            params={{ id: id() }}
+                            data-variant="standard"
+                            class="icon-button"
+                          >
+                            <span class="sr-only">Open</span>
+                            <Icon name="open-in-new-window" class="fill-on-surface size-6" />
+                          </Link>
 
-                    <Show when={isOrganization(organization) && organization.id}>
-                      {(id) => (
-                        <button
-                          disabled={isLastOrganization()}
-                          onClick={() => deleteMutation.mutate(id())}
-                          data-variant="standard"
-                          class="icon-button"
-                        >
-                          <span class="sr-only">Delete</span>
-                          <Icon name="close" class="fill-on-surface size-6" />
-                        </button>
+                          <Link
+                            to="/organizations/$id/edit"
+                            params={{ id: id() }}
+                            data-variant="standard"
+                            class="icon-button"
+                          >
+                            <span class="sr-only">Edit</span>
+                            <Icon name="edit" class="fill-on-surface size-6" />
+                          </Link>
+                          <button
+                            disabled={isLastOrganization()}
+                            onClick={() => deleteMutation.mutate(id())}
+                            data-variant="standard"
+                            class="icon-button"
+                          >
+                            <span class="sr-only">Delete</span>
+                            <Icon name="close" class="fill-on-surface size-6" />
+                          </button>
+                        </>
                       )}
                     </Show>
                   </li>

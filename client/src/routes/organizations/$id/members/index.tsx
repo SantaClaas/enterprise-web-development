@@ -52,7 +52,7 @@ export const Route = createFileRoute("/organizations/$id/members/")({
           {...properties}
           title="Error loading organization"
           explainer="Sorry, an error occurred while loading the organization. Please try again later."
-        />{" "}
+        />
       </Page>
     );
   },
