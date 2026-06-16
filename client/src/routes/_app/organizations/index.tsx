@@ -62,7 +62,7 @@ function Organizations() {
       </Link>
       {/* TODO overflow, pagination, scrolling */}
       <main class="text-title-lg px-6">
-        <ul class="grid grid-cols-[1fr_auto_auto_auto]">
+        <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
           <For each={organizationsQuery.data} fallback={<p>Loading organizations...</p>}>
             {(organization) => {
               return (
