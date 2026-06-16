@@ -5,9 +5,8 @@ import { For, Show } from "solid-js";
 import Icon from "../../../Icon";
 import {
   deleteOrganization,
+  isOrganization,
   query,
-  type OptimisticOrganization,
-  type Organization,
   type Id as OrganizationId,
 } from "../../../organization";
 import { Title } from "../../../Title";
@@ -49,10 +48,6 @@ function Organizations() {
   const isLastOrganization = () =>
     organizationsQuery.status === "success" && organizationsQuery.data?.length === 1;
 
-  const isOrganization = (
-    organization: Organization | OptimisticOrganization,
-  ): organization is Organization => "id" in organization;
-
   return (
     <>
       <Title title="Organizations" />
@@ -86,6 +81,7 @@ function Organizations() {
                           <Link
                             to="/organizations/$id/edit"
                             params={{ id: id() }}
+                            search={{ name: organization.name }}
                             data-variant="standard"
                             class="icon-button"
                           >

@@ -51,4 +51,16 @@ public class Project {
     public Organization getOrganization() {
         return organization;
     }
+
+    public Long getOrganizationId() {
+        return organizationId;
+    }
+
+    public Organization getOrganizationEntity() {
+        return organization;
+    }
+
+    public void setOrganizationId(Long organizationId) {
+        this.organizationId = organizationId;
+    }
 }

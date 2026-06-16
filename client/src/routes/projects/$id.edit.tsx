@@ -1,19 +1,31 @@
-import { useMutation, useQueryClient } from "@tanstack/solid-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
+import { For, Suspense } from "solid-js";
 
-import Body from "../../../Body";
-import Icon from "../../../Icon";
-import { query, updateOrganizationName, type Id as OrganizationId } from "../../../organization";
-import { idQuery, type Id as UserId } from "../../../user";
+import Body from "../../Body";
+import Icon from "../../Icon";
+import {
+  query as organizationQuery,
+  isOrganization,
+  type Id as OrganizationId,
+} from "../../organization";
+import { query, updateProject, type Id as ProjectId } from "../../project";
+import { idQuery } from "../../user";
 
-export const Route = createFileRoute("/organizations/$id/edit")({
+export const Route = createFileRoute("/projects/$id/edit")({
   component: RouteComponent,
   async loader({ context }) {
     const userId = await context.queryClient.ensureQueryData(idQuery);
     return { userId };
   },
   validateSearch(search) {
-    if (search.name && typeof search.name === "string") return { name: search.name };
+    if (
+      search.name &&
+      typeof search.name === "string" &&
+      search.organizationId &&
+      typeof search.organizationId === "string"
+    )
+      return { name: search.name, organizationId: search.organizationId };
 
     return {};
   },
@@ -25,11 +37,11 @@ function RouteComponent() {
   const search = Route.useSearch();
   const loaderData = Route.useLoaderData();
   const parameters = Route.useParams();
+  const userIdQuery = useQuery(() => idQuery);
+  const organizations = useQuery(() => organizationQuery(userIdQuery.data));
 
   const updateNameMutation = useMutation(() => ({
-    async mutationFn({ userId, id, name }: { userId: UserId; id: OrganizationId; name: string }) {
-      await updateOrganizationName(userId, id, name);
-    },
+    mutationFn: updateProject,
     async onMutate(variables, context) {
       const userId = await context.client.fetchQuery(idQuery);
       const queryOptions = query(userId);
@@ -42,11 +54,9 @@ function RouteComponent() {
 
       // Optimistically update to the new value
       context.client.setQueryData(queryOptions.queryKey, (old) => {
-        const organization = old?.find(
-          (organization) => "id" in organization && organization.id === variables.id,
-        );
-        if (organization) {
-          organization.name = variables.name;
+        const project = old?.find((project) => "id" in project && project.id === variables.id);
+        if (project) {
+          project.name = variables.name;
         }
         return old;
       });
@@ -58,9 +68,9 @@ function RouteComponent() {
     async onError(_error, variables, onMutateResult, context) {
       context.client.setQueryData(query(onMutateResult?.userId).queryKey, onMutateResult?.previous);
       await navigate({
-        to: "/organizations/$id/edit",
+        to: "/projects/$id/edit",
         params: { id: variables.id },
-        search: { name: variables.name },
+        search: { name: variables.name, organizationId: variables.organizationId },
       });
     },
     async onSuccess(_data, _error, variables) {
@@ -75,22 +85,27 @@ function RouteComponent() {
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const name = nameInput.value;
     const userId = loaderData().userId;
-    //TODO find more elegant way to casting to OrganizationId
-    updateNameMutation.mutate({ userId, id: parameters().id as OrganizationId, name });
-    await navigate({ to: "/organizations" });
+    const organizationSelect = form.elements.namedItem("organization") as HTMLSelectElement;
+    const organizationId = organizationSelect.value as OrganizationId;
+    //TODO find more elegant way to casting to ProjectId
+    const id = parameters().id as ProjectId;
+    updateNameMutation.mutate({ userId, id, name, organizationId });
+    await navigate({ to: "/projects" });
   }
+
+  const selectableOrganizations = () => organizations.data?.filter(isOrganization);
 
   return (
     <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
       <header class="bg-surface-container-high text-on-surface flex py-1">
-        <Link to="/organizations" class="cursor-default p-4">
+        <Link to="/projects" class="cursor-default p-4">
           <span class="sr-only">Discard</span>
           <Icon name="close" class="fill-on-surface size-6" />
         </Link>
-        <h1 class="text-title-lg content-center">Edit Organization</h1>
+        <h1 class="text-title-lg content-center">Edit Project</h1>
       </header>
       <main class="h-min">
-        <form id="organization" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
+        <form id="project" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
           {/* TODO same day toggle */}
           {/* TODO form validation start < end */}
           <label for="name" class="text-label-lg text-on-surface-variant col-span-2 block">
@@ -103,14 +118,33 @@ function RouteComponent() {
             value={search().name ?? ""}
             class="text-field col-span-2 mt-1 w-full"
           />
+          <label
+            for="organization"
+            class="text-label-lg text-on-surface-variant row-start-3 mt-4 block"
+          >
+            Organization
+          </label>
+          <select id="organization" required class="text-field col-span-2 mt-1 w-full">
+            <Suspense
+              fallback={
+                <option value="" disabled>
+                  Loading...
+                </option>
+              }
+            >
+              <For each={selectableOrganizations()}>
+                {(organization) => <option value={organization.id}>{organization.name}</option>}
+              </For>
+            </Suspense>
+          </select>
         </form>
       </main>
       <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
-        <Link to="/organizations" data-variant="outlined" class="button">
+        <Link to="/projects" data-variant="outlined" class="button">
           Cancel
         </Link>
 
-        <button type="submit" form="organization" data-variant="filled" class="button">
+        <button type="submit" form="project" data-variant="filled" class="button">
           Save
         </button>
       </footer>

@@ -286,11 +286,10 @@ public class UsersController {
     /** Creates a new organization with this user in it */
     @PostMapping("/api/users/{userId}/organizations")
     public ResponseEntity<?> createOrganizationForUser(@PathVariable Long userId,
-            @RequestBody Map<String, String> request) {
+            @RequestBody String organizationName) {
         // TODO check on authorization if the user id is the same user that sends the
         // request
 
-        String organizationName = request.get("name");
         if (organizationName == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "organization name is required"));
         }
@@ -330,6 +329,38 @@ public class UsersController {
                         })
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
                                 .body(Map.of("error", "organization not found"))))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
+
+    record UpdateProjectRequest(String name, Long organizationId) {
+    }
+
+    @PutMapping("/api/users/{userId}/projects/{projectId}")
+    public ResponseEntity<?> updateProject(@PathVariable Long userId, @PathVariable Long projectId,
+            @RequestBody UpdateProjectRequest request) {
+
+        //
+        if (request == null || request.name() == null || request.organizationId() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("error", "name and organizationId are required"));
+        }
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> projectRepository.findById(projectId)
+                        .<ResponseEntity<?>>map(project -> {
+                            if (!project.getOrganization().getMembers().contains(user)) {
+                                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                        .body(Map.of("error", "user is not a member of the project"));
+                            }
+
+                            project.setName(request.name());
+                            project.setOrganizationId(request.organizationId());
+                            projectRepository.save(project);
+
+                            return ResponseEntity.ok().build();
+                        })
+                        .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                .body(Map.of("error", "project not found"))))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
     }
 }

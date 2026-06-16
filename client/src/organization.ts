@@ -44,11 +44,9 @@ export async function createOrganization(userId: UserId, name: string) {
   const response = await fetch(`/api/users/${userId}/organizations`, {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "text/plain",
     },
-    body: JSON.stringify({
-      name,
-    }),
+    body: name,
   });
 
   if (!response.ok) {
@@ -62,7 +60,7 @@ export async function updateOrganizationName(userId: UserId, id: Id, name: strin
   const response = await fetch(`/api/users/${userId}/organizations/${id}/name`, {
     method: "PUT",
     headers: {
-      "Content-Type": "application/json",
+      "Content-Type": "text/plain",
     },
     body: name,
   });
@@ -73,3 +71,7 @@ export async function updateOrganizationName(userId: UserId, id: Id, name: strin
     throw new Error("Failed to update organization name. See console for more details.");
   }
 }
+
+export const isOrganization = (
+  organization: Organization | OptimisticOrganization,
+): organization is Organization => "id" in organization;

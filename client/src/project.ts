@@ -1,10 +1,12 @@
 import { queryOptions, useQueryClient } from "@tanstack/solid-query";
 import { createResource } from "solid-js";
 
-import type { ProjectId } from "./branded";
+import { type Organization, type Id as OrganizationId } from "./organization";
 import { idQuery, QUERY_BASE } from "./user";
 
-export type Project = { id: ProjectId; name: string };
+export type Id = string & { __brand: "ProjectId" };
+export type Project = { id: Id; name: string; organization: Organization };
+export type OptimisticProject = Omit<Project, "id">;
 
 export function useProjects() {
   const queryClient = useQueryClient();
@@ -25,12 +27,13 @@ export function useProjects() {
   return projects;
 }
 
-export const query = (userId: string | undefined) =>
+export const query = (userId: string | undefined, signal?: AbortSignal) =>
   queryOptions({
     queryKey: [QUERY_BASE, userId, "projects"],
-    async queryFn() {
+    async queryFn(): Promise<(Project | OptimisticProject)[]> {
       const response = await fetch(`/api/users/${userId}/projects`, {
         method: "GET",
+        signal,
       });
 
       if (!response.ok)
@@ -41,3 +44,35 @@ export const query = (userId: string | undefined) =>
     },
     enabled: Boolean(userId),
   });
+
+export type UpdateProjectParameters = {
+  userId: string;
+  id: Id;
+  name: string;
+  organizationId: OrganizationId;
+};
+
+export async function updateProject({ userId, id, ...parameters }: UpdateProjectParameters) {
+  const response = await fetch(`/api/users/${userId}/projects/${id}`, {
+    method: "PUT",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(parameters),
+  });
+
+  if (!response.ok)
+    throw new Error(`Error updating project: ${response.status} ${await response.text()}`);
+}
+
+export const isProject = (project: Project | OptimisticProject): project is Project =>
+  "id" in project;
+
+export async function deleteProject(id: Id) {
+  const response = await fetch(`/api/projects/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok)
+    throw new Error(`Failed to delete project. See network response for more details.`);
+}

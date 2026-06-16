@@ -4,7 +4,7 @@ import { For, Suspense } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
-import { query } from "../../organization";
+import { isOrganization, query } from "../../organization";
 import { idQuery } from "../../user";
 
 export const Route = createFileRoute("/projects/new")({
@@ -48,6 +48,8 @@ function RouteComponent() {
     navigate({ to: "/projects" });
   }
 
+  const selectableOrganizations = () => organizations.data?.filter(isOrganization);
+
   return (
     <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
       <header class="bg-surface-container-high text-on-surface flex py-1">
@@ -80,7 +82,7 @@ function RouteComponent() {
                 </option>
               }
             >
-              <For each={organizations.data}>
+              <For each={selectableOrganizations()}>
                 {(organization) => <option value={organization.id}>{organization.name}</option>}
               </For>
             </Suspense>
