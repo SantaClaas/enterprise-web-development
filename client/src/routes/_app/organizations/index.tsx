@@ -1,9 +1,10 @@
-import { useMutation, useQueryClient } from "@tanstack/solid-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { For, Show, type VoidProps } from "solid-js";
+import { For, Show } from "solid-js";
 
 import Icon from "../../../Icon";
 import {
+  deleteOrganization,
   query,
   type OptimisticOrganization,
   type Organization,
@@ -15,37 +16,39 @@ import { Route as MembersRoute } from "../../organizations/$id/members";
 
 export const Route = createFileRoute("/_app/organizations/")({
   component: Organizations,
-  async loader({ context: { queryClient } }) {
+  async loader({ context: { queryClient }, abortController }) {
     const userId = await queryClient.ensureQueryData(idQuery);
-    const organizations = await queryClient.ensureQueryData(query(userId));
+    const organizations = await queryClient.ensureQueryData(query(userId, abortController.signal));
 
     return { organizations, userId };
   },
 });
 
 function Organizations() {
-  const data = Route.useLoaderData();
+  const routeData = Route.useLoaderData();
+  const userId = () => routeData().userId;
+
+  const options = () => query(userId());
+  const organizationsQuery = useQuery(options);
 
   const queryClient = useQueryClient();
-  const deleteMutation = useMutation(() => ({
-    async mutationFn(organizationId: OrganizationId) {
-      const response = await fetch(`/api/organizations/${organizationId}`, {
-        method: "DELETE",
-      });
+  const deleteMutation = useMutation(() => {
+    const currentUserId = userId();
+    const queryKey = ["user", currentUserId, "organizations"];
 
-      if (!response.ok)
-        throw new Error("Failed to delete organization. See network response for more details.");
-    },
-
-    onSettled() {
-      queryClient.invalidateQueries({ queryKey: [query(data().userId).queryKey] });
-    },
-  }));
+    return {
+      mutationFn: deleteOrganization,
+      async onSettled() {
+        await queryClient.invalidateQueries({ queryKey });
+      },
+    };
+  });
 
   const isDeleting = (id: OrganizationId) =>
     deleteMutation.isPending && deleteMutation.variables === id;
 
-  const isLastOrganization = () => data().organizations.length === 1;
+  const isLastOrganization = () =>
+    organizationsQuery.status === "success" && organizationsQuery.data?.length === 1;
 
   const isOrganization = (
     organization: Organization | OptimisticOrganization,
@@ -61,7 +64,7 @@ function Organizations() {
       {/* TODO overflow, pagination, scrolling */}
       <main class="text-title-lg px-6">
         <ul class="grid grid-cols-[1fr_auto_auto_auto]">
-          <For each={data().organizations} fallback={<p>Loading organizations...</p>}>
+          <For each={organizationsQuery.data} fallback={<p>Loading organizations...</p>}>
             {(organization) => {
               return (
                 <Show when={!isOrganization(organization) || !isDeleting(organization.id)}>

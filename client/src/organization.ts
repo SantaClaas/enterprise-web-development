@@ -10,12 +10,13 @@ export type Organization = {
 
 export type OptimisticOrganization = Omit<Organization, "id">;
 
-export const query = (userId: UserId | undefined) =>
+export const query = (userId: UserId | undefined, signal?: AbortSignal) =>
   queryOptions({
     queryKey: [QUERY_BASE, userId, "organizations"],
     async queryFn(): Promise<(Organization | OptimisticOrganization)[]> {
       const response = await fetch(`/api/users/${userId}/organizations`, {
         method: "GET",
+        signal,
       });
 
       if (!response.ok)
@@ -28,3 +29,12 @@ export const query = (userId: UserId | undefined) =>
     },
     enabled: Boolean(userId),
   });
+
+export async function deleteOrganization(id: Id) {
+  const response = await fetch(`/api/organizations/${id}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok)
+    throw new Error("Failed to delete organization. See network response for more details.");
+}
