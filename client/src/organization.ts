@@ -1,6 +1,6 @@
-import { mutationOptions, queryOptions } from "@tanstack/solid-query";
+import { queryOptions } from "@tanstack/solid-query";
 
-import { idQuery, QUERY_BASE, type Id as UserId } from "./user";
+import { QUERY_BASE, type Id as UserId } from "./user";
 
 export type Id = string & { __brand: "OrganizationId" };
 export type Organization = {

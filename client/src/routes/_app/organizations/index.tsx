@@ -86,15 +86,19 @@ function Organizations() {
                       <Icon name="edit" class="fill-on-surface size-6" />
                     </button>
 
-                    <button
-                      disabled={isLastOrganization()}
-                      onClick={() => deleteMutation.mutate(organization.id)}
-                      data-variant="standard"
-                      class="icon-button"
-                    >
-                      <span class="sr-only">Delete</span>
-                      <Icon name="close" class="fill-on-surface size-6" />
-                    </button>
+                    <Show when={isOrganization(organization) && organization.id}>
+                      {(id) => (
+                        <button
+                          disabled={isLastOrganization()}
+                          onClick={() => deleteMutation.mutate(id())}
+                          data-variant="standard"
+                          class="icon-button"
+                        >
+                          <span class="sr-only">Delete</span>
+                          <Icon name="close" class="fill-on-surface size-6" />
+                        </button>
+                      )}
+                    </Show>
                   </li>
                 </Show>
               );

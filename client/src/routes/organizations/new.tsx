@@ -18,6 +18,7 @@ export const Route = createFileRoute("/organizations/new")({
 function RouteComponent() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const search = Route.useSearch();
 
   const createMutation = useMutation(() => ({
     async mutationFn(name: string, context) {
@@ -63,15 +64,19 @@ function RouteComponent() {
       context.client.setQueryData(query(onMutateResult?.userId).queryKey, onMutateResult?.previous);
       navigate({ to: Route.fullPath, search: { name } });
     },
+    async onSettled(_data, _error, _variables, context) {
+      await queryClient.invalidateQueries({ queryKey: query(context?.userId).queryKey });
+    },
   }));
 
-  function handleSubmit(event: SubmitEvent) {
+  async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
 
     const form = event.currentTarget as HTMLFormElement;
     const nameInput = form.elements.namedItem("name") as HTMLInputElement;
     const name = nameInput.value;
     createMutation.mutate(name);
+    await navigate({ to: "/organizations" });
   }
 
   return (
@@ -90,7 +95,13 @@ function RouteComponent() {
           <label for="name" class="text-label-lg text-on-surface-variant col-span-2 block">
             Name
           </label>
-          <input type="text" id="name" required class="text-field col-span-2 mt-1 w-full" />
+          <input
+            type="text"
+            id="name"
+            required
+            value={search().name ?? ""}
+            class="text-field col-span-2 mt-1 w-full"
+          />
         </form>
       </main>
       <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
