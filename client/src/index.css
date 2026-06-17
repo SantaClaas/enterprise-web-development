@@ -41,7 +41,7 @@
   }
 
   .floating-action-button {
-    @apply rounded-medium bg-primary text-on-primary focus-within:outline-primary absolute right-6 bottom-6 size-14 cursor-default content-center justify-items-center outline-offset-4 focus:outline-none;
+    @apply rounded-medium bg-primary text-on-primary focus-within:outline-primary absolute right-6 bottom-6 grid size-14 cursor-default content-center justify-items-center outline-offset-4 focus:outline-none;
   }
 
   .icon-button {
