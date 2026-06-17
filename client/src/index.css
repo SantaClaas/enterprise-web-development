@@ -6,6 +6,7 @@
 
 :root {
   @apply bg-surface text-on-surface mx-auto max-w-2xl overscroll-none;
+  color-scheme: light dark;
 }
 
 /* Not using TSX components as these are supposed to be simple headless components and class merging requires JS to run while this can be done off-thread in CSS */
