@@ -21,10 +21,7 @@ function RouteComponent() {
 
   const navigate = useNavigate();
 
-  async function handleSubmit(event: SubmitEvent) {
-    event.preventDefault();
-
-    const form = event.currentTarget as HTMLFormElement;
+  function extractValues(form: HTMLFormElement) {
     const dateInput = form.elements.namedItem("date") as HTMLInputElement;
     const date = Temporal.PlainDate.from(dateInput.value);
     console.debug("Date", date);
@@ -43,6 +40,14 @@ function RouteComponent() {
       timeZone,
     });
 
+    return { start, end, startInput, endInput };
+  }
+  async function handleSubmit(event: SubmitEvent) {
+    event.preventDefault();
+
+    const form = event.currentTarget as HTMLFormElement;
+
+    const { start, end } = extractValues(form);
     const projectSelect = form.elements.namedItem("project") as HTMLSelectElement;
     const projectId = projectSelect.value;
 
@@ -69,6 +74,26 @@ function RouteComponent() {
   }
 
   const selectableProjects = () => projects.data?.filter(isProject);
+
+  function handleInput(event: InputEvent) {
+    const input = event.currentTarget as HTMLInputElement;
+    const isStart = input.name === "start";
+    const { start, end, startInput, endInput } = extractValues(input.form!);
+
+    if (isStart && Temporal.ZonedDateTime.compare(start, end) >= 0) {
+      startInput.setCustomValidity("Start time must be before end time.");
+      return;
+    } else {
+      startInput.setCustomValidity("");
+    }
+
+    if (!isStart && Temporal.ZonedDateTime.compare(end, start) >= 0) {
+      endInput.setCustomValidity("Start time must be before end time.");
+      return;
+    } else {
+      endInput.setCustomValidity("");
+    }
+  }
   return (
     <>
       <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
@@ -103,6 +128,7 @@ function RouteComponent() {
               id="start"
               name="start"
               required
+              onInput={handleInput}
               class="text-field row-start-4 mt-1 w-full"
             />
 
@@ -114,6 +140,7 @@ function RouteComponent() {
               id="end"
               name="end"
               required
+              onInput={handleInput}
               value={Temporal.Now.plainTimeISO().toString().substring(0, 5)}
               class="text-field row-start-4 mt-1 w-full"
             />

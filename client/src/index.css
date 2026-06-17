@@ -13,6 +13,9 @@
   /* @apply in components is afaik not best practice but the only way to get color variables from plugins as Tailwind CSS v4 does not create variables for those and has the same behavior as in v3 */
   .text-field {
     @apply border-outline rounded-extra-small focus-visible:outline-primary text-body-lg border px-4 py-4 leading-6 focus-visible:outline-3;
+    &:user-invalid {
+      @apply outline-error outline-3;
+    }
   }
 
   /* TODO button states */
