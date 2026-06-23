@@ -3,16 +3,20 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-ro
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
-import { idQuery, type Id as UserId } from "../user";
+import { idQuery, UnauthenticatedError, type Id as UserId } from "../user";
 
 export const Route = createFileRoute("/sign-up")({
   component: RouteComponent,
-  async beforeLoad({ location, context: { queryClient } }) {
-    if (await queryClient.fetchQuery(idQuery)) {
-      console.debug("User is already signed in, redirecting to home page", location.href);
-      throw redirect({
-        to: "/",
-      });
+  async beforeLoad({ context: { queryClient } }) {
+    try {
+      if (await queryClient.fetchQuery(idQuery)) {
+        throw redirect({
+          to: "/",
+        });
+      }
+    } catch (error) {
+      if (error instanceof UnauthenticatedError) return;
+      throw error;
     }
   },
 });

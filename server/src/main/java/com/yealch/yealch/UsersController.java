@@ -64,35 +64,6 @@ public class UsersController {
     record CreateUserRequest(String name, String username, String password) {
     }
 
-    @PostMapping("/api/users")
-    public ResponseEntity<?> createUser(@RequestBody CreateUserRequest request) {
-        if (request == null || request.name() == null || request.username() == null || request.password() == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "name, username, and password are required"));
-        }
-
-        User user = new User();
-        user.setName(request.name());
-        user.setUsername(request.username());
-        user.setPassword(request.password());
-        userRepository.save(user);
-
-        return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                "id", user.getId(),
-                "name", user.getName(),
-                "username", user.getUsername()));
-    }
-
-    @GetMapping("/api/users/{userId}")
-    public ResponseEntity<?> getUserById(@PathVariable Long userId) {
-        return userRepository.findById(userId)
-                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(Map.of(
-                        "id", user.getId(),
-                        "name", user.getName(),
-                        "username", user.getUsername())))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
-    }
-
     record GetUserOrganizationsResponse(Long id, String name) {
     }
 
