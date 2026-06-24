@@ -3,7 +3,7 @@ import { createFileRoute, Link } from "@tanstack/solid-router";
 import { createSignal, For, type VoidProps } from "solid-js";
 
 import Icon from "@/Icon";
-import { query, type Time, type TimeId } from "@/time";
+import { deleteTimes, query, updateTimes, type Time, type TimeId } from "@/time";
 import { Title } from "@/Title";
 import { idQuery, type UserId } from "@/user";
 
@@ -76,23 +76,23 @@ function Day(properties: VoidProps<DayProperties>) {
   const dayId = properties.day.toString();
   const editFormId = "edit-" + dayId;
 
-  type UpdateParameters = {
-    userId: UserId;
-    times: Time[];
-  };
-
   // TODO optimistic update
   const updateMutation = useMutation(() => ({
-    async mutationFn({ userId, times }: UpdateParameters) {
-      const response = await fetch(`/api/users/${userId}/times`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(times),
-      });
-
-      if (!response.ok) throw new Error("Error updating times");
+    async mutationFn({
+      userId,
+      times,
+      idsToDelete,
+    }: {
+      userId: UserId;
+      times: Time[];
+      idsToDelete: TimeId[];
+    }) {
+      console.debug("Updating times", { userId, times, idsToDelete });
+      // Not very elegant but does the job for now
+      const updatePromise = times.length > 0 ? updateTimes({ userId, times }) : Promise.resolve();
+      const deletePromise =
+        idsToDelete.length > 0 ? deleteTimes({ userId, timeIds: idsToDelete }) : Promise.resolve();
+      await Promise.all([updatePromise, deletePromise]);
     },
     onSettled(_data, _error, variables, _result, context) {
       setIsEdit(false);
@@ -104,13 +104,23 @@ function Day(properties: VoidProps<DayProperties>) {
   function handleEditSubmit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
     event.preventDefault();
 
+    const idsToDelete: TimeId[] = [];
     const times: Time[] = [];
     for (const element of event.currentTarget.elements) {
       if (!(element instanceof HTMLFieldSetElement)) continue;
 
       const timeIdInput = element.elements.namedItem("time-id") as HTMLInputElement;
 
-      const timeId = timeIdInput.value;
+      const timeId = timeIdInput.value as TimeId;
+
+      console.debug("ELEMENTS", element.elements);
+      const deleteInput = element.elements.namedItem(`delete-${timeId}`) as HTMLInputElement;
+
+      if (deleteInput.checked) {
+        idsToDelete.push(timeId);
+        continue;
+      }
+
       const startInput = element.elements.namedItem(`start-${timeId}`) as HTMLInputElement;
       const startTime = Temporal.PlainTime.from(startInput.value);
       const startInstant = properties.day
@@ -124,15 +134,18 @@ function Day(properties: VoidProps<DayProperties>) {
         .toInstant();
 
       times.push({
-        id: timeId as TimeId,
+        id: timeId,
         start: startInstant,
         end: endInstant,
       });
     }
 
+    if (idsToDelete.length === 0 && times.length === 0) return;
+
     updateMutation.mutate({
       userId: properties.userId,
       times,
+      idsToDelete,
     });
   }
 
@@ -227,7 +240,7 @@ function Day(properties: VoidProps<DayProperties>) {
                 <fieldset
                   id={`${TIME_PREFIX}-${time.id}`}
                   disabled={updateMutation.isPending}
-                  class="rounded-medium col-span-full grid grid-cols-3 gap-3 p-2"
+                  class="rounded-medium col-span-full grid grid-cols-3 gap-3 py-2 ps-2 has-checked:line-through"
                 >
                   <input type="hidden" name="time-id" value={time.id} />
                   <label for={`start-${time.id}`} class="sr-only">
@@ -258,9 +271,22 @@ function Day(properties: VoidProps<DayProperties>) {
                     class="bg-surface rounded-full p-2"
                   />
 
-                  <time datetime={duration.toString()} class="bg-surface rounded-full p-2">
-                    {formattedNewDuration()}
-                  </time>
+                  <div class="flex items-center gap-2">
+                    <time datetime={duration.toString()} class="bg-surface grow rounded-full p-2">
+                      {formattedNewDuration()}
+                    </time>
+                    <label class="icon-button group">
+                      <span class="sr-only">Delete</span>
+                      <Icon name="delete" class="size-6 group-has-checked:hidden" />
+                      <Icon name="close" class="hidden size-6 group-has-checked:block" />
+                      <input
+                        type="checkbox"
+                        id={`delete-${time.id}`}
+                        name={`delete-${time.id}`}
+                        class="sr-only"
+                      />
+                    </label>
+                  </div>
                 </fieldset>
               );
             }}
