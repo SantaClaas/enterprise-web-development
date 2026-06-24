@@ -1,5 +1,6 @@
 package com.yealch.yealch;
 
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.HttpStatus;
@@ -395,6 +396,52 @@ public class UsersController {
                         time.setStart(start);
                         time.setEnd(end);
                         timeRepository.save(time);
+                    }
+
+                    return ResponseEntity.ok().build();
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
+
+    @DeleteMapping("/api/users/{userId}/times")
+    public ResponseEntity<?> deleteUserTimes(@PathVariable Long userId,
+            @RequestBody java.util.List<String> request) {
+
+        if (request == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "request body is required"));
+        }
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> {
+                    for (String idStr : request) {
+                        if (idStr == null) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body(Map.of("error", "time id must be provided"));
+                        }
+
+                        Long timeId;
+                        try {
+                            timeId = Long.parseLong(idStr);
+                        } catch (NumberFormatException e) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body(Map.of("error", "invalid time id: " + idStr));
+                        }
+
+                        var maybeTime = timeRepository.findById(timeId);
+                        if (maybeTime.isEmpty()) {
+                            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                    .body(Map.of("error", "time not found: " + timeId));
+                        }
+
+                        Time time = maybeTime.get();
+                        Project project = time.getProject();
+                        if (project == null || project.getOrganization() == null
+                                || !project.getOrganization().getMembers().contains(user)) {
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                    .body(Map.of("error", "user is not allowed to delete time: " + timeId));
+                        }
+
+                        timeRepository.delete(time);
                     }
 
                     return ResponseEntity.ok().build();
