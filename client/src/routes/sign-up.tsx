@@ -3,7 +3,7 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-ro
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
-import { idQuery, UnauthenticatedError, type UserId as UserId } from "../user";
+import { idQuery, UnauthenticatedError, UserId } from "../user";
 
 export const Route = createFileRoute("/sign-up")({
   component: RouteComponent,
