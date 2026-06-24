@@ -102,6 +102,8 @@ function Day(properties: VoidProps<DayProperties>) {
 
   const TIME_PREFIX = "time-";
   function handleEditSubmit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
+    event.preventDefault();
+
     const times: Time[] = [];
     for (const element of event.currentTarget.elements) {
       if (!(element instanceof HTMLFieldSetElement)) continue;

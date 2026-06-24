@@ -334,4 +334,71 @@ public class UsersController {
                                 .body(Map.of("error", "project not found"))))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
     }
+
+    record UpdateTimeRequest(String id, String start, String end) {
+    }
+
+    @PutMapping("/api/users/{userId}/times")
+    public ResponseEntity<?> updateUserTimes(@PathVariable Long userId,
+            @RequestBody java.util.List<UpdateTimeRequest> request) {
+
+        if (request == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "request body is required"));
+        }
+
+        return userRepository.findById(userId)
+                .<ResponseEntity<?>>map(user -> {
+                    for (UpdateTimeRequest item : request) {
+                        if (item == null || item.id() == null || item.start() == null || item.end() == null) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body(Map.of("error", "id, start and end are required for each time"));
+                        }
+
+                        Long timeId;
+                        try {
+                            timeId = Long.parseLong(item.id());
+                        } catch (NumberFormatException e) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body(Map.of("error", "invalid time id: " + item.id()));
+                        }
+
+                        OffsetDateTime start;
+                        OffsetDateTime end;
+                        try {
+                            start = OffsetDateTime.parse(item.start());
+                            end = OffsetDateTime.parse(item.end());
+                        } catch (java.time.format.DateTimeParseException e) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body(Map.of("error",
+                                            "invalid start or end format, expected ISO 8601 format with timezone offset"));
+                        }
+
+                        if (!start.isBefore(end)) {
+                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                                    .body(Map.of("error", "start must be before end"));
+                        }
+
+                        var maybeTime = timeRepository.findById(timeId);
+                        if (maybeTime.isEmpty()) {
+                            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                                    .body(Map.of("error", "time not found: " + timeId));
+                        }
+
+                        Time time = maybeTime.get();
+                        Project project = time.getProject();
+                        if (project == null || project.getOrganization() == null
+                                || !project.getOrganization().getMembers().contains(user)) {
+                            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                                    .body(Map.of("error", "user is not allowed to modify time: " + timeId));
+                        }
+
+                        time.setStart(start);
+                        time.setEnd(end);
+                        timeRepository.save(time);
+                    }
+
+                    return ResponseEntity.ok().build();
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+    }
 }
