@@ -24,7 +24,6 @@ function RouteComponent() {
   function extractValues(form: HTMLFormElement) {
     const dateInput = form.elements.namedItem("date") as HTMLInputElement;
     const date = Temporal.PlainDate.from(dateInput.value);
-    console.debug("Date", date);
 
     const startInput = form.elements.namedItem("start") as HTMLInputElement;
     const startTime = Temporal.PlainTime.from(startInput.value);

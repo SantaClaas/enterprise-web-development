@@ -4,7 +4,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import Body from "../../../Body";
 import Icon from "../../../Icon";
 import { query, updateOrganizationName, type Id as OrganizationId } from "../../../organization";
-import { idQuery, type Id as UserId } from "../../../user";
+import { idQuery, type UserId } from "../../../user";
 
 export const Route = createFileRoute("/organizations/$id/edit")({
   component: RouteComponent,

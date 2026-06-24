@@ -1,6 +1,6 @@
 import { queryOptions } from "@tanstack/solid-query";
 
-export type Id = string & { __brand: "UserId" };
+export type UserId = string & { __brand: "UserId" };
 
 /** Custom error to differentiate between network, server and authentication errors */
 export class UnauthenticatedError extends Error {}
@@ -24,7 +24,7 @@ export const idQuery = queryOptions({
       );
 
     // Safe cast because parsing requires the expectation we know what the API returns
-    return (await response.text()) as Id;
+    return (await response.text()) as UserId;
   },
   // The user id is valid for the whole runtime of the application and needs to be invalidated manually when the user signs out
   staleTime: Infinity,

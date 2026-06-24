@@ -1,16 +1,15 @@
-import { useMutation } from "@tanstack/solid-query";
+import { useMutation, useQuery } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { createSignal, For, type VoidProps } from "solid-js";
 
-import Icon from "../../../Icon";
-import { Title } from "../../../Title";
-import { idQuery, type Id as UserId } from "../../../user";
+import Icon from "@/Icon";
+import { query, type Time, type TimeId } from "@/time";
+import { Title } from "@/Title";
+import { idQuery, type UserId } from "@/user";
 
-type Time = {
-  id: string;
-  start: Temporal.Instant;
-  end: Temporal.Instant;
-};
+// Assume time zone does not change during the runtime of the application
+const timeZone = Temporal.Now.timeZoneId();
+
 export const Route = createFileRoute("/_app/times/")({
   component: Times,
   async loader({ context: { queryClient } }) {
@@ -23,7 +22,6 @@ export const Route = createFileRoute("/_app/times/")({
       time.end = Temporal.Instant.from(time.end);
     }
 
-    const timeZone = Temporal.Now.timeZoneId();
     const timesByDate = Map.groupBy(times, (time) => {
       return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
     });
@@ -47,7 +45,6 @@ type DayProperties = {
 };
 
 const today = Temporal.Now.plainDateISO();
-const timeZone = Temporal.Now.timeZoneId();
 
 const dateFormatter = new Intl.DateTimeFormat(undefined, {
   weekday: "long",
@@ -83,6 +80,8 @@ function Day(properties: VoidProps<DayProperties>) {
     userId: UserId;
     times: Time[];
   };
+
+  // TODO optimistic update
   const updateMutation = useMutation(() => ({
     async mutationFn({ userId, times }: UpdateParameters) {
       const response = await fetch(`/api/users/${userId}/times`, {
@@ -95,10 +94,44 @@ function Day(properties: VoidProps<DayProperties>) {
 
       if (!response.ok) throw new Error("Error updating times");
     },
+    onSettled(_data, _error, variables, _result, context) {
+      setIsEdit(false);
+      context.client.invalidateQueries({ queryKey: query(variables.userId).queryKey, exact: true });
+    },
   }));
 
+  const TIME_PREFIX = "time-";
   function handleEditSubmit(event: SubmitEvent & { currentTarget: HTMLFormElement }) {
-    // TODO
+    const times: Time[] = [];
+    for (const element of event.currentTarget.elements) {
+      if (!(element instanceof HTMLFieldSetElement)) continue;
+
+      const timeIdInput = element.elements.namedItem("time-id") as HTMLInputElement;
+
+      const timeId = timeIdInput.value;
+      const startInput = element.elements.namedItem(`start-${timeId}`) as HTMLInputElement;
+      const startTime = Temporal.PlainTime.from(startInput.value);
+      const startInstant = properties.day
+        .toZonedDateTime({ timeZone, plainTime: startTime })
+        .toInstant();
+
+      const endInput = element.elements.namedItem(`end-${timeId}`) as HTMLInputElement;
+      const endTime = Temporal.PlainTime.from(endInput.value);
+      const endInstant = properties.day
+        .toZonedDateTime({ timeZone, plainTime: endTime })
+        .toInstant();
+
+      times.push({
+        id: timeId as TimeId,
+        start: startInstant,
+        end: endInstant,
+      });
+    }
+
+    updateMutation.mutate({
+      userId: properties.userId,
+      times,
+    });
   }
 
   return (
@@ -120,6 +153,7 @@ function Day(properties: VoidProps<DayProperties>) {
         <button
           type="submit"
           form={editFormId}
+          disabled={updateMutation.isPending}
           class="icon-button fill-on-surface hidden group-data-is-edit:block"
         >
           <span class="sr-only">Save</span>
@@ -128,6 +162,7 @@ function Day(properties: VoidProps<DayProperties>) {
 
         <button
           onClick={cancelEdit}
+          disabled={updateMutation.isPending}
           class="icon-button fill-on-surface hidden group-data-is-edit:block"
         >
           <span class="sr-only">Cancel</span>
@@ -187,7 +222,12 @@ function Day(properties: VoidProps<DayProperties>) {
               const formattedNewDuration = () => durationFormatter.format(newDuration());
 
               return (
-                <fieldset class="rounded-medium col-span-full grid grid-cols-3 gap-3 p-2">
+                <fieldset
+                  id={`${TIME_PREFIX}-${time.id}`}
+                  disabled={updateMutation.isPending}
+                  class="rounded-medium col-span-full grid grid-cols-3 gap-3 p-2"
+                >
+                  <input type="hidden" name="time-id" value={time.id} />
                   <label for={`start-${time.id}`} class="sr-only">
                     Start time
                   </label>
@@ -232,7 +272,36 @@ function Day(properties: VoidProps<DayProperties>) {
 function Times() {
   const routeData = Route.useLoaderData();
 
-  console.debug("Times loaded", routeData());
+  // const timesByDate = Map.groupBy(times, (time) => {
+  //   return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
+  // });
+
+  // return {
+  //   userId,
+  //   times: timesByDate
+  //     .entries()
+  //     .map(([day, times]) => {
+  //       return [Temporal.PlainDate.from(day), times] as const;
+  //     })
+  //     .toArray(),
+  // };
+
+  const timesQuery = useQuery(() => query(routeData().userId));
+  const times = () => {
+    if (timesQuery.status !== "success") return;
+
+    const timesByDate = Map.groupBy(timesQuery.data, (time) => {
+      return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
+    });
+
+    return timesByDate
+      .entries()
+      .map(([day, times]) => {
+        return [Temporal.PlainDate.from(day), times] as const;
+      })
+      .toArray();
+  };
+
   return (
     <>
       <Link to="/times/new" class="floating-action-button bottom-22">
@@ -241,7 +310,7 @@ function Times() {
       </Link>
       <Title title="Times" />
       <main class="grid h-min gap-y-4 px-4">
-        <For each={routeData().times}>
+        <For each={times()}>
           {([day, timesForDay]) => (
             <Day userId={routeData().userId} day={day} times={timesForDay} />
           )}
