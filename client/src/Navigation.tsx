@@ -57,7 +57,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
                 />
                 <Icon
                   name="group-filled"
-                  class="hidden size-6 fill-slate-950 group-[.active]:block"
+                  class="fill-on-secondary-container hidden size-6 group-[.active]:block"
                 />
               </div>
               <span class="mt-1 block">Organizations</span>
