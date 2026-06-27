@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, Show, type VoidProps } from "solid-js";
 
+import { FloatingActionButton } from "../../FloatingActionButton";
 import Icon from "../../Icon";
 import { deleteProject, isProject, query, type Id as ProjectId, type Project } from "../../project";
 import { Title } from "../../Title";
@@ -45,10 +46,7 @@ function Projects() {
   return (
     <>
       <Title title="Projects" />
-      <Link to="/projects/new" class="floating-action-button bottom-22">
-        <span class="sr-only">Create project</span>
-        <Icon name="add" class="fill-on-primary size-6" />
-      </Link>
+      <FloatingActionButton to="/projects/new" label="Create project" icon="add" />
       {/* TODO overflow, pagination, scrolling */}
       <main class="text-title-lg px-6">
         <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
