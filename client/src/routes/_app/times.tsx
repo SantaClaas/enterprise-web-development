@@ -1,7 +1,8 @@
 import { useMutation, useQuery } from "@tanstack/solid-query";
-import { createFileRoute, Link } from "@tanstack/solid-router";
+import { createFileRoute } from "@tanstack/solid-router";
 import { createSignal, For, type VoidProps } from "solid-js";
 
+import { FloatingActionButton } from "@/FloatingActionButton";
 import Icon from "@/Icon";
 import { deleteTimes, query, updateTimes, type Time, type TimeId } from "@/time";
 import { Title } from "@/Title";
@@ -10,7 +11,7 @@ import { idQuery, type UserId } from "@/user";
 // Assume time zone does not change during the runtime of the application
 const timeZone = Temporal.Now.timeZoneId();
 
-export const Route = createFileRoute("/_app/times/")({
+export const Route = createFileRoute("/_app/times")({
   component: Times,
   async loader({ context: { queryClient } }) {
     const userId = await queryClient.ensureQueryData(idQuery);
@@ -332,11 +333,8 @@ function Times() {
 
   return (
     <>
-      <Link to="/times/new" class="floating-action-button bottom-22">
-        <span class="sr-only">Log time</span>
-        <Icon name="add" class="fill-on-primary size-6" />
-      </Link>
       <Title title="Times" />
+      <FloatingActionButton to="/times/new" label="Log time" icon="add" />
       <main class="grid h-min gap-y-4 px-4">
         <For each={times()}>
           {([day, timesForDay]) => (

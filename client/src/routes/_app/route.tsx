@@ -34,7 +34,7 @@ function RouteComponent() {
 
   return (
     <Body class="relative grid h-dvh grid-cols-1 grid-rows-[auto_1fr_auto] lg:grid-cols-[auto_1fr] lg:grid-rows-[auto_1fr]">
-      <Navigation class="row-start-3 lg:row-span-full" />
+      <Navigation />
       <TopAppBar
         title={title()}
         trailingAction={

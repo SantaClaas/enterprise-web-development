@@ -17,10 +17,6 @@ export const Route = createFileRoute("/_app/projects")({
   },
 });
 
-function Card(properties: VoidProps<{ project: Project }>) {
-  return <li class="bg-surface-container rounded-large block p-4">{properties.project.name}</li>;
-}
-
 function Projects() {
   const routeData = Route.useLoaderData();
   const userId = () => routeData().userId;

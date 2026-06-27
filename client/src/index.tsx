@@ -5,6 +5,7 @@ import { createRouter, RouterProvider } from "@tanstack/solid-router";
 import { render } from "solid-js/web";
 
 import { routeTree } from "./routeTree.gen";
+import { FloatingActionButtonProvider } from "./FloatingActionButton";
 import { TitleProvider } from "./Title";
 import { idQuery } from "./user";
 
@@ -42,9 +43,11 @@ declare module "@tanstack/solid-router" {
 render(
   () => (
     <QueryClientProvider client={queryClient}>
-      <TitleProvider>
-        <RouterProvider router={router} />
-      </TitleProvider>
+      <FloatingActionButtonProvider>
+        <TitleProvider>
+          <RouterProvider router={router} />
+        </TitleProvider>
+      </FloatingActionButtonProvider>
     </QueryClientProvider>
   ),
   document.body,
