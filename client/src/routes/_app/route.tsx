@@ -33,8 +33,8 @@ function RouteComponent() {
   const title = useTitle();
 
   return (
-    <Body class="relative grid h-dvh grid-rows-[auto_1fr_auto]">
-      <Navigation class="row-start-3" />
+    <Body class="relative grid h-dvh grid-cols-1 grid-rows-[auto_1fr_auto] lg:grid-cols-[auto_1fr] lg:grid-rows-[auto_1fr]">
+      <Navigation class="row-start-3 lg:row-span-full" />
       <TopAppBar
         title={title()}
         trailingAction={

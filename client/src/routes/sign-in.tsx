@@ -83,7 +83,7 @@ function SignIn() {
   }
 
   return (
-    <Body class="h-dvh p-6">
+    <Body class="mx-auto h-dvh max-w-2xl p-6">
       <main class="grid h-full items-end">
         <h1 class="text-primary text-display-lg text-center font-serif">Welcome</h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">

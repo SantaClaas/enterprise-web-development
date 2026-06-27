@@ -3,7 +3,7 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-ro
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
-import { idQuery, UnauthenticatedError, UserId } from "../user";
+import { idQuery, UnauthenticatedError, type UserId } from "../user";
 
 export const Route = createFileRoute("/sign-up")({
   component: RouteComponent,
@@ -77,7 +77,7 @@ function RouteComponent() {
   }
 
   return (
-    <Body class="h-dvh p-6">
+    <Body class="mx-auto h-dvh max-w-2xl p-6">
       <main class="grid h-full items-end">
         <h1 class="text-primary text-display-lg text-center font-serif">Create an account</h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">

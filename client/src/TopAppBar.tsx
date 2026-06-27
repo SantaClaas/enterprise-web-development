@@ -39,7 +39,7 @@ export type TopAppBarProperties = {
 
 export function TopAppBar(properties: VoidProps<TopAppBarProperties>) {
   return (
-    <header class="grid grid-cols-[3rem_1fr_3rem] gap-1 px-1 py-2">
+    <header class="grid grid-cols-[3rem_1fr_3rem] gap-1 px-1 py-2 lg:col-start-2">
       {properties.leadingAction}
       <h1 class="text-title-lg text-on-surface col-start-2 content-center text-center">
         {properties.title}

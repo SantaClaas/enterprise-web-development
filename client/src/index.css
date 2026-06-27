@@ -9,7 +9,10 @@
   color-scheme: light dark;
 }
 
-/* Not using TSX components as these are supposed to be simple headless components and class merging requires JS to run while this can be done off-thread in CSS */
+/*
+Not using TSX components as these are supposed to be simple headless components and class merging requires JS to run
+when we have perfectly fine CSS solutions to deal with the same problem.
+*/
 @layer components {
   /* @apply in components is afaik not best practice but the only way to get color variables from plugins as Tailwind CSS v4 does not create variables for those and has the same behavior as in v3 */
   .text-field {
