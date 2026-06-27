@@ -6,7 +6,7 @@ export function ErrorDetails(
 ) {
   return (
     <>
-      <article class="bg-error-container text-on-error-container mt-6 grid grid-cols-[1fr_auto] rounded p-6">
+      <article class="bg-error-container text-on-error-container mx-auto mt-6 grid max-w-2xl grid-cols-[1fr_auto] rounded p-6">
         <h2 class="text-title-lg col-span-full">{properties.title}</h2>
         <p class="text-body-lg col-span-full mt-2">{properties.explainer}</p>
 
