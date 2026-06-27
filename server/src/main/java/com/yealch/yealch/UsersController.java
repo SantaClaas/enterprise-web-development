@@ -69,7 +69,12 @@ public class UsersController {
     }
 
     @GetMapping("/api/users/{userId}/organizations")
-    public ResponseEntity<?> getUserOrganizations(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserOrganizations(@PathVariable Long userId, Authentication authentication) {
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         // Controversal opinions:
         // - The concept of controllers makes little sense when you
         // start cross-cutting concerns and
@@ -90,7 +95,7 @@ public class UsersController {
                     }
 
                     return ResponseEntity.ok(user.getOrganizations().stream()
-                            .map(org -> new GetUserOrganizationsResponse(org.getId(), org.getName()))
+                            .map(organization -> new GetUserOrganizationsResponse(organization.getId(), organization.getName()))
                             .toList());
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
@@ -104,7 +109,12 @@ public class UsersController {
      * project is created for them and assigned to the organization.
      */
     @GetMapping("/api/users/{userId}/projects")
-    public ResponseEntity<?> getUserProjects(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserProjects(@PathVariable Long userId, Authentication authentication) {
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         return userRepository.findById(userId)
                 .<ResponseEntity<?>>map(user -> {
                     if (user.getOrganizations().isEmpty()) {
@@ -140,7 +150,12 @@ public class UsersController {
      */
     @PostMapping("/api/users/{userId}/organizations/{organizationId}/projects")
     public ResponseEntity<?> createProjectForUser(@PathVariable Long userId, @PathVariable Long organizationId,
-            @RequestBody Map<String, String> request) {
+            @RequestBody Map<String, String> request, Authentication authentication) {
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         String projectName = request.get("name");
         if (projectName == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "project name is required"));
@@ -167,7 +182,12 @@ public class UsersController {
     /** Creates a new time entry for a user on a project */
     @PostMapping("/api/users/{userId}/projects/{projectId}/times")
     public ResponseEntity<?> createTimeEntry(@PathVariable Long userId, @PathVariable Long projectId,
-            @RequestBody Map<String, String> request) {
+            @RequestBody Map<String, String> request, Authentication authentication) {
+
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (request == null || request.get("start") == null || request.get("end") == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
@@ -225,7 +245,12 @@ public class UsersController {
     }
 
     @GetMapping("/api/users/{userId}/times")
-    public ResponseEntity<?> getUserTimeEntries(@PathVariable Long userId) {
+    public ResponseEntity<?> getUserTimeEntries(@PathVariable Long userId, Authentication authentication) {
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         return userRepository.findById(userId)
                 .<ResponseEntity<?>>map(user -> ResponseEntity.ok(
                         StreamSupport.stream(timeRepository.findAll().spliterator(), false)
@@ -258,9 +283,11 @@ public class UsersController {
     /** Creates a new organization with this user in it */
     @PostMapping("/api/users/{userId}/organizations")
     public ResponseEntity<?> createOrganizationForUser(@PathVariable Long userId,
-            @RequestBody String organizationName) {
-        // TODO check on authorization if the user id is the same user that sends the
-        // request
+            @RequestBody String organizationName, Authentication authentication) {
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (organizationName == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "organization name is required"));
@@ -280,7 +307,12 @@ public class UsersController {
 
     @PutMapping("/api/users/{userId}/organizations/{organizationId}/name")
     public ResponseEntity<?> updateOrganizationName(@PathVariable Long userId, @PathVariable Long organizationId,
-            @RequestBody String newName) {
+            @RequestBody String newName, Authentication authentication) {
+
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (newName == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "organization name is required"));
@@ -309,9 +341,13 @@ public class UsersController {
 
     @PutMapping("/api/users/{userId}/projects/{projectId}")
     public ResponseEntity<?> updateProject(@PathVariable Long userId, @PathVariable Long projectId,
-            @RequestBody UpdateProjectRequest request) {
+            @RequestBody UpdateProjectRequest request, Authentication authentication) {
 
-        //
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
         if (request == null || request.name() == null || request.organizationId() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(Map.of("error", "name and organizationId are required"));
@@ -341,7 +377,12 @@ public class UsersController {
 
     @PutMapping("/api/users/{userId}/times")
     public ResponseEntity<?> updateUserTimes(@PathVariable Long userId,
-            @RequestBody java.util.List<UpdateTimeRequest> request) {
+            @RequestBody java.util.List<UpdateTimeRequest> request, Authentication authentication) {
+
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (request == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "request body is required"));
@@ -379,13 +420,13 @@ public class UsersController {
                                     .body(Map.of("error", "start must be before end"));
                         }
 
-                        var maybeTime = timeRepository.findById(timeId);
-                        if (maybeTime.isEmpty()) {
+                        var foundTime = timeRepository.findById(timeId);
+                        if (foundTime.isEmpty()) {
                             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                     .body(Map.of("error", "time not found: " + timeId));
                         }
 
-                        Time time = maybeTime.get();
+                        Time time = foundTime.get();
                         Project project = time.getProject();
                         if (project == null || project.getOrganization() == null
                                 || !project.getOrganization().getMembers().contains(user)) {
@@ -405,7 +446,12 @@ public class UsersController {
 
     @DeleteMapping("/api/users/{userId}/times")
     public ResponseEntity<?> deleteUserTimes(@PathVariable Long userId,
-            @RequestBody java.util.List<String> request) {
+            @RequestBody java.util.List<String> request, Authentication authentication) {
+
+        Optional<Long> authenticatedUserId = getUserId(authentication);
+        if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
 
         if (request == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "request body is required"));
@@ -413,27 +459,27 @@ public class UsersController {
 
         return userRepository.findById(userId)
                 .<ResponseEntity<?>>map(user -> {
-                    for (String idStr : request) {
-                        if (idStr == null) {
+                    for (String rawTimeId : request) {
+                        if (rawTimeId == null) {
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                                     .body(Map.of("error", "time id must be provided"));
                         }
 
                         Long timeId;
                         try {
-                            timeId = Long.parseLong(idStr);
+                            timeId = Long.parseLong(rawTimeId);
                         } catch (NumberFormatException e) {
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body(Map.of("error", "invalid time id: " + idStr));
+                                    .body(Map.of("error", "invalid time id: " + rawTimeId));
                         }
 
-                        var maybeTime = timeRepository.findById(timeId);
-                        if (maybeTime.isEmpty()) {
+                        var foundTime = timeRepository.findById(timeId);
+                        if (foundTime.isEmpty()) {
                             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                     .body(Map.of("error", "time not found: " + timeId));
                         }
 
-                        Time time = maybeTime.get();
+                        Time time = foundTime.get();
                         Project project = time.getProject();
                         if (project == null || project.getOrganization() == null
                                 || !project.getOrganization().getMembers().contains(user)) {

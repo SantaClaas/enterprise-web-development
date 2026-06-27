@@ -5,7 +5,7 @@
 }
 
 :root {
-  @apply bg-surface text-on-surface mx-auto max-w-2xl overscroll-none;
+  @apply bg-surface text-on-surface mx-auto overscroll-none;
   color-scheme: light dark;
 }
 
