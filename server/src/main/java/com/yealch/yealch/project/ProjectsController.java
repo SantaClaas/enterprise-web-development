@@ -1,5 +1,7 @@
-package com.yealch.yealch;
+package com.yealch.yealch.project;
 
+import com.yealch.yealch.organization.Organization;
+import com.yealch.yealch.user.UsersController;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;

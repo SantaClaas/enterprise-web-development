@@ -1,4 +1,4 @@
-package com.yealch.yealch;
+package com.yealch.yealch.auth;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

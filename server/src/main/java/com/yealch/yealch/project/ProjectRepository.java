@@ -1,4 +1,4 @@
-package com.yealch.yealch;
+package com.yealch.yealch.project;
 
 import org.springframework.data.repository.CrudRepository;
 

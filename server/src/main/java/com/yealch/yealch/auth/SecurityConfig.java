@@ -1,4 +1,4 @@
-package com.yealch.yealch;
+package com.yealch.yealch.auth;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

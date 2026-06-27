@@ -1,5 +1,7 @@
-package com.yealch.yealch;
+package com.yealch.yealch.project;
 
+import com.yealch.yealch.organization.Organization;
+import com.yealch.yealch.time.Time;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

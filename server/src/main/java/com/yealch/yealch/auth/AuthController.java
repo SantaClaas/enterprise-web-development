@@ -1,5 +1,7 @@
-package com.yealch.yealch;
+package com.yealch.yealch.auth;
 
+import com.yealch.yealch.user.User;
+import com.yealch.yealch.user.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;

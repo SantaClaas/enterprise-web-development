@@ -1,4 +1,4 @@
-package com.yealch.yealch;
+package com.yealch.yealch.organization;
 
 public enum OrganizationRole {
     MEMBER,

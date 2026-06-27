@@ -1,4 +1,4 @@
-package com.yealch.yealch;
+package com.yealch.yealch.auth;
 
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.User;

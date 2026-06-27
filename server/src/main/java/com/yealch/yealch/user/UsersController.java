@@ -1,5 +1,13 @@
-package com.yealch.yealch;
+package com.yealch.yealch.user;
 
+import com.yealch.yealch.auth.CustomUserDetails;
+import com.yealch.yealch.organization.Organization;
+import com.yealch.yealch.organization.OrganizationRepository;
+import com.yealch.yealch.organization.OrganizationRole;
+import com.yealch.yealch.project.Project;
+import com.yealch.yealch.project.ProjectRepository;
+import com.yealch.yealch.time.Time;
+import com.yealch.yealch.time.TimeRepository;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +42,7 @@ public class UsersController {
         this.timeRepository = timeRepository;
     }
 
-    static Optional<UUID> getUserId(Authentication authentication) {
+    public static Optional<UUID> getUserId(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.empty();
         }

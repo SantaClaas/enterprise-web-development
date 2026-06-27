@@ -1,5 +1,7 @@
 package com.yealch.yealch;
 
+import com.yealch.yealch.user.User;
+import com.yealch.yealch.user.UserRepository;
 import jakarta.persistence.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

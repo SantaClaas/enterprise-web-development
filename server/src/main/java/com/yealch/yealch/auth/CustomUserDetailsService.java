@@ -1,5 +1,6 @@
-package com.yealch.yealch;
+package com.yealch.yealch.auth;
 
+import com.yealch.yealch.user.UserRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

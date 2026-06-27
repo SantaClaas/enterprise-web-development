@@ -1,5 +1,6 @@
-package com.yealch.yealch;
+package com.yealch.yealch.organization;
 
+import com.yealch.yealch.user.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
