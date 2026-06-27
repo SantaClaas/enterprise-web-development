@@ -9,15 +9,18 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Entity
 @Table(name = "projects")
 public class Project {
+
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;
@@ -30,17 +33,9 @@ public class Project {
     private Organization organization;
 
     @Column(name = "organization_id", insertable = false, updatable = false)
-    private Long organizationId;
+    private UUID organizationId;
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public void setOrganization(Organization organization) {
-        this.organization = organization;
-    }
-
-    public long getId() {
+    public UUID getId() {
         return id;
     }
 
@@ -48,19 +43,23 @@ public class Project {
         return name;
     }
 
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public Organization getOrganization() {
         return organization;
     }
 
-    public Long getOrganizationId() {
+    public void setOrganization(Organization organization) {
+        this.organization = organization;
+    }
+
+    public UUID getOrganizationId() {
         return organizationId;
     }
 
-    public Organization getOrganizationEntity() {
-        return organization;
-    }
-
-    public void setOrganizationId(Long organizationId) {
+    public void setOrganizationId(UUID organizationId) {
         this.organizationId = organizationId;
     }
 }

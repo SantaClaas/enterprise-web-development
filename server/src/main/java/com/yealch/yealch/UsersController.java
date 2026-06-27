@@ -13,8 +13,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
-import java.util.Map;
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 @RestController
@@ -33,7 +34,7 @@ public class UsersController {
         this.timeRepository = timeRepository;
     }
 
-    static Optional<Long> getUserId(Authentication authentication) {
+    static Optional<UUID> getUserId(Authentication authentication) {
         if (authentication == null || !authentication.isAuthenticated()) {
             return Optional.empty();
         }
@@ -45,16 +46,36 @@ public class UsersController {
         return Optional.empty();
     }
 
+    record ErrorResponse(String error) {}
+
+    record GetUserOrganizationsResponse(UUID id, String name) {}
+
+    record GetUserProjectsOrganizationResponse(UUID id, String name) {}
+    record GetUserProjectsResponse(UUID id, String name, GetUserProjectsOrganizationResponse organization) {}
+
+    record PostUserOrganizationProjectsRequest(String name) {}
+
+    record PostUserProjectsTimesRequest(String start, String end) {}
+    record PostUserTimesOrganizationResponse(UUID id, String name) {}
+    record PostUserTimesProjectResponse(UUID id, String name, PostUserTimesOrganizationResponse organization) {}
+    record PostUserTimesResponse(UUID id, String start, String end, PostUserTimesProjectResponse project) {}
+
+    record GetUserTimesOrganizationResponse(UUID id, String name) {}
+    record GetUserTimesProjectResponse(UUID id, String name, GetUserTimesOrganizationResponse organization) {}
+    record GetUserTimesResponse(UUID id, String start, String end, GetUserTimesProjectResponse project) {}
+
+    record UpdateProjectRequest(String name, UUID organizationId) {}
+
+    record UpdateTimeRequest(UUID id, String start, String end) {}
+
     /**
      * Gets the current user id if authenticated. Used to inspect indirectly whether
-     * a
-     * cookie is set that can be used to
-     * authenticate as clients don't have access to read HTTP-only cookies.
+     * a cookie is set that can be used to authenticate, as clients don't have
+     * access to read HTTP-only cookies.
      */
     @GetMapping("/api/users/current/id")
     public ResponseEntity<?> getCurrentUserId(Authentication authentication) {
-
-        Optional<Long> userId = getUserId(authentication);
+        Optional<UUID> userId = getUserId(authentication);
         if (userId.isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
@@ -62,15 +83,9 @@ public class UsersController {
         return ResponseEntity.ok(userId.get().toString());
     }
 
-    record CreateUserRequest(String name, String username, String password) {
-    }
-
-    record GetUserOrganizationsResponse(Long id, String name) {
-    }
-
     @GetMapping("/api/users/{userId}/organizations")
-    public ResponseEntity<?> getUserOrganizations(@PathVariable Long userId, Authentication authentication) {
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+    public ResponseEntity<?> getUserOrganizations(@PathVariable UUID userId, Authentication authentication) {
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -98,7 +113,7 @@ public class UsersController {
                             .map(organization -> new GetUserOrganizationsResponse(organization.getId(), organization.getName()))
                             .toList());
                 })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     /**
@@ -109,8 +124,8 @@ public class UsersController {
      * project is created for them and assigned to the organization.
      */
     @GetMapping("/api/users/{userId}/projects")
-    public ResponseEntity<?> getUserProjects(@PathVariable Long userId, Authentication authentication) {
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+    public ResponseEntity<?> getUserProjects(@PathVariable UUID userId, Authentication authentication) {
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -135,30 +150,28 @@ public class UsersController {
 
                     return ResponseEntity.ok(user.getOrganizations().stream()
                             .flatMap(organization -> organization.getProjects().stream()
-                                    .map(project -> Map.of(
-                                            "id", project.getId(),
-                                            "name", project.getName(),
-                                            "organization",
-                                            Map.of("id", organization.getId(), "name", organization.getName()))))
+                                    .map(project -> new GetUserProjectsResponse(
+                                            project.getId(),
+                                            project.getName(),
+                                            new GetUserProjectsOrganizationResponse(organization.getId(), organization.getName()))))
                             .toList());
                 })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     /**
      * Creates a new project for a user within a specific organization.
      */
     @PostMapping("/api/users/{userId}/organizations/{organizationId}/projects")
-    public ResponseEntity<?> createProjectForUser(@PathVariable Long userId, @PathVariable Long organizationId,
-            @RequestBody Map<String, String> request, Authentication authentication) {
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+    public ResponseEntity<?> createProjectForUser(@PathVariable UUID userId, @PathVariable UUID organizationId,
+            @RequestBody PostUserOrganizationProjectsRequest request, Authentication authentication) {
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        String projectName = request.get("name");
-        if (projectName == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "project name is required"));
+        if (request == null || request.name() == null) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("project name is required"));
         }
 
         return userRepository.findById(userId)
@@ -166,50 +179,47 @@ public class UsersController {
                     Organization organization = organizationRepository.findById(organizationId).orElse(null);
                     if (organization == null || !organization.hasMember(user.getId())) {
                         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(Map.of("error", "organization not found or user is not a member"));
+                                .body(new ErrorResponse("organization not found or user is not a member"));
                     }
 
                     Project project = new Project();
-                    project.setName(projectName);
+                    project.setName(request.name());
                     organization.addProject(project);
                     organizationRepository.save(organization);
 
                     return ResponseEntity.status(HttpStatus.CREATED).build();
                 })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     /** Creates a new time entry for a user on a project */
     @PostMapping("/api/users/{userId}/projects/{projectId}/times")
-    public ResponseEntity<?> createTimeEntry(@PathVariable Long userId, @PathVariable Long projectId,
-            @RequestBody Map<String, String> request, Authentication authentication) {
+    public ResponseEntity<?> createTimeEntry(@PathVariable UUID userId, @PathVariable UUID projectId,
+            @RequestBody PostUserProjectsTimesRequest request, Authentication authentication) {
 
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        if (request == null || request.get("start") == null || request.get("end") == null) {
+        if (request == null || request.start() == null || request.end() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "start and end are required"));
+                    .body(new ErrorResponse("start and end are required"));
         }
 
-        String startString = request.get("start");
-        String endString = request.get("end");
         OffsetDateTime start;
         OffsetDateTime end;
         try {
-            start = OffsetDateTime.parse(startString);
-            end = OffsetDateTime.parse(endString);
+            start = OffsetDateTime.parse(request.start());
+            end = OffsetDateTime.parse(request.end());
         } catch (DateTimeParseException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error",
-                            "invalid start or end format, expected ISO 8601 format with timezone offset"));
+                    .body(new ErrorResponse("invalid start or end format, expected ISO 8601 format with timezone offset"));
         }
 
         if (!start.isBefore(end)) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "start must be before end"));
+                    .body(new ErrorResponse("start must be before end"));
         }
 
         return userRepository.findById(userId)
@@ -218,7 +228,7 @@ public class UsersController {
                             Organization organization = project.getOrganization();
                             if (organization == null || !organization.hasMember(user.getId())) {
                                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                        .body(Map.of("error", "project not found or user is not a member"));
+                                        .body(new ErrorResponse("project not found or user is not a member"));
                             }
 
                             Time time = new Time();
@@ -227,26 +237,25 @@ public class UsersController {
                             time.setProject(project);
                             timeRepository.save(time);
 
-                            return ResponseEntity.status(HttpStatus.CREATED).body(Map.of(
-                                    "id", time.getId(),
-                                    "start", time.getStart().toString(),
-                                    "end", time.getEnd().toString(),
-                                    "project", Map.of(
-                                            "id", project.getId(),
-                                            "name", project.getName(),
-                                            "organization", Map.of(
-                                                    "id", organization.getId(),
-                                                    "name", organization.getName()))));
+                            return ResponseEntity.status(HttpStatus.CREATED).body(new PostUserTimesResponse(
+                                    time.getId(),
+                                    time.getStart().toString(),
+                                    time.getEnd().toString(),
+                                    new PostUserTimesProjectResponse(
+                                            project.getId(),
+                                            project.getName(),
+                                            new PostUserTimesOrganizationResponse(
+                                                    organization.getId(),
+                                                    organization.getName()))));
                         })
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(Map.of("error", "project not found"))))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
-
+                                .body(new ErrorResponse("project not found"))))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     @GetMapping("/api/users/{userId}/times")
-    public ResponseEntity<?> getUserTimeEntries(@PathVariable Long userId, Authentication authentication) {
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+    public ResponseEntity<?> getUserTimeEntries(@PathVariable UUID userId, Authentication authentication) {
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
@@ -265,32 +274,32 @@ public class UsersController {
                                     }
                                     return organization.hasMember(user.getId());
                                 })
-                                .map(time -> Map.of(
-                                        "id", time.getId(),
-                                        "start", time.getStart().toString(),
-                                        "end", time.getEnd().toString(),
-                                        "project", Map.of(
-                                                "id", time.getProject().getId(),
-                                                "name", time.getProject().getName(),
-                                                "organization", Map.of(
-                                                        "id", time.getProject().getOrganization().getId(),
-                                                        "name", time.getProject().getOrganization().getName()))))
+                                .map(time -> new GetUserTimesResponse(
+                                        time.getId(),
+                                        time.getStart().toString(),
+                                        time.getEnd().toString(),
+                                        new GetUserTimesProjectResponse(
+                                                time.getProject().getId(),
+                                                time.getProject().getName(),
+                                                new GetUserTimesOrganizationResponse(
+                                                        time.getProject().getOrganization().getId(),
+                                                        time.getProject().getOrganization().getName()))))
                                 .toList()))
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(Map.of("error", "user not found")));
+                        .body(new ErrorResponse("user not found")));
     }
 
     /** Creates a new organization with this user in it */
     @PostMapping("/api/users/{userId}/organizations")
-    public ResponseEntity<?> createOrganizationForUser(@PathVariable Long userId,
+    public ResponseEntity<?> createOrganizationForUser(@PathVariable UUID userId,
             @RequestBody String organizationName, Authentication authentication) {
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         if (organizationName == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "organization name is required"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("organization name is required"));
         }
 
         return userRepository.findById(userId)
@@ -302,20 +311,20 @@ public class UsersController {
 
                     return ResponseEntity.status(HttpStatus.CREATED).build();
                 })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     @PutMapping("/api/users/{userId}/organizations/{organizationId}/name")
-    public ResponseEntity<?> updateOrganizationName(@PathVariable Long userId, @PathVariable Long organizationId,
+    public ResponseEntity<?> updateOrganizationName(@PathVariable UUID userId, @PathVariable UUID organizationId,
             @RequestBody String newName, Authentication authentication) {
 
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         if (newName == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "organization name is required"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("organization name is required"));
         }
 
         return userRepository.findById(userId)
@@ -323,7 +332,7 @@ public class UsersController {
                         .<ResponseEntity<?>>map(organization -> {
                             if (!organization.hasMemberWithRole(user.getId(), OrganizationRole.ADMINISTRATOR, OrganizationRole.OWNER)) {
                                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                        .body(Map.of("error", "user does not have permission to edit the organization"));
+                                        .body(new ErrorResponse("user does not have permission to edit the organization"));
                             }
 
                             organization.setName(newName);
@@ -332,25 +341,22 @@ public class UsersController {
                             return ResponseEntity.ok().build();
                         })
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(Map.of("error", "organization not found"))))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
-    }
-
-    record UpdateProjectRequest(String name, Long organizationId) {
+                                .body(new ErrorResponse("organization not found"))))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     @PutMapping("/api/users/{userId}/projects/{projectId}")
-    public ResponseEntity<?> updateProject(@PathVariable Long userId, @PathVariable Long projectId,
+    public ResponseEntity<?> updateProject(@PathVariable UUID userId, @PathVariable UUID projectId,
             @RequestBody UpdateProjectRequest request, Authentication authentication) {
 
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         if (request == null || request.name() == null || request.organizationId() == null) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(Map.of("error", "name and organizationId are required"));
+                    .body(new ErrorResponse("name and organizationId are required"));
         }
 
         return userRepository.findById(userId)
@@ -358,7 +364,7 @@ public class UsersController {
                         .<ResponseEntity<?>>map(project -> {
                             if (!project.getOrganization().hasMember(user.getId())) {
                                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                        .body(Map.of("error", "user is not a member of the project"));
+                                        .body(new ErrorResponse("user is not a member of the project"));
                             }
 
                             project.setName(request.name());
@@ -368,24 +374,21 @@ public class UsersController {
                             return ResponseEntity.ok().build();
                         })
                         .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                .body(Map.of("error", "project not found"))))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
-    }
-
-    record UpdateTimeRequest(String id, String start, String end) {
+                                .body(new ErrorResponse("project not found"))))
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     @PutMapping("/api/users/{userId}/times")
-    public ResponseEntity<?> updateUserTimes(@PathVariable Long userId,
-            @RequestBody java.util.List<UpdateTimeRequest> request, Authentication authentication) {
+    public ResponseEntity<?> updateUserTimes(@PathVariable UUID userId,
+            @RequestBody List<UpdateTimeRequest> request, Authentication authentication) {
 
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         if (request == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "request body is required"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("request body is required"));
         }
 
         return userRepository.findById(userId)
@@ -393,15 +396,7 @@ public class UsersController {
                     for (UpdateTimeRequest item : request) {
                         if (item == null || item.id() == null || item.start() == null || item.end() == null) {
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body(Map.of("error", "id, start and end are required for each time"));
-                        }
-
-                        Long timeId;
-                        try {
-                            timeId = Long.parseLong(item.id());
-                        } catch (NumberFormatException e) {
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body(Map.of("error", "invalid time id: " + item.id()));
+                                    .body(new ErrorResponse("id, start and end are required for each time"));
                         }
 
                         OffsetDateTime start;
@@ -409,21 +404,20 @@ public class UsersController {
                         try {
                             start = OffsetDateTime.parse(item.start());
                             end = OffsetDateTime.parse(item.end());
-                        } catch (java.time.format.DateTimeParseException e) {
+                        } catch (DateTimeParseException e) {
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body(Map.of("error",
-                                            "invalid start or end format, expected ISO 8601 format with timezone offset"));
+                                    .body(new ErrorResponse("invalid start or end format, expected ISO 8601 format with timezone offset"));
                         }
 
                         if (!start.isBefore(end)) {
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body(Map.of("error", "start must be before end"));
+                                    .body(new ErrorResponse("start must be before end"));
                         }
 
-                        var foundTime = timeRepository.findById(timeId);
+                        var foundTime = timeRepository.findById(item.id());
                         if (foundTime.isEmpty()) {
                             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                    .body(Map.of("error", "time not found: " + timeId));
+                                    .body(new ErrorResponse("time not found: " + item.id()));
                         }
 
                         Time time = foundTime.get();
@@ -431,7 +425,7 @@ public class UsersController {
                         if (project == null || project.getOrganization() == null
                                 || !project.getOrganization().hasMember(user.getId())) {
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                    .body(Map.of("error", "user is not allowed to modify time: " + timeId));
+                                    .body(new ErrorResponse("user is not allowed to modify time: " + item.id()));
                         }
 
                         time.setStart(start);
@@ -441,42 +435,34 @@ public class UsersController {
 
                     return ResponseEntity.ok().build();
                 })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 
     @DeleteMapping("/api/users/{userId}/times")
-    public ResponseEntity<?> deleteUserTimes(@PathVariable Long userId,
-            @RequestBody java.util.List<String> request, Authentication authentication) {
+    public ResponseEntity<?> deleteUserTimes(@PathVariable UUID userId,
+            @RequestBody List<UUID> request, Authentication authentication) {
 
-        Optional<Long> authenticatedUserId = getUserId(authentication);
+        Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         if (request == null) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "request body is required"));
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("request body is required"));
         }
 
         return userRepository.findById(userId)
                 .<ResponseEntity<?>>map(user -> {
-                    for (String rawTimeId : request) {
-                        if (rawTimeId == null) {
+                    for (UUID timeId : request) {
+                        if (timeId == null) {
                             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body(Map.of("error", "time id must be provided"));
-                        }
-
-                        Long timeId;
-                        try {
-                            timeId = Long.parseLong(rawTimeId);
-                        } catch (NumberFormatException e) {
-                            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                                    .body(Map.of("error", "invalid time id: " + rawTimeId));
+                                    .body(new ErrorResponse("time id must be provided"));
                         }
 
                         var foundTime = timeRepository.findById(timeId);
                         if (foundTime.isEmpty()) {
                             return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                                    .body(Map.of("error", "time not found: " + timeId));
+                                    .body(new ErrorResponse("time not found: " + timeId));
                         }
 
                         Time time = foundTime.get();
@@ -484,7 +470,7 @@ public class UsersController {
                         if (project == null || project.getOrganization() == null
                                 || !project.getOrganization().hasMember(user.getId())) {
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                    .body(Map.of("error", "user is not allowed to delete time: " + timeId));
+                                    .body(new ErrorResponse("user is not allowed to delete time: " + timeId));
                         }
 
                         timeRepository.delete(time);
@@ -492,6 +478,6 @@ public class UsersController {
 
                     return ResponseEntity.ok().build();
                 })
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "user not found")));
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
     }
 }

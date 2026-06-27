@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Entity
@@ -17,8 +18,8 @@ import java.util.stream.Collectors;
 public class User {
 
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	@GeneratedValue(strategy = GenerationType.UUID)
+	private UUID id;
 
 	@Column(nullable = false)
 	private String name;
@@ -32,7 +33,7 @@ public class User {
 	@OneToMany(mappedBy = "user")
 	private Set<OrganizationMembership> memberships = new HashSet<>();
 
-	public Long getId() {
+	public UUID getId() {
 		return id;
 	}
 

@@ -2,6 +2,7 @@ package com.yealch.yealch;
 
 import org.springframework.data.repository.CrudRepository;
 
-public interface TimeRepository extends CrudRepository<Time, Long> {
+import java.util.UUID;
 
+public interface TimeRepository extends CrudRepository<Time, UUID> {
 }

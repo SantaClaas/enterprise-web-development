@@ -12,13 +12,15 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "organization_members", uniqueConstraints = @UniqueConstraint(columnNames = { "organization_id", "user_id" }))
 public class OrganizationMembership {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @ManyToOne
     @JoinColumn(name = "organization_id", nullable = false)
@@ -41,7 +43,7 @@ public class OrganizationMembership {
         this.role = role;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 

@@ -15,7 +15,6 @@ import org.springframework.web.bind.annotation.*;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.Base64;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api")
@@ -100,8 +99,12 @@ public class AuthController {
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, cookie.toString())
-                .body(Map.of("status", "logged out"));
+                .body(new PostSignOutsResponse("logged out"));
     }
+
+    record ErrorResponse(String error) {}
+
+    record PostSignOutsResponse(String status) {}
 
     record SignUpRequest(String name, String username, String password) {
     }
@@ -110,14 +113,14 @@ public class AuthController {
     public ResponseEntity<?> createSignUp(@RequestBody SignUpRequest signUpRequest) {
         if (signUpRequest.username == null || signUpRequest.password == null
                 || signUpRequest.name == null) {
-            return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
+            return ResponseEntity.badRequest().body(new ErrorResponse("Missing required fields"));
         }
 
         // TODO this allows attackers to scope out who is using the service. This needs
         // to be changed to a generic error message or some other solution
         if (userRepository.findByUsername(signUpRequest.username).isPresent()) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
-                    .body(Map.of("error", "Username already exists"));
+                    .body(new ErrorResponse("Username already exists"));
         }
 
         var user = new User();
