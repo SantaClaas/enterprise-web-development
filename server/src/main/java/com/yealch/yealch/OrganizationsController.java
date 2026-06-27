@@ -57,7 +57,7 @@ public class OrganizationsController {
 
         return organizationRepository.findById(organizationId)
                 .<ResponseEntity<?>>map(organization -> {
-                    if (!isMember(organization, authenticatedUserId)) {
+                    if (!organization.hasMember(authenticatedUserId)) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     }
                     return ResponseEntity.ok(toResponse(organization));
@@ -67,7 +67,8 @@ public class OrganizationsController {
     }
 
     /**
-     * Creates a registration of a user as a member of an organization
+     * Creates a registration of a user as a member of an organization.
+     * Requires the authenticated user to be an owner of the organization.
      */
     @PostMapping("/{organizationId}/members/registrations")
     public ResponseEntity<?> addMemberToOrganization(@PathVariable Long organizationId, @PathVariable Long userId,
@@ -77,20 +78,19 @@ public class OrganizationsController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Organization> organizationOptional = organizationRepository.findById(organizationId);
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<Organization> foundOrganization = organizationRepository.findById(organizationId);
+        Optional<User> foundUser = userRepository.findById(userId);
 
-        if (organizationOptional.isEmpty() || userOptional.isEmpty()) {
+        if (foundOrganization.isEmpty() || foundUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "organization or user not found"));
         }
 
-        Organization organization = organizationOptional.get();
-        if (!isMember(organization, authenticatedUserId)) {
+        Organization organization = foundOrganization.get();
+        if (!organization.hasMemberWithRole(authenticatedUserId, OrganizationRole.OWNER)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        User user = userOptional.get();
-        organization.addMember(user);
+        organization.addMember(foundUser.get(), OrganizationRole.MEMBER);
         organizationRepository.save(organization);
 
         return ResponseEntity.ok(toResponse(organization));
@@ -104,20 +104,19 @@ public class OrganizationsController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Organization> organizationOptional = organizationRepository.findById(organizationId);
-        Optional<User> userOptional = userRepository.findById(userId);
+        Optional<Organization> foundOrganization = organizationRepository.findById(organizationId);
+        Optional<User> foundUser = userRepository.findById(userId);
 
-        if (organizationOptional.isEmpty() || userOptional.isEmpty()) {
+        if (foundOrganization.isEmpty() || foundUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "organization or user not found"));
         }
 
-        Organization organization = organizationOptional.get();
-        if (!isMember(organization, authenticatedUserId)) {
+        Organization organization = foundOrganization.get();
+        if (!organization.hasMemberWithRole(authenticatedUserId, OrganizationRole.OWNER)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        User user = userOptional.get();
-        organization.removeMember(user);
+        organization.removeMember(foundUser.get());
         organizationRepository.save(organization);
 
         return ResponseEntity.ok(toResponse(organization));
@@ -130,25 +129,18 @@ public class OrganizationsController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
         }
 
-        Optional<Organization> organizationOptional = organizationRepository.findById(organizationId);
-        if (organizationOptional.isEmpty()) {
+        Optional<Organization> foundOrganization = organizationRepository.findById(organizationId);
+        if (foundOrganization.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "organization not found"));
         }
 
-        Organization organization = organizationOptional.get();
-        if (!isMember(organization, authenticatedUserId)) {
+        Organization organization = foundOrganization.get();
+        if (!organization.hasMemberWithRole(authenticatedUserId, OrganizationRole.OWNER)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
         organizationRepository.delete(organization);
         return ResponseEntity.noContent().build();
-    }
-
-    private Map<String, Object> toUserResponse(User user) {
-        return Map.of(
-                "id", user.getId(),
-                "name", user.getName(),
-                "username", user.getUsername());
     }
 
     @GetMapping("/{organizationId}/users")
@@ -160,7 +152,7 @@ public class OrganizationsController {
 
         return organizationRepository.findById(organizationId)
                 .<ResponseEntity<?>>map(organization -> {
-                    if (!isMember(organization, authenticatedUserId)) {
+                    if (!organization.hasMember(authenticatedUserId)) {
                         return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
                     }
                     return ResponseEntity.ok(organization.getMembers().stream().map(this::toUserResponse).toList());
@@ -169,8 +161,11 @@ public class OrganizationsController {
                         .body(Map.of("error", "organization not found")));
     }
 
-    private boolean isMember(Organization organization, Long userId) {
-        return organization.getMembers().stream().anyMatch(member -> userId.equals(member.getId()));
+    private Map<String, Object> toUserResponse(User user) {
+        return Map.of(
+                "id", user.getId(),
+                "name", user.getName(),
+                "username", user.getUsername());
     }
 
     private Map<String, Object> toResponse(Organization organization) {

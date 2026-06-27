@@ -6,17 +6,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "organizations")
 public class Organization {
+
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
@@ -24,13 +26,9 @@ public class Organization {
     @Column(nullable = false)
     private String name;
 
-    @ManyToMany
-    @JoinTable(name = "organization_members", joinColumns = @JoinColumn(name = "organization_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
-    private Set<User> members = new HashSet<>();
+    @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<OrganizationMembership> memberships = new HashSet<>();
 
-    /**
-     * An organization has one or many projects
-     */
     @OneToMany(mappedBy = "organization", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Project> projects = new HashSet<>();
 
@@ -46,18 +44,33 @@ public class Organization {
         this.name = name;
     }
 
-    public Set<User> getMembers() {
-        return members;
+    public Set<OrganizationMembership> getMemberships() {
+        return memberships;
     }
 
-    public void addMember(User user) {
-        members.add(user);
-        user.getOrganizations().add(this);
+    public Set<User> getMembers() {
+        return memberships.stream().map(OrganizationMembership::getUser).collect(Collectors.toSet());
+    }
+
+    public void addMember(User user, OrganizationRole role) {
+        OrganizationMembership membership = new OrganizationMembership(this, user, role);
+        memberships.add(membership);
+        user.getMemberships().add(membership);
     }
 
     public void removeMember(User user) {
-        members.remove(user);
-        user.getOrganizations().remove(this);
+        memberships.removeIf(membership -> user.getId().equals(membership.getUser().getId()));
+        user.getMemberships().removeIf(membership -> this.getId().equals(membership.getOrganization().getId()));
+    }
+
+    public boolean hasMember(Long userId) {
+        return memberships.stream().anyMatch(membership -> userId.equals(membership.getUser().getId()));
+    }
+
+    public boolean hasMemberWithRole(Long userId, OrganizationRole... roles) {
+        Set<OrganizationRole> allowedRoles = new HashSet<>(Arrays.asList(roles));
+        return memberships.stream().anyMatch(membership ->
+                userId.equals(membership.getUser().getId()) && allowedRoles.contains(membership.getRole()));
     }
 
     public Set<Project> getProjects() {
@@ -68,5 +81,4 @@ public class Organization {
         projects.add(project);
         project.setOrganization(this);
     }
-
 }

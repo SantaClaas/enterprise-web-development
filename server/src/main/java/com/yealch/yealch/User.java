@@ -1,12 +1,21 @@
 package com.yealch.yealch;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+
 import java.util.HashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "users")
 public class User {
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
@@ -20,25 +29,19 @@ public class User {
 	@Column(nullable = false)
 	private String password;
 
-	@ManyToMany(mappedBy = "members")
-	private Set<Organization> organizations = new HashSet<>();
+	@OneToMany(mappedBy = "user")
+	private Set<OrganizationMembership> memberships = new HashSet<>();
 
 	public Long getId() {
 		return id;
 	}
 
+	public Set<OrganizationMembership> getMemberships() {
+		return memberships;
+	}
+
 	public Set<Organization> getOrganizations() {
-		return organizations;
-	}
-
-	public void addOrganization(Organization organization) {
-		organizations.add(organization);
-		organization.getMembers().add(this);
-	}
-
-	public void removeOrganization(Organization organization) {
-		organizations.remove(organization);
-		organization.getMembers().remove(this);
+		return memberships.stream().map(OrganizationMembership::getOrganization).collect(Collectors.toSet());
 	}
 
 	public String getName() {

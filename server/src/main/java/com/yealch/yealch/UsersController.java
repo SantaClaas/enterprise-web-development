@@ -90,7 +90,7 @@ public class UsersController {
                     if (user.getOrganizations().isEmpty()) {
                         Organization defaultOrganization = new Organization();
                         defaultOrganization.setName(user.getName() + " Organization");
-                        defaultOrganization.addMember(user);
+                        defaultOrganization.addMember(user, OrganizationRole.OWNER);
                         organizationRepository.save(defaultOrganization);
                     }
 
@@ -120,7 +120,7 @@ public class UsersController {
                     if (user.getOrganizations().isEmpty()) {
                         Organization defaultOrganization = new Organization();
                         defaultOrganization.setName(user.getName() + " Organization");
-                        defaultOrganization.addMember(user);
+                        defaultOrganization.addMember(user, OrganizationRole.OWNER);
                         organizationRepository.save(defaultOrganization);
                     }
 
@@ -164,7 +164,7 @@ public class UsersController {
         return userRepository.findById(userId)
                 .<ResponseEntity<?>>map(user -> {
                     Organization organization = organizationRepository.findById(organizationId).orElse(null);
-                    if (organization == null || !organization.getMembers().contains(user)) {
+                    if (organization == null || !organization.hasMember(user.getId())) {
                         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                 .body(Map.of("error", "organization not found or user is not a member"));
                     }
@@ -216,7 +216,7 @@ public class UsersController {
                 .<ResponseEntity<?>>map(user -> projectRepository.findById(projectId)
                         .<ResponseEntity<?>>map(project -> {
                             Organization organization = project.getOrganization();
-                            if (organization == null || !organization.getMembers().contains(user)) {
+                            if (organization == null || !organization.hasMember(user.getId())) {
                                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                                         .body(Map.of("error", "project not found or user is not a member"));
                             }
@@ -263,7 +263,7 @@ public class UsersController {
                                     if (organization == null) {
                                         return false;
                                     }
-                                    return organization.getMembers().contains(user);
+                                    return organization.hasMember(user.getId());
                                 })
                                 .map(time -> Map.of(
                                         "id", time.getId(),
@@ -297,7 +297,7 @@ public class UsersController {
                 .<ResponseEntity<?>>map(user -> {
                     Organization organization = new Organization();
                     organization.setName(organizationName);
-                    organization.addMember(user);
+                    organization.addMember(user, OrganizationRole.OWNER);
                     organizationRepository.save(organization);
 
                     return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -321,9 +321,9 @@ public class UsersController {
         return userRepository.findById(userId)
                 .<ResponseEntity<?>>map(user -> organizationRepository.findById(organizationId)
                         .<ResponseEntity<?>>map(organization -> {
-                            if (!organization.getMembers().contains(user)) {
+                            if (!organization.hasMemberWithRole(user.getId(), OrganizationRole.ADMINISTRATOR, OrganizationRole.OWNER)) {
                                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                                        .body(Map.of("error", "user is not a member of the organization"));
+                                        .body(Map.of("error", "user does not have permission to edit the organization"));
                             }
 
                             organization.setName(newName);
@@ -356,7 +356,7 @@ public class UsersController {
         return userRepository.findById(userId)
                 .<ResponseEntity<?>>map(user -> projectRepository.findById(projectId)
                         .<ResponseEntity<?>>map(project -> {
-                            if (!project.getOrganization().getMembers().contains(user)) {
+                            if (!project.getOrganization().hasMember(user.getId())) {
                                 return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                         .body(Map.of("error", "user is not a member of the project"));
                             }
@@ -429,7 +429,7 @@ public class UsersController {
                         Time time = foundTime.get();
                         Project project = time.getProject();
                         if (project == null || project.getOrganization() == null
-                                || !project.getOrganization().getMembers().contains(user)) {
+                                || !project.getOrganization().hasMember(user.getId())) {
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                     .body(Map.of("error", "user is not allowed to modify time: " + timeId));
                         }
@@ -482,7 +482,7 @@ public class UsersController {
                         Time time = foundTime.get();
                         Project project = time.getProject();
                         if (project == null || project.getOrganization() == null
-                                || !project.getOrganization().getMembers().contains(user)) {
+                                || !project.getOrganization().hasMember(user.getId())) {
                             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                                     .body(Map.of("error", "user is not allowed to delete time: " + timeId));
                         }
