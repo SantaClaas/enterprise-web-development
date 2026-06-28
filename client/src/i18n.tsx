@@ -3,16 +3,16 @@ import { negotiateLanguages } from "@fluent/langneg";
 import { createContext, createMemo, createSignal, useContext, type ParentProps } from "solid-js";
 
 // Included in bundle even if translation is not not used. This is fine for now but needs to be changed in the future.
-import deFtl from "./locales/de.ftl?raw";
-import enFtl from "./locales/en.ftl?raw";
+import deFtl from "./locales/de-DE.ftl?raw";
+import enFtl from "./locales/en-US.ftl?raw";
 
 const MESSAGES: Record<string, string> = {
-  en: enFtl,
-  de: deFtl,
+  "en-US": enFtl,
+  "de-DE": deFtl,
 };
 
-const SUPPORTED_LOCALES = ["en", "de"] as const;
-const DEFAULT_LOCALE = "en";
+const SUPPORTED_LOCALES = ["en-US", "de-DE"] as const;
+const DEFAULT_LOCALE = "en-US";
 
 function createBundle(locale: string): FluentBundle {
   const bundle = new FluentBundle(locale);
