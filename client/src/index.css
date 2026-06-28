@@ -33,7 +33,7 @@ when we have perfectly fine CSS solutions to deal with the same problem.
       }
     }
     &[data-variant="text"] {
-      @apply text-primary block;
+      @apply text-primary block text-center;
     }
     &[data-variant="outlined"] {
       @apply border-outline-variant text-on-surface-variant rounded-full border;
