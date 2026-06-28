@@ -24,19 +24,19 @@ when we have perfectly fine CSS solutions to deal with the same problem.
 
   /* TODO button states */
   .button {
-    @apply flex cursor-default gap-x-2 text-center;
+    @apply flex cursor-default items-center justify-center gap-x-2 px-6 py-4;
 
     &[data-variant="filled"] {
-      @apply bg-primary text-on-primary flex items-center justify-center gap-2 rounded-full px-6 py-4;
+      @apply bg-primary text-on-primary justify-center rounded-full;
       &:disabled {
         @apply bg-on-surface/10 text-on-surface/38;
       }
     }
     &[data-variant="text"] {
-      @apply text-primary block px-6 py-4;
+      @apply text-primary block;
     }
     &[data-variant="outlined"] {
-      @apply border-outline-variant text-on-surface-variant rounded-full border px-6 py-4;
+      @apply border-outline-variant text-on-surface-variant rounded-full border;
     }
   }
 

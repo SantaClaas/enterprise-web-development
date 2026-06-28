@@ -3,8 +3,8 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show, Suspense } from "solid-js";
 
 import { FloatingActionButtonAction } from "@/FloatingActionButton";
-import Icon from "@/Icon";
 import { useI18n } from "@/i18n";
+import Icon from "@/Icon";
 import { isProject, query as projectQuery, type Id as ProjectId } from "@/project";
 import { query as timesQuery } from "@/time";
 import {
@@ -41,7 +41,8 @@ function EntryRow(properties: {
 }) {
   const { t, locale } = useI18n();
   const timeFormatter = createMemo(
-    () => new Intl.DateTimeFormat(locale(), { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+    () =>
+      new Intl.DateTimeFormat(locale(), { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
   );
   const durationFormatter = createMemo(
     () =>
@@ -297,7 +298,9 @@ function TimerPage() {
             </p>
             <Suspense
               fallback={
-                <p class="text-on-surface-variant py-4 text-center">{t("timer-loading-projects")}</p>
+                <p class="text-on-surface-variant py-4 text-center">
+                  {t("timer-loading-projects")}
+                </p>
               }
             >
               <ul class="flex flex-col gap-2">
