@@ -4,6 +4,8 @@ import { Show } from "solid-js";
 export function ErrorDetails(
   properties: ErrorComponentProps & { title: string; explainer: string },
 ) {
+  // Log the error so we can view it in the console and it doesn't get swallowed
+  console.error("ErrorDetails", properties.error);
   return (
     <>
       <article class="bg-error-container text-on-error-container mx-auto mt-6 grid max-w-2xl grid-cols-[1fr_auto] rounded p-6">

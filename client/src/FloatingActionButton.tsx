@@ -12,20 +12,28 @@ import {
 
 import type { IconId } from "./Icon";
 
-type FloatingActionButtonConfig = {
-  to: string;
+type FloatingActionButtonConfiguration = {
   label: string;
   icon: IconId;
-} | null;
+} & (
+  | {
+      to: string;
+      onClick?: never;
+    }
+  | {
+      to?: never;
+      onClick: () => void;
+    }
+);
 
-const context = createContext<Signal<FloatingActionButtonConfig> | undefined>(undefined);
+const context = createContext<Signal<FloatingActionButtonConfiguration | undefined>>();
 
 export function FloatingActionButtonProvider(properties: ParentProps) {
-  const signal = createSignal<FloatingActionButtonConfig>(null);
+  const signal = createSignal<FloatingActionButtonConfiguration | undefined>();
   return <context.Provider value={signal}>{properties.children}</context.Provider>;
 }
 
-export function useFloatingActionButton(): Accessor<FloatingActionButtonConfig> {
+export function useFloatingActionButton(): Accessor<FloatingActionButtonConfiguration | undefined> {
   const signal = useContext(context);
   if (!signal)
     throw new Error("useFloatingActionButton must be used within a FloatingActionButtonProvider");
@@ -51,7 +59,31 @@ export function FloatingActionButton(
     });
   });
 
-  onCleanup(() => setFloatingActionButton(null));
+  onCleanup(() => setFloatingActionButton(undefined));
+
+  return undefined;
+}
+
+export function FloatingActionButtonAction(
+  properties: VoidProps<{ onClick: () => void; label: string; icon: IconId }>,
+) {
+  const signal = useContext(context);
+  if (!signal)
+    throw new Error(
+      "FloatingActionButtonAction must be used within a FloatingActionButtonProvider",
+    );
+
+  const [, setFloatingActionButton] = signal;
+
+  createEffect(() => {
+    setFloatingActionButton({
+      onClick: properties.onClick,
+      label: properties.label,
+      icon: properties.icon as IconId,
+    });
+  });
+
+  onCleanup(() => setFloatingActionButton(undefined));
 
   return undefined;
 }

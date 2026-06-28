@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show, Suspense } from "solid-js";
 
+import { FloatingActionButtonAction } from "@/FloatingActionButton";
 import Icon from "@/Icon";
 import { isProject, query as projectQuery, type Id as ProjectId } from "@/project";
 import { query as timesQuery } from "@/time";
@@ -12,6 +13,7 @@ import {
   startTimer,
   stopTimer,
   type TimerData,
+  type TimerEntry,
 } from "@/timer";
 import { Title } from "@/Title";
 import { idQuery } from "@/user";
@@ -28,12 +30,69 @@ export const Route = createFileRoute("/_app/timer")({
   },
 });
 
+const timeFormatter = new Intl.DateTimeFormat(undefined, {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+});
+
+const durationFormatter = new Intl.DurationFormat(undefined, {
+  style: "digital",
+  hours: "2-digit",
+  minutes: "2-digit",
+  seconds: "2-digit",
+});
+
 function formatElapsed(ms: number): string {
   const totalSeconds = Math.floor(ms / 1000);
   const hours = Math.floor(totalSeconds / 3600);
   const minutes = Math.floor((totalSeconds % 3600) / 60);
   const seconds = totalSeconds % 60;
   return [hours, minutes, seconds].map((n) => String(n).padStart(2, "0")).join(":");
+}
+
+function EntryRow(props: { entry: TimerEntry; tick: number }) {
+  const startedAt = () => Temporal.Instant.from(props.entry.startedAt);
+  const pausedAt = () =>
+    props.entry.pausedAt ? Temporal.Instant.from(props.entry.pausedAt) : null;
+  const duration = () => {
+    const end = pausedAt() ?? (void props.tick, Temporal.Now.instant());
+    return end.since(startedAt()).round({ smallestUnit: "second", largestUnit: "hour" });
+  };
+
+  return (
+    <li class="text-body-md grid grid-cols-3 gap-2">
+      <time
+        datetime={props.entry.startedAt}
+        class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
+      >
+        {timeFormatter.format(startedAt())}
+      </time>
+      <Show
+        when={pausedAt()}
+        fallback={
+          <span class="bg-surface-container text-primary rounded-full px-3 py-1.5 text-center">
+            Running
+          </span>
+        }
+      >
+        {(pausedAtInstant) => (
+          <time
+            datetime={props.entry.pausedAt!}
+            class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
+          >
+            {timeFormatter.format(pausedAtInstant())}
+          </time>
+        )}
+      </Show>
+      <time
+        datetime={duration().toString()}
+        class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
+      >
+        {durationFormatter.format(duration())}
+      </time>
+    </li>
+  );
 }
 
 function TimerPage() {
@@ -110,12 +169,21 @@ function TimerPage() {
     saveMutation.isPending ||
     discardMutation.isPending;
 
+  const entries = () => timer()?.entries;
+
   return (
     <>
       <Title title="Timer" />
-      <main class="flex h-full flex-col items-center justify-center gap-10">
+      <Show when={!isSelectingProject()}>
+        <FloatingActionButtonAction
+          icon={status() === "RUNNING" ? "pause" : "play-arrow"}
+          label={status() === "RUNNING" ? "Pause" : status() === "PAUSED" ? "Resume" : "Start"}
+          onClick={() => (status() === "RUNNING" ? pauseMutation.mutate() : startMutation.mutate())}
+        />
+      </Show>
+      <main class="flex min-h-full flex-col items-center justify-center gap-10 py-10">
         <time
-          class="font-mono text-7xl tabular-nums tracking-widest text-on-surface"
+          class="text-on-surface font-mono text-7xl tracking-widest tabular-nums"
           datetime={`PT${Math.floor(elapsedMs() / 1000)}S`}
         >
           {formatElapsed(elapsedMs())}
@@ -129,7 +197,7 @@ function TimerPage() {
               data-variant="filled"
               class="button gap-2"
             >
-              <Icon name="play-arrow" class="size-6 fill-on-primary" />
+              <Icon name="play-arrow" class="fill-on-primary size-6" />
               Start
             </button>
           </Show>
@@ -141,7 +209,7 @@ function TimerPage() {
               data-variant="outlined"
               class="button gap-2"
             >
-              <Icon name="pause" class="size-6 fill-on-surface-variant" />
+              <Icon name="pause" class="fill-on-surface-variant size-6" />
               Pause
             </button>
           </Show>
@@ -153,7 +221,7 @@ function TimerPage() {
               data-variant="filled"
               class="button gap-2"
             >
-              <Icon name="play-arrow" class="size-6 fill-on-primary" />
+              <Icon name="play-arrow" class="fill-on-primary size-6" />
               Resume
             </button>
             <button
@@ -162,11 +230,19 @@ function TimerPage() {
               data-variant="outlined"
               class="button gap-2"
             >
-              <Icon name="stop" class="size-6 fill-on-surface-variant" />
+              <Icon name="stop" class="fill-on-surface-variant size-6" />
               Stop
             </button>
           </Show>
         </div>
+
+        <Show when={entries() && entries()!.length > 0}>
+          <ol class="w-full max-w-sm space-y-2">
+            <For each={timer()!.entries.toReversed()}>
+              {(entry) => <EntryRow entry={entry} tick={tick()} />}
+            </For>
+          </ol>
+        </Show>
       </main>
 
       <Show when={isSelectingProject()}>
@@ -177,9 +253,7 @@ function TimerPage() {
               {formatElapsed(elapsedMs())} will be saved as a time entry.
             </p>
             <Suspense
-              fallback={
-                <p class="text-on-surface-variant py-4 text-center">Loading projects...</p>
-              }
+              fallback={<p class="text-on-surface-variant py-4 text-center">Loading projects...</p>}
             >
               <ul class="flex flex-col gap-2">
                 <For each={selectableProjects()}>

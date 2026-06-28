@@ -5,10 +5,16 @@ import { QUERY_BASE, type UserId } from "./user";
 
 export type TimerStatus = "RUNNING" | "PAUSED";
 
+export type TimerEntry = {
+  startedAt: string;
+  pausedAt: string | null;
+};
+
 export type TimerData = {
   status: TimerStatus;
   currentPeriodStart: string | null; // ISO 8601, set only when RUNNING
   accumulatedMs: number;             // sum of all completed start-pause entry durations
+  entries: TimerEntry[];
 };
 
 export const query = (userId: UserId | undefined) =>

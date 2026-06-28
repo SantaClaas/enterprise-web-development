@@ -12,13 +12,28 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
     <div class="bg-surface-container text-on-surface-variant row-start-3 lg:row-span-full lg:flex lg:min-w-24 lg:flex-col lg:items-center">
       <Show when={floatingActionButton()}>
         {(configuration) => (
-          <Link
-            to={configuration().to}
-            class="floating-action-button lg:bg-on-primary-container absolute right-6 bottom-22 lg:static lg:mt-10"
+          <Show
+            when={configuration().to}
+            fallback={
+              <button
+                onClick={configuration().onClick}
+                class="floating-action-button lg:bg-on-primary-container absolute right-6 bottom-22 lg:static lg:mt-10"
+              >
+                <span class="sr-only">{configuration().label}</span>
+                <Icon name={configuration().icon} class="fill-on-primary size-6" />
+              </button>
+            }
           >
-            <span class="sr-only">{configuration().label}</span>
-            <Icon name={configuration().icon} class="fill-on-primary size-6" />
-          </Link>
+            {(to) => (
+              <Link
+                to={to()}
+                class="floating-action-button lg:bg-on-primary-container absolute right-6 bottom-22 lg:static lg:mt-10"
+              >
+                <span class="sr-only">{configuration().label}</span>
+                <Icon name={configuration().icon} class="fill-on-primary size-6" />
+              </Link>
+            )}
+          </Show>
         )}
       </Show>
       <nav class="lg:mt-10">
