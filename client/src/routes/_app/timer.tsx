@@ -45,14 +45,6 @@ const durationFormatter = new Intl.DurationFormat(undefined, {
   seconds: "2-digit",
 });
 
-function formatElapsed(ms: number): string {
-  const totalSeconds = Math.floor(ms / 1000);
-  const hours = Math.floor(totalSeconds / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  return [hours, minutes, seconds].map((n) => String(n).padStart(2, "0")).join(":");
-}
-
 function EntryRow(properties: {
   entry: TimerEntry;
   tick: number;
@@ -60,6 +52,7 @@ function EntryRow(properties: {
   isDeleting: boolean;
 }) {
   const startedAt = () => Temporal.Instant.from(properties.entry.startedAt);
+
   const pausedAt = () =>
     properties.entry.pausedAt ? Temporal.Instant.from(properties.entry.pausedAt) : null;
   const duration = () => {
@@ -114,9 +107,7 @@ function TimerPage() {
   const { userId } = Route.useLoaderData()();
   const queryClient = useQueryClient();
 
-  const timerQ = useQuery(() => timerQuery(userId));
-  const timer = (): TimerData | null => timerQ.data ?? null;
-  const status = () => timer()?.status ?? null;
+  const timer = useQuery(() => timerQuery(userId));
 
   // Project selection is purely a local UI state — the DB only knows RUNNING or PAUSED
   const [isSelectingProject, setIsSelectingProject] = createSignal(false);
@@ -127,24 +118,27 @@ function TimerPage() {
   // Tick every second while the timer is RUNNING to update the display
   const [tick, setTick] = createSignal(0, { equals: false });
   createEffect(() => {
-    if (status() === "RUNNING") {
-      const interval = setInterval(() => setTick((n) => n + 1), 1000);
+    if (timer.data?.status === "RUNNING") {
+      const interval = setInterval(() => setTick((n) => n + 1), 1_000);
       onCleanup(() => clearInterval(interval));
     }
   });
 
-  const elapsedMs = createMemo(() => {
-    const currentTimer = timer();
-    if (!currentTimer) return 0;
-    if (currentTimer.status !== "RUNNING") return currentTimer.accumulatedMilliseconds;
-    // RUNNING: subscribe to tick for live updates
-    void tick();
-    return (
-      currentTimer.accumulatedMilliseconds +
-      Temporal.Now.instant()
-        .since(Temporal.Instant.from(currentTimer.currentPeriodStart!))
-        .total("milliseconds")
-    );
+  const elapsed = createMemo((): Temporal.Duration => {
+    const currentTimer = timer.data;
+
+    let elapsed = Temporal.Duration.from({
+      milliseconds: currentTimer?.accumulatedMilliseconds ?? 0,
+    });
+
+    if (currentTimer?.status === "RUNNING") {
+      void tick();
+      elapsed = elapsed.add(
+        Temporal.Now.instant().since(Temporal.Instant.from(currentTimer.currentPeriodStart!)),
+      );
+    }
+
+    return elapsed.round({ smallestUnit: "second", largestUnit: "hour" });
   });
 
   function setTimerCache(data: TimerData) {
@@ -190,28 +184,37 @@ function TimerPage() {
     discardMutation.isPending ||
     deleteEntryMutation.isPending;
 
-  const entries = () => timer()?.entries;
+  const entries = () => timer.data?.entries;
+
+  const floatingActionButtonLabel = createMemo(() => {
+    if (timer.data?.status === "RUNNING") return "Pause";
+    if (timer.data?.status === "PAUSED") return "Resume";
+
+    return "Start";
+  });
 
   return (
     <>
       <Title title="Timer" />
       <Show when={!isSelectingProject()}>
         <FloatingActionButtonAction
-          icon={status() === "RUNNING" ? "pause" : "play-arrow"}
-          label={status() === "RUNNING" ? "Pause" : status() === "PAUSED" ? "Resume" : "Start"}
-          onClick={() => (status() === "RUNNING" ? pauseMutation.mutate() : startMutation.mutate())}
+          icon={timer.data?.status === "RUNNING" ? "pause" : "play-arrow"}
+          label={floatingActionButtonLabel()}
+          onClick={() =>
+            timer.data?.status === "RUNNING" ? pauseMutation.mutate() : startMutation.mutate()
+          }
         />
       </Show>
       <main class="flex min-h-full flex-col items-center justify-center gap-10 py-10">
         <time
           class="text-on-surface font-mono text-7xl tracking-widest tabular-nums"
-          datetime={`PT${Math.floor(elapsedMs() / 1000)}S`}
+          datetime={elapsed().toString()}
         >
-          {formatElapsed(elapsedMs())}
+          {durationFormatter.format(elapsed())}
         </time>
 
         <div class="flex gap-4">
-          <Show when={!status()}>
+          <Show when={!timer.data?.status}>
             <button
               onClick={() => startMutation.mutate()}
               disabled={isPending()}
@@ -223,7 +226,7 @@ function TimerPage() {
             </button>
           </Show>
 
-          <Show when={status() === "RUNNING"}>
+          <Show when={timer.data?.status === "RUNNING"}>
             <button
               onClick={() => pauseMutation.mutate()}
               disabled={isPending()}
@@ -235,7 +238,7 @@ function TimerPage() {
             </button>
           </Show>
 
-          <Show when={status() === "PAUSED"}>
+          <Show when={timer.data?.status === "PAUSED"}>
             <button
               onClick={() => startMutation.mutate()}
               disabled={isPending()}
@@ -259,7 +262,7 @@ function TimerPage() {
 
         <Show when={entries() && entries()!.length > 0}>
           <ol class="w-full max-w-sm space-y-2">
-            <For each={timer()!.entries.toReversed()}>
+            <For each={timer.data?.entries.toReversed()}>
               {(entry) => (
                 <EntryRow
                   entry={entry}
@@ -278,7 +281,8 @@ function TimerPage() {
           <div class="bg-surface-container-high rounded-t-large lg:rounded-large w-full max-w-lg p-6">
             <h2 class="text-title-lg text-on-surface mb-1">Select a project</h2>
             <p class="text-body-md text-on-surface-variant mb-4">
-              {formatElapsed(elapsedMs())} will be saved as a time entry.
+              <time datetime={elapsed().toString()}>{durationFormatter.format(elapsed())}</time> will
+              be saved as a time entry.
             </p>
             <Suspense
               fallback={<p class="text-on-surface-variant py-4 text-center">Loading projects...</p>}
