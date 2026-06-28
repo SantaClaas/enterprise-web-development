@@ -185,7 +185,14 @@ function TimerPage() {
 
   const deleteEntryMutation = useMutation(() => ({
     mutationFn: (entryId: TimerEntryId) => deleteTimerEntry(userId, entryId),
-    onSuccess: setTimerCache,
+    onSuccess: (data) => {
+      if (data === "timer deleted") {
+        queryClient.setQueryData(timerQuery(userId).queryKey, null);
+        return;
+      }
+
+      setTimerCache(data);
+    },
   }));
 
   const isPending = () =>
@@ -211,7 +218,9 @@ function TimerPage() {
           icon={timer.data?.status === TIMER_STATUS.RUNNING ? "pause" : "play-arrow"}
           label={floatingActionButtonLabel()}
           onClick={() =>
-            timer.data?.status === TIMER_STATUS.RUNNING ? pauseMutation.mutate() : startMutation.mutate()
+            timer.data?.status === TIMER_STATUS.RUNNING
+              ? pauseMutation.mutate()
+              : startMutation.mutate()
           }
         />
       </Show>

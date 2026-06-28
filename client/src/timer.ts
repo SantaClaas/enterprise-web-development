@@ -66,11 +66,15 @@ export async function stopTimer(userId: UserId, projectId: ProjectId): Promise<v
   if (!response.ok) throw new Error(`Error stopping timer: ${response.status}`);
 }
 
-export async function deleteTimerEntry(userId: UserId, entryId: TimerEntryId): Promise<TimerData> {
+export async function deleteTimerEntry(
+  userId: UserId,
+  entryId: TimerEntryId,
+): Promise<TimerData | "timer deleted"> {
   const response = await fetch(`/api/users/${userId}/timer/entries/${entryId}`, {
     method: "DELETE",
   });
   if (!response.ok) throw new Error(`Error deleting timer entry: ${response.status}`);
+  if (response.status === 204) return "timer deleted";
   return response.json() as Promise<TimerData>;
 }
 

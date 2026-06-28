@@ -229,6 +229,13 @@ public class TimerController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("entry not found"));
         }
 
+        // Deleting the only entry is equivalent to deleting the timer itself, so we
+        // return 204 No Content.
+        if (timer.getStartPauseEntries().isEmpty()) {
+            timerRepository.delete(timer);
+            return ResponseEntity.noContent().build();
+        }
+
         timerRepository.save(timer);
         return ResponseEntity.ok(toResponse(timer));
     }
