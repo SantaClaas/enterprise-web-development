@@ -3,6 +3,7 @@ import { queryOptions } from "@tanstack/solid-query";
 import { QUERY_BASE, type UserId } from "@/user";
 
 export type Id = string & { __brand: "OrganizationId" };
+export type OrganizationRole = "MEMBER" | "ADMINISTRATOR" | "OWNER";
 export type Organization = {
   id: Id;
   name: string;
@@ -75,3 +76,34 @@ export async function updateOrganizationName(userId: UserId, id: Id, name: strin
 export const isOrganization = (
   organization: Organization | OptimisticOrganization,
 ): organization is Organization => "id" in organization;
+
+export async function addMember(organizationId: Id, username: string) {
+  const response = await fetch(`/api/organizations/${organizationId}/members/registrations`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ username }),
+  });
+
+  if (!response.ok)
+    throw new Error("Failed to add member. See network response for more details.");
+}
+
+export async function removeMember(organizationId: Id, userId: UserId) {
+  const response = await fetch(`/api/organizations/${organizationId}/members/${userId}`, {
+    method: "DELETE",
+  });
+
+  if (!response.ok)
+    throw new Error("Failed to remove member. See network response for more details.");
+}
+
+export async function changeMemberRole(organizationId: Id, userId: UserId, role: OrganizationRole) {
+  const response = await fetch(`/api/organizations/${organizationId}/members/${userId}/role`, {
+    method: "PUT",
+    headers: { "Content-Type": "text/plain" },
+    body: role,
+  });
+
+  if (!response.ok)
+    throw new Error("Failed to change member role. See network response for more details.");
+}

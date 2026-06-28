@@ -88,6 +88,10 @@ org-members-error-body = Entschuldigung, beim Laden der Organisation ist ein Feh
 org-members-users-heading = Benutzer
 org-members-delete = Löschen
 org-members-add-member = Mitglied hinzufügen
+org-members-change-role = Rolle ändern
+org-role-member = Mitglied
+org-role-administrator = Administrator
+org-role-owner = Inhaber
 
 # Add member
 org-add-member-title = Mitglied hinzufügen
@@ -95,6 +99,7 @@ org-add-member-username-label = Benutzername
 org-add-member-cancel = Abbrechen
 org-add-member-add = Hinzufügen
 org-add-member-discard = Verwerfen
+org-add-member-error = Mitglied konnte nicht hinzugefügt werden. Bitte Benutzernamen überprüfen und erneut versuchen.
 
 # New project
 project-new-title = Neues Projekt

@@ -88,6 +88,10 @@ org-members-error-body = Sorry, an error occurred while loading the organization
 org-members-users-heading = Users
 org-members-delete = Delete
 org-members-add-member = Add Member
+org-members-change-role = Change role
+org-role-member = Member
+org-role-administrator = Administrator
+org-role-owner = Owner
 
 # Add member
 org-add-member-title = Add member
@@ -95,6 +99,7 @@ org-add-member-username-label = Username
 org-add-member-cancel = Cancel
 org-add-member-add = Add
 org-add-member-discard = Discard
+org-add-member-error = Failed to add member. Please check the username and try again.
 
 # New project
 project-new-title = New Project

@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -67,6 +68,12 @@ public class Organization {
 
     public boolean hasMember(UUID userId) {
         return memberships.stream().anyMatch(membership -> userId.equals(membership.getUser().getId()));
+    }
+
+    public Optional<OrganizationMembership> findMembership(UUID userId) {
+        return memberships.stream()
+                .filter(membership -> userId.equals(membership.getUser().getId()))
+                .findFirst();
     }
 
     public boolean hasMemberWithRole(UUID userId, OrganizationRole... roles) {

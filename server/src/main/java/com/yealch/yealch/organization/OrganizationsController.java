@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -34,7 +35,9 @@ public class OrganizationsController {
 
     record PostOrganizationsRequest(String name) {}
 
-    record GetOrganizationsMemberResponse(UUID id, String name, String username) {}
+    record PostMemberRegistrationRequest(String username) {}
+
+    record GetOrganizationsMemberResponse(UUID id, String name, String username, String role) {}
     record GetOrganizationsResponse(UUID id, String name, List<GetOrganizationsMemberResponse> users) {}
 
     record GetOrganizationsUsersResponse(UUID id, String name, String username) {}
@@ -81,7 +84,8 @@ public class OrganizationsController {
      * Requires the authenticated user to be an administrator or owner of the organization.
      */
     @PostMapping("/{organizationId}/members/registrations")
-    public ResponseEntity<?> addMemberToOrganization(@PathVariable UUID organizationId, @PathVariable UUID userId,
+    public ResponseEntity<?> addMemberToOrganization(@PathVariable UUID organizationId,
+            @RequestBody PostMemberRegistrationRequest request,
             Authentication authentication) {
         UUID authenticatedUserId = UsersController.getUserId(authentication).orElse(null);
         if (authenticatedUserId == null) {
@@ -89,7 +93,7 @@ public class OrganizationsController {
         }
 
         Optional<Organization> foundOrganization = organizationRepository.findById(organizationId);
-        Optional<User> foundUser = userRepository.findById(userId);
+        Optional<User> foundUser = userRepository.findByUsername(request.username());
 
         if (foundOrganization.isEmpty() || foundUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("organization or user not found"));
@@ -135,6 +139,44 @@ public class OrganizationsController {
         return ResponseEntity.ok(toGetOrganizationsResponse(organization));
     }
 
+    /**
+     * Requires the authenticated user to be an owner of the organization.
+     */
+    @PutMapping("/{organizationId}/members/{userId}/role")
+    public ResponseEntity<?> changeMemberRole(@PathVariable UUID organizationId, @PathVariable UUID userId,
+            @RequestBody String role, Authentication authentication) {
+        UUID authenticatedUserId = UsersController.getUserId(authentication).orElse(null);
+        if (authenticatedUserId == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        Optional<Organization> foundOrganization = organizationRepository.findById(organizationId);
+        if (foundOrganization.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("organization not found"));
+        }
+
+        Organization organization = foundOrganization.get();
+        if (!organization.hasMemberWithRole(authenticatedUserId, OrganizationRole.OWNER)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        OrganizationRole newRole;
+        try {
+            newRole = OrganizationRole.valueOf(role.trim());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ErrorResponse("invalid role: " + role));
+        }
+
+        return organization.findMembership(userId)
+                .<ResponseEntity<?>>map(membership -> {
+                    membership.setRole(newRole);
+                    organizationRepository.save(organization);
+                    return ResponseEntity.ok(toGetOrganizationsResponse(organization));
+                })
+                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse("user is not a member of this organization")));
+    }
+
     @DeleteMapping("/{organizationId}")
     public ResponseEntity<?> deleteOrganization(@PathVariable UUID organizationId, Authentication authentication) {
         UUID authenticatedUserId = UsersController.getUserId(authentication).orElse(null);
@@ -176,15 +218,16 @@ public class OrganizationsController {
                         .body(new ErrorResponse("organization not found")));
     }
 
-    private static GetOrganizationsMemberResponse toGetOrganizationsMemberResponse(User user) {
-        return new GetOrganizationsMemberResponse(user.getId(), user.getName(), user.getUsername());
+    private static GetOrganizationsMemberResponse toGetOrganizationsMemberResponse(OrganizationMembership membership) {
+        User user = membership.getUser();
+        return new GetOrganizationsMemberResponse(user.getId(), user.getName(), user.getUsername(), membership.getRole().name());
     }
 
     private static GetOrganizationsResponse toGetOrganizationsResponse(Organization organization) {
         return new GetOrganizationsResponse(
                 organization.getId(),
                 organization.getName(),
-                organization.getMembers().stream().map(OrganizationsController::toGetOrganizationsMemberResponse).toList());
+                organization.getMemberships().stream().map(OrganizationsController::toGetOrganizationsMemberResponse).toList());
     }
 
     private static GetOrganizationsUsersResponse toGetOrganizationsUsersResponse(User user) {
