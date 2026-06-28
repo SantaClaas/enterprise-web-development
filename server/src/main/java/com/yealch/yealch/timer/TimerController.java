@@ -7,6 +7,7 @@ import com.yealch.yealch.time.TimeRepository;
 import com.yealch.yealch.user.UserRepository;
 import com.yealch.yealch.user.UsersController;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -19,10 +20,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.time.Duration;
 import java.time.OffsetDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/users/{userId}/timer")
+@RequestMapping(value = "/api/users/{userId}/timer", produces = MediaType.APPLICATION_JSON_VALUE)
 public class TimerController {
 
     private final TimerRepository timerRepository;
@@ -40,10 +42,13 @@ public class TimerController {
 
     record ErrorResponse(String error) {}
 
+    record TimerStartPauseResponse(String startedAt, String pausedAt) {}
+
     record TimerResponse(
             String status,
             String currentPeriodStart,
-            long accumulatedMs) {}
+            long accumulatedMs,
+            List<TimerStartPauseResponse> entries) {}
 
     record CreateTimerStopRequest(UUID projectId) {}
 
@@ -70,7 +75,13 @@ public class TimerController {
             status = "PAUSED";
         }
 
-        return new TimerResponse(status, currentPeriodStart, accumulatedMs);
+        List<TimerStartPauseResponse> entries = timer.getStartPauseEntries().stream()
+                .map(e -> new TimerStartPauseResponse(
+                        e.getStartedAt().toString(),
+                        e.getPausedAt() != null ? e.getPausedAt().toString() : null))
+                .toList();
+
+        return new TimerResponse(status, currentPeriodStart, accumulatedMs, entries);
     }
 
     @GetMapping
@@ -146,7 +157,7 @@ public class TimerController {
     }
 
     /** Stops the timer: pauses the running entry if needed, converts all entries to time records, deletes the timer. */
-    @PostMapping("/stop")
+    @PostMapping(value = "/stop", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createTimerStop(@PathVariable UUID userId,
             @RequestBody CreateTimerStopRequest request, Authentication authentication) {
         UUID authId = authenticatedUserId(authentication);
