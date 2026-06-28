@@ -33,26 +33,25 @@ export const Route = createFileRoute("/_app/timer")({
   },
 });
 
-const timeFormatter = new Intl.DateTimeFormat(undefined, {
-  hour: "2-digit",
-  minute: "2-digit",
-  second: "2-digit",
-});
-
-const durationFormatter = new Intl.DurationFormat(undefined, {
-  style: "digital",
-  hours: "2-digit",
-  minutes: "2-digit",
-  seconds: "2-digit",
-});
-
 function EntryRow(properties: {
   entry: TimerEntry;
   tick: number;
   onDelete: () => void;
   isDeleting: boolean;
 }) {
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const timeFormatter = createMemo(
+    () => new Intl.DateTimeFormat(locale(), { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
+  );
+  const durationFormatter = createMemo(
+    () =>
+      new Intl.DurationFormat(locale(), {
+        style: "digital",
+        hours: "2-digit",
+        minutes: "2-digit",
+        seconds: "2-digit",
+      }),
+  );
   const startedAt = () => Temporal.Instant.from(properties.entry.startedAt);
 
   const pausedAt = () =>
@@ -68,7 +67,7 @@ function EntryRow(properties: {
         datetime={properties.entry.startedAt}
         class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
       >
-        {timeFormatter.format(startedAt())}
+        {timeFormatter().format(startedAt())}
       </time>
       <Show
         when={pausedAt()}
@@ -83,7 +82,7 @@ function EntryRow(properties: {
             datetime={properties.entry.pausedAt!}
             class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
           >
-            {timeFormatter.format(pausedAtInstant())}
+            {timeFormatter().format(pausedAtInstant())}
           </time>
         )}
       </Show>
@@ -91,7 +90,7 @@ function EntryRow(properties: {
         datetime={duration().toString()}
         class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
       >
-        {durationFormatter.format(duration())}
+        {durationFormatter().format(duration())}
       </time>
       <button
         onClick={properties.onDelete}
@@ -108,7 +107,16 @@ function EntryRow(properties: {
 function TimerPage() {
   const { userId } = Route.useLoaderData()();
   const queryClient = useQueryClient();
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const durationFormatter = createMemo(
+    () =>
+      new Intl.DurationFormat(locale(), {
+        style: "digital",
+        hours: "2-digit",
+        minutes: "2-digit",
+        seconds: "2-digit",
+      }),
+  );
 
   const timer = useQuery(() => timerQuery(userId));
 
@@ -212,7 +220,7 @@ function TimerPage() {
           class="text-on-surface font-mono text-7xl tracking-widest tabular-nums"
           datetime={elapsed().toString()}
         >
-          {durationFormatter.format(elapsed())}
+          {durationFormatter().format(elapsed())}
         </time>
 
         <div class="flex gap-4">
@@ -284,7 +292,7 @@ function TimerPage() {
             <h2 class="text-title-lg text-on-surface mb-1">{t("timer-select-project-title")}</h2>
             <p class="text-body-md text-on-surface-variant mb-4">
               {t("timer-select-project-body", {
-                duration: durationFormatter.format(elapsed()),
+                duration: durationFormatter().format(elapsed()),
               })}
             </p>
             <Suspense

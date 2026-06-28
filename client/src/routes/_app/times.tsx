@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
-import { createSignal, For, type VoidProps } from "solid-js";
+import { createMemo, createSignal, For, type VoidProps } from "solid-js";
 
 import { FloatingActionButton } from "@/FloatingActionButton";
 import Icon from "@/Icon";
@@ -48,29 +48,26 @@ type DayProperties = {
 
 const today = Temporal.Now.plainDateISO();
 
-const dateFormatter = new Intl.DateTimeFormat(undefined, {
-  weekday: "long",
-  month: "long",
-  day: "numeric",
-});
-
-const timeFormatter = new Intl.DateTimeFormat(undefined, {
-  hour: "2-digit",
-  minute: "2-digit",
-});
-
-const durationFormatter = new Intl.DurationFormat(undefined, {
-  style: "digital",
-  // hoursDisplay: "always",
-  // minutesDisplay: "always",
-  hours: "2-digit",
-  minutes: "2-digit",
-});
-
 function Day(properties: VoidProps<DayProperties>) {
   // Could do this with a custom styled checkbox and no JS
   const [isEdit, setIsEdit] = createSignal(false);
-  const { t } = useI18n();
+  const { t, locale } = useI18n();
+  const dateFormatter = createMemo(
+    () => new Intl.DateTimeFormat(locale(), { weekday: "long", month: "long", day: "numeric" }),
+  );
+  const timeFormatter = createMemo(
+    () => new Intl.DateTimeFormat(locale(), { hour: "2-digit", minute: "2-digit" }),
+  );
+  const durationFormatter = createMemo(
+    () =>
+      new Intl.DurationFormat(locale(), {
+        style: "digital",
+        // hoursDisplay: "always",
+        // minutesDisplay: "always",
+        hours: "2-digit",
+        minutes: "2-digit",
+      }),
+  );
 
   function cancelEdit() {
     setIsEdit(false);
@@ -159,7 +156,7 @@ function Day(properties: VoidProps<DayProperties>) {
         data-is-today={properties.day.equals(today) ? "" : undefined}
         class="bg-surface-container data-is-today:bg-primary-container text-on-surface fill-on-surface data-is-today:text-on-primary-container data-is-today:fill-on-primary rounded-large group relative grid grid-cols-[1fr_1fr_auto_auto] gap-2 p-4"
       >
-        <h2 class="text-headline-md col-span-2">{dateFormatter.format(properties.day)}</h2>
+        <h2 class="text-headline-md col-span-2">{dateFormatter().format(properties.day)}</h2>
         <button
           onClick={() => setIsEdit(!isEdit())}
           class="icon-button fill-on-surface group-data-is-edit:hidden"
@@ -198,13 +195,13 @@ function Day(properties: VoidProps<DayProperties>) {
               return (
                 <li class="rounded-medium col-span-full grid grid-cols-3 gap-3 p-2">
                   <time datetime={time.start.toString()} class="bg-surface rounded-full p-2">
-                    {timeFormatter.format(time.start)}
+                    {timeFormatter().format(time.start)}
                   </time>
                   <time datetime={time.end.toString()} class="bg-surface rounded-full p-2">
-                    {timeFormatter.format(time.end)}
+                    {timeFormatter().format(time.end)}
                   </time>
                   <time datetime={duration.toString()} class="bg-surface rounded-full p-2">
-                    {durationFormatter.format(duration)}
+                    {durationFormatter().format(duration)}
                   </time>
                 </li>
               );
@@ -237,7 +234,7 @@ function Day(properties: VoidProps<DayProperties>) {
                   .since(currentStartTime())
                   .round({ smallestUnit: "minute", largestUnit: "hour" });
 
-              const formattedNewDuration = () => durationFormatter.format(newDuration());
+              const formattedNewDuration = () => durationFormatter().format(newDuration());
 
               return (
                 <fieldset

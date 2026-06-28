@@ -21,15 +21,20 @@ function createBundle(locale: string): FluentBundle {
   return bundle;
 }
 
-export type TranslateArgs = Record<string, FluentVariable>;
+export type TranslateArguments = Record<string, FluentVariable>;
 
 const I18nContext = createContext<{
-  t: (id: string, args?: TranslateArgs) => string;
+  /**
+   * Translate a message by its id, optionally providing arguments for placeholders. This function
+   * uses an acronym/abbreviation for "translate" and one of the few exceptions for convenience in
+   * this repository.
+   */
+  t: (id: string, args?: TranslateArguments) => string;
   locale: () => string;
   setLocale: (locale: string) => void;
 }>();
 
-export function I18nProvider(props: ParentProps) {
+export function I18nProvider(properties: ParentProps) {
   const userLocales = Array.from(
     navigator.languages?.length ? navigator.languages : [navigator.language ?? DEFAULT_LOCALE],
   );
@@ -40,21 +45,23 @@ export function I18nProvider(props: ParentProps) {
 
   const bundle = createMemo(() => createBundle(locale()));
 
-  function t(id: string, args?: TranslateArgs): string {
-    const b = bundle();
-    const message = b.getMessage(id);
+  function t(id: string, translationArguments?: TranslateArguments): string {
+    const currentBundle = bundle();
+    const message = currentBundle.getMessage(id);
     if (!message?.value) return id;
     const errors: Error[] = [];
-    return b.formatPattern(message.value, args, errors);
+    return currentBundle.formatPattern(message.value, translationArguments, errors);
   }
 
   return (
-    <I18nContext.Provider value={{ t, locale, setLocale }}>{props.children}</I18nContext.Provider>
+    <I18nContext.Provider value={{ t, locale, setLocale }}>
+      {properties.children}
+    </I18nContext.Provider>
   );
 }
 
 export function useI18n() {
-  const ctx = useContext(I18nContext);
-  if (!ctx) throw new Error("useI18n must be used within I18nProvider");
-  return ctx;
+  const context = useContext(I18nContext);
+  if (!context) throw new Error("useI18n must be used within I18nProvider");
+  return context;
 }
