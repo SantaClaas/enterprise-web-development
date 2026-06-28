@@ -22,7 +22,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
         )}
       </Show>
       <nav class="lg:mt-10">
-        <menu class="grid grid-cols-3 text-xs leading-4 font-medium lg:flex lg:h-full lg:flex-col">
+        <menu class="grid grid-cols-4 text-xs leading-4 font-medium lg:flex lg:h-full lg:flex-col">
           <li>
             <Link to="/times" class="group block cursor-default py-1.5 text-center">
               <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
@@ -30,6 +30,15 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
                 <Icon name="calendar-month-filled" class="hidden size-6 group-[.active]:block" />
               </div>
               <span class="mt-1 block">Times</span>
+            </Link>
+          </li>
+          <li>
+            <Link to="/timer" class="group block cursor-default py-1.5 text-center">
+              <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
+                <Icon name="timer" class="block size-6 group-[.active]:hidden" />
+                <Icon name="timer-filled" class="hidden size-6 group-[.active]:block" />
+              </div>
+              <span class="mt-1 block">Timer</span>
             </Link>
           </li>
           <li>
