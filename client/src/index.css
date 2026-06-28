@@ -24,7 +24,7 @@ when we have perfectly fine CSS solutions to deal with the same problem.
 
   /* TODO button states */
   .button {
-    @apply cursor-default text-center;
+    @apply flex cursor-default gap-x-2 text-center;
 
     &[data-variant="filled"] {
       @apply bg-primary text-on-primary flex items-center justify-center gap-2 rounded-full px-6 py-4;
