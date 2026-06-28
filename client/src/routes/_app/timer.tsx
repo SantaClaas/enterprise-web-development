@@ -7,6 +7,7 @@ import Icon from "@/Icon";
 import { isProject, query as projectQuery, type Id as ProjectId } from "@/project";
 import { query as timesQuery } from "@/time";
 import {
+  deleteTimerEntry,
   discardTimer,
   pauseTimer,
   query as timerQuery,
@@ -14,6 +15,7 @@ import {
   stopTimer,
   type TimerData,
   type TimerEntry,
+  type TimerEntryId,
 } from "@/timer";
 import { Title } from "@/Title";
 import { idQuery } from "@/user";
@@ -51,19 +53,24 @@ function formatElapsed(ms: number): string {
   return [hours, minutes, seconds].map((n) => String(n).padStart(2, "0")).join(":");
 }
 
-function EntryRow(props: { entry: TimerEntry; tick: number }) {
-  const startedAt = () => Temporal.Instant.from(props.entry.startedAt);
+function EntryRow(properties: {
+  entry: TimerEntry;
+  tick: number;
+  onDelete: () => void;
+  isDeleting: boolean;
+}) {
+  const startedAt = () => Temporal.Instant.from(properties.entry.startedAt);
   const pausedAt = () =>
-    props.entry.pausedAt ? Temporal.Instant.from(props.entry.pausedAt) : null;
+    properties.entry.pausedAt ? Temporal.Instant.from(properties.entry.pausedAt) : null;
   const duration = () => {
-    const end = pausedAt() ?? (void props.tick, Temporal.Now.instant());
+    const end = pausedAt() ?? (void properties.tick, Temporal.Now.instant());
     return end.since(startedAt()).round({ smallestUnit: "second", largestUnit: "hour" });
   };
 
   return (
-    <li class="text-body-md grid grid-cols-3 gap-2">
+    <li class="text-body-md grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2">
       <time
-        datetime={props.entry.startedAt}
+        datetime={properties.entry.startedAt}
         class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
       >
         {timeFormatter.format(startedAt())}
@@ -78,7 +85,7 @@ function EntryRow(props: { entry: TimerEntry; tick: number }) {
       >
         {(pausedAtInstant) => (
           <time
-            datetime={props.entry.pausedAt!}
+            datetime={properties.entry.pausedAt!}
             class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
           >
             {timeFormatter.format(pausedAtInstant())}
@@ -91,6 +98,14 @@ function EntryRow(props: { entry: TimerEntry; tick: number }) {
       >
         {durationFormatter.format(duration())}
       </time>
+      <button
+        onClick={properties.onDelete}
+        disabled={properties.isDeleting}
+        class="icon-button fill-on-surface-variant disabled:opacity-50"
+      >
+        <span class="sr-only">Delete entry</span>
+        <Icon name="delete" class="size-5" />
+      </button>
     </li>
   );
 }
@@ -119,15 +134,15 @@ function TimerPage() {
   });
 
   const elapsedMs = createMemo(() => {
-    const t = timer();
-    if (!t) return 0;
-    if (t.status !== "RUNNING") return t.accumulatedMs;
+    const currentTimer = timer();
+    if (!currentTimer) return 0;
+    if (currentTimer.status !== "RUNNING") return currentTimer.accumulatedMilliseconds;
     // RUNNING: subscribe to tick for live updates
     void tick();
     return (
-      t.accumulatedMs +
+      currentTimer.accumulatedMilliseconds +
       Temporal.Now.instant()
-        .since(Temporal.Instant.from(t.currentPeriodStart!))
+        .since(Temporal.Instant.from(currentTimer.currentPeriodStart!))
         .total("milliseconds")
     );
   });
@@ -163,11 +178,17 @@ function TimerPage() {
     },
   }));
 
+  const deleteEntryMutation = useMutation(() => ({
+    mutationFn: (entryId: TimerEntryId) => deleteTimerEntry(userId, entryId),
+    onSuccess: setTimerCache,
+  }));
+
   const isPending = () =>
     startMutation.isPending ||
     pauseMutation.isPending ||
     saveMutation.isPending ||
-    discardMutation.isPending;
+    discardMutation.isPending ||
+    deleteEntryMutation.isPending;
 
   const entries = () => timer()?.entries;
 
@@ -239,7 +260,14 @@ function TimerPage() {
         <Show when={entries() && entries()!.length > 0}>
           <ol class="w-full max-w-sm space-y-2">
             <For each={timer()!.entries.toReversed()}>
-              {(entry) => <EntryRow entry={entry} tick={tick()} />}
+              {(entry) => (
+                <EntryRow
+                  entry={entry}
+                  tick={tick()}
+                  onDelete={() => deleteEntryMutation.mutate(entry.id)}
+                  isDeleting={deleteEntryMutation.isPending}
+                />
+              )}
             </For>
           </ol>
         </Show>

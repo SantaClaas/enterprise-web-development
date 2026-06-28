@@ -40,17 +40,21 @@ public class TimerController {
         this.timeRepository = timeRepository;
     }
 
-    record ErrorResponse(String error) {}
+    record ErrorResponse(String error) {
+    }
 
-    record TimerStartPauseResponse(String startedAt, String pausedAt) {}
+    record TimerStartPauseResponse(String id, String startedAt, String pausedAt) {
+    }
 
     record TimerResponse(
             String status,
             String currentPeriodStart,
-            long accumulatedMs,
-            List<TimerStartPauseResponse> entries) {}
+            long accumulatedMilliseconds,
+            List<TimerStartPauseResponse> entries) {
+    }
 
-    record CreateTimerStopRequest(UUID projectId) {}
+    record CreateTimerStopRequest(UUID projectId) {
+    }
 
     private UUID authenticatedUserId(Authentication authentication) {
         return UsersController.getUserId(authentication).orElse(null);
@@ -61,7 +65,7 @@ public class TimerController {
     }
 
     private TimerResponse toResponse(Timer timer) {
-        long accumulatedMs = timer.getStartPauseEntries().stream()
+        long accumulatedMilliseconds = timer.getStartPauseEntries().stream()
                 .filter(e -> e.getPausedAt() != null)
                 .mapToLong(e -> Duration.between(e.getStartedAt(), e.getPausedAt()).toMillis())
                 .sum();
@@ -76,12 +80,13 @@ public class TimerController {
         }
 
         List<TimerStartPauseResponse> entries = timer.getStartPauseEntries().stream()
-                .map(e -> new TimerStartPauseResponse(
-                        e.getStartedAt().toString(),
-                        e.getPausedAt() != null ? e.getPausedAt().toString() : null))
+                .map(entry -> new TimerStartPauseResponse(
+                        entry.getId().toString(),
+                        entry.getStartedAt().toString(),
+                        entry.getPausedAt() != null ? entry.getPausedAt().toString() : null))
                 .toList();
 
-        return new TimerResponse(status, currentPeriodStart, accumulatedMs, entries);
+        return new TimerResponse(status, currentPeriodStart, accumulatedMilliseconds, entries);
     }
 
     @GetMapping
@@ -96,7 +101,9 @@ public class TimerController {
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).build());
     }
 
-    /** Creates a start for the timer: starts a new timer or resumes a paused one. */
+    /**
+     * Creates a start for the timer: starts a new timer or resumes a paused one.
+     */
     @PostMapping("/start")
     public ResponseEntity<?> createTimerStart(@PathVariable UUID userId, Authentication authentication) {
         UUID authId = authenticatedUserId(authentication);
@@ -135,7 +142,10 @@ public class TimerController {
         return ResponseEntity.ok(toResponse(timer));
     }
 
-    /** Creates a pause for the timer: sets the pause time on the current running entry. */
+    /**
+     * Creates a pause for the timer: sets the pause time on the current running
+     * entry.
+     */
     @PostMapping("/pause")
     public ResponseEntity<?> createTimerPause(@PathVariable UUID userId, Authentication authentication) {
         UUID authId = authenticatedUserId(authentication);
@@ -156,12 +166,15 @@ public class TimerController {
         return ResponseEntity.ok(toResponse(timer));
     }
 
-    /** Stops the timer: pauses the running entry if needed, converts all entries to time records, deletes the timer. */
+    /**
+     * Stops the timer: pauses the running entry if needed, converts all entries to
+     * time records, deletes the timer.
+     */
     @PostMapping(value = "/stop", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> createTimerStop(@PathVariable UUID userId,
             @RequestBody CreateTimerStopRequest request, Authentication authentication) {
-        UUID authId = authenticatedUserId(authentication);
-        if (isUnauthorized(authId, userId)) {
+        UUID authenticatedUserId = authenticatedUserId(authentication);
+        if (isUnauthorized(authenticatedUserId, userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
@@ -198,10 +211,32 @@ public class TimerController {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
+    @DeleteMapping("/entries/{entryId}")
+    public ResponseEntity<?> deleteTimerEntry(@PathVariable UUID userId, @PathVariable UUID entryId,
+            Authentication authentication) {
+        UUID authenticatedUserId = authenticatedUserId(authentication);
+        if (isUnauthorized(authenticatedUserId, userId)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        Timer timer = timerRepository.findByUser_Id(userId).orElse(null);
+        if (timer == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("no active timer"));
+        }
+
+        boolean isRemoved = timer.getStartPauseEntries().removeIf(entry -> entry.getId().equals(entryId));
+        if (!isRemoved) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("entry not found"));
+        }
+
+        timerRepository.save(timer);
+        return ResponseEntity.ok(toResponse(timer));
+    }
+
     @DeleteMapping
     public ResponseEntity<?> deleteTimer(@PathVariable UUID userId, Authentication authentication) {
-        UUID authId = authenticatedUserId(authentication);
-        if (isUnauthorized(authId, userId)) {
+        UUID authenticatedUserId = authenticatedUserId(authentication);
+        if (isUnauthorized(authenticatedUserId, userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 

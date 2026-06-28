@@ -5,7 +5,10 @@ import { QUERY_BASE, type UserId } from "./user";
 
 export type TimerStatus = "RUNNING" | "PAUSED";
 
+export type TimerEntryId = string & { __brand: "TimerEntryId" };
+
 export type TimerEntry = {
+  id: TimerEntryId;
   startedAt: string;
   pausedAt: string | null;
 };
@@ -13,7 +16,7 @@ export type TimerEntry = {
 export type TimerData = {
   status: TimerStatus;
   currentPeriodStart: string | null; // ISO 8601, set only when RUNNING
-  accumulatedMs: number;             // sum of all completed start-pause entry durations
+  accumulatedMilliseconds: number;             // sum of all completed start-pause entry durations
   entries: TimerEntry[];
 };
 
@@ -48,6 +51,14 @@ export async function stopTimer(userId: UserId, projectId: ProjectId): Promise<v
     body: JSON.stringify({ projectId }),
   });
   if (!response.ok) throw new Error(`Error stopping timer: ${response.status}`);
+}
+
+export async function deleteTimerEntry(userId: UserId, entryId: TimerEntryId): Promise<TimerData> {
+  const response = await fetch(`/api/users/${userId}/timer/entries/${entryId}`, {
+    method: "DELETE",
+  });
+  if (!response.ok) throw new Error(`Error deleting timer entry: ${response.status}`);
+  return response.json() as Promise<TimerData>;
 }
 
 export async function discardTimer(userId: UserId): Promise<void> {
