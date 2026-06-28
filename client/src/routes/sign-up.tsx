@@ -3,6 +3,7 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-ro
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
+import { useI18n } from "../i18n";
 import { idQuery, UnauthenticatedError, type UserId } from "../user";
 
 export const Route = createFileRoute("/sign-up")({
@@ -25,6 +26,7 @@ function RouteComponent() {
   const [error, setError] = createSignal<string | undefined>();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -52,18 +54,18 @@ function RouteComponent() {
       });
     } catch (error) {
       console.error("Sign up error", error);
-      setError("An error occurred connecting to the server. Please try again later.");
+      setError(t("sign-up-error-server"));
       return;
     }
 
     if (response.status === 409) {
-      setError("Username is already taken");
+      setError(t("sign-up-error-username-taken"));
       return;
     }
 
     if (!response.ok) {
       console.error("Sign up error", response.statusText);
-      setError("An error occurred during sign up. Please try again later.");
+      setError(t("sign-up-error-unknown"));
       return;
     }
 
@@ -79,13 +81,15 @@ function RouteComponent() {
   return (
     <Body class="mx-auto h-dvh max-w-2xl p-6">
       <main class="grid h-full items-end">
-        <h1 class="text-primary text-display-lg text-center font-serif">Create an account</h1>
+        <h1 class="text-primary text-display-lg text-center font-serif">
+          {t("sign-up-create-account")}
+        </h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">
           <p class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
             {error()}
           </p>
           <label for="name" class="text-label-lg text-on-surface-variant block">
-            Name
+            {t("sign-up-name-label")}
           </label>
           <input
             type="text"
@@ -96,7 +100,7 @@ function RouteComponent() {
           />
 
           <label for="username" class="text-label-lg text-on-surface-variant mt-4 block">
-            Username
+            {t("sign-up-username-label")}
           </label>
           <input
             type="text"
@@ -108,7 +112,7 @@ function RouteComponent() {
           />
 
           <label for="password" class="text-label-lg text-on-surface-variant mt-4 block">
-            New password
+            {t("sign-up-password-label")}
           </label>
           <input
             type="password"
@@ -121,7 +125,7 @@ function RouteComponent() {
 
           {/* TODO loading state */}
           <button type="submit" data-variant="filled" class="button mt-6 w-full">
-            Sign up
+            {t("sign-up-submit")}
           </button>
           {/* Do not need to pass redirect as a user that signs up should not have been on the app before to be redirected to where they left off */}
           <Link
@@ -130,7 +134,7 @@ function RouteComponent() {
             data-variant="text"
             class="button mt-4 w-full"
           >
-            Already have an account? Sign in
+            {t("sign-up-go-sign-in")}
           </Link>
         </form>
       </main>

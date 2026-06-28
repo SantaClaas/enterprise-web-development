@@ -2,6 +2,7 @@ import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Outlet } from "@tanstack/solid-router";
 
 import Body from "../../Body";
+import { useI18n } from "../../i18n";
 import Navigation from "../../Navigation";
 import { useTitle } from "../../Title";
 import { ActionButton, TopAppBar } from "../../TopAppBar";
@@ -14,6 +15,7 @@ export const Route = createFileRoute("/_app")({
 function RouteComponent() {
   const queryClient = useQueryClient();
   const navigate = Route.useNavigate();
+  const { t } = useI18n();
 
   async function handleSignOut() {
     const response = await fetch("/api/sign-outs", {
@@ -40,7 +42,7 @@ function RouteComponent() {
         trailingAction={
           <ActionButton
             onClick={handleSignOut}
-            icon={{ name: "logout", alternativeText: "Sign out" }}
+            icon={{ name: "logout", alternativeText: t("app-sign-out") }}
             position="trailing"
           />
         }

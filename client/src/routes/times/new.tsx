@@ -4,6 +4,7 @@ import { For, Suspense } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
+import { useI18n } from "../../i18n";
 import { isProject, query } from "../../project";
 import { idQuery } from "../../user";
 
@@ -18,6 +19,7 @@ function RouteComponent() {
   const userId = useQuery(() => idQuery);
   const projects = useQuery(() => query(userId.data));
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   const navigate = useNavigate();
 
@@ -80,14 +82,14 @@ function RouteComponent() {
     const { start, end, startInput, endInput } = extractValues(input.form!);
 
     if (isStart && Temporal.ZonedDateTime.compare(start, end) >= 0) {
-      startInput.setCustomValidity("Start time must be before end time.");
+      startInput.setCustomValidity(t("time-new-validation-start-before-end"));
       return;
     } else {
       startInput.setCustomValidity("");
     }
 
     if (!isStart && Temporal.ZonedDateTime.compare(end, start) >= 0) {
-      endInput.setCustomValidity("Start time must be before end time.");
+      endInput.setCustomValidity(t("time-new-validation-start-before-end"));
       return;
     } else {
       endInput.setCustomValidity("");
@@ -98,17 +100,17 @@ function RouteComponent() {
       <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
         <header class="bg-surface-container-high text-on-surface flex py-1">
           <Link to="/times" class="cursor-default p-4">
-            <span class="sr-only">Discard</span>
+            <span class="sr-only">{t("time-new-discard")}</span>
             <Icon name="close" class="fill-on-surface size-6" />
           </Link>
-          <h1 class="text-title-lg content-center">Log new time</h1>
+          <h1 class="text-title-lg content-center">{t("time-new-title")}</h1>
         </header>
         <main class="h-min">
           <form id="time" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
             {/* TODO same day toggle */}
             {/* TODO form validation start < end */}
             <label for="date" class="text-label-lg text-on-surface-variant col-span-full block">
-              Date
+              {t("time-new-date-label")}
             </label>
             <input
               type="date"
@@ -119,8 +121,11 @@ function RouteComponent() {
               class="text-field col-span-full mt-1 w-full"
             />
 
-            <label for="start" class="text-label-lg text-on-surface-variant row-start-3 mt-4 block">
-              Start
+            <label
+              for="start"
+              class="text-label-lg text-on-surface-variant row-start-3 mt-4 block"
+            >
+              {t("time-new-start-label")}
             </label>
             <input
               type="time"
@@ -132,7 +137,7 @@ function RouteComponent() {
             />
 
             <label for="end" class="text-label-lg text-on-surface-variant row-start-3 mt-4 block">
-              End
+              {t("time-new-end-label")}
             </label>
             <input
               type="time"
@@ -147,7 +152,7 @@ function RouteComponent() {
               for="project"
               class="text-label-lg text-on-surface-variant col-span-full mt-4 block"
             >
-              Project
+              {t("time-new-project-label")}
             </label>
             <select
               id="project"
@@ -155,7 +160,7 @@ function RouteComponent() {
               required
               class="text-field col-span-full mt-1 w-full"
             >
-              <Suspense fallback={<option disabled>Loading projects...</option>}>
+              <Suspense fallback={<option disabled>{t("time-new-loading-projects")}</option>}>
                 <For each={selectableProjects()}>
                   {(project) => <option value={project.id}>{project.name}</option>}
                 </For>
@@ -165,7 +170,7 @@ function RouteComponent() {
         </main>
         <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
           <Link to="/times" data-variant="outlined" class="button">
-            Cancel
+            {t("time-new-cancel")}
           </Link>
 
           <button
@@ -175,7 +180,7 @@ function RouteComponent() {
             disabled={projects.isLoading}
             class="button"
           >
-            Save
+            {t("time-new-save")}
           </button>
         </footer>
       </Body>

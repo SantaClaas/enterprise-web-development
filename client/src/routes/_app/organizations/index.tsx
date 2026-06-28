@@ -4,6 +4,7 @@ import { For, Show } from "solid-js";
 
 import { FloatingActionButton } from "../../../FloatingActionButton";
 import Icon from "../../../Icon";
+import { useI18n } from "../../../i18n";
 import {
   deleteOrganization,
   isOrganization,
@@ -26,6 +27,7 @@ export const Route = createFileRoute("/_app/organizations/")({
 function Organizations() {
   const routeData = Route.useLoaderData();
   const userId = () => routeData().userId;
+  const { t } = useI18n();
 
   const options = () => query(userId());
   const organizationsQuery = useQuery(options);
@@ -51,12 +53,16 @@ function Organizations() {
 
   return (
     <>
-      <Title title="Organizations" />
-      <FloatingActionButton to="/organizations/new" label="Create organization" icon="add" />
+      <Title title={t("organizations-title")} />
+      <FloatingActionButton
+        to="/organizations/new"
+        label={t("organizations-create")}
+        icon="add"
+      />
       {/* TODO overflow, pagination, scrolling */}
       <main class="text-title-lg px-6">
         <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
-          <For each={organizationsQuery.data} fallback={<p>Loading organizations...</p>}>
+          <For each={organizationsQuery.data} fallback={<p>{t("organizations-loading")}</p>}>
             {(organization) => {
               return (
                 <Show when={!isOrganization(organization) || !isDeleting(organization.id)}>
@@ -72,7 +78,7 @@ function Organizations() {
                             data-variant="standard"
                             class="icon-button"
                           >
-                            <span class="sr-only">Open</span>
+                            <span class="sr-only">{t("organizations-open")}</span>
                             <Icon name="open-in-new-window" class="fill-on-surface size-6" />
                           </Link>
 
@@ -83,7 +89,7 @@ function Organizations() {
                             data-variant="standard"
                             class="icon-button"
                           >
-                            <span class="sr-only">Edit</span>
+                            <span class="sr-only">{t("organizations-edit")}</span>
                             <Icon name="edit" class="fill-on-surface size-6" />
                           </Link>
                           <button
@@ -92,7 +98,7 @@ function Organizations() {
                             data-variant="standard"
                             class="icon-button"
                           >
-                            <span class="sr-only">Delete</span>
+                            <span class="sr-only">{t("organizations-delete")}</span>
                             <Icon name="close" class="fill-on-surface size-6" />
                           </button>
                         </>

@@ -4,6 +4,7 @@ import { For, Suspense } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
+import { useI18n } from "../../i18n";
 import { isOrganization, query } from "../../organization";
 import { idQuery } from "../../user";
 
@@ -16,6 +17,7 @@ function RouteComponent() {
   const organizations = useQuery(() => query(userIdQuery.data));
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   async function handleSubmit(event: SubmitEvent) {
     event.preventDefault();
@@ -54,17 +56,17 @@ function RouteComponent() {
     <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
       <header class="bg-surface-container-high text-on-surface flex py-1">
         <Link to="/projects" class="cursor-default p-4">
-          <span class="sr-only">Discard</span>
+          <span class="sr-only">{t("project-new-discard")}</span>
           <Icon name="close" class="fill-on-surface size-6" />
         </Link>
-        <h1 class="text-title-lg content-center">New Project</h1>
+        <h1 class="text-title-lg content-center">{t("project-new-title")}</h1>
       </header>
       <main class="h-min">
         <form id="project" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
           {/* TODO same day toggle */}
           {/* TODO form validation start < end */}
           <label for="name" class="text-label-lg text-on-surface-variant col-span-2 block">
-            Name
+            {t("project-new-name-label")}
           </label>
           <input type="text" id="name" required class="text-field col-span-2 mt-1 w-full" />
 
@@ -72,13 +74,13 @@ function RouteComponent() {
             for="organization"
             class="text-label-lg text-on-surface-variant row-start-3 mt-4 block"
           >
-            Organization
+            {t("project-new-organization-label")}
           </label>
           <select id="organization" required class="text-field col-span-2 mt-1 w-full">
             <Suspense
               fallback={
                 <option value="" disabled>
-                  Loading...
+                  {t("project-new-loading")}
                 </option>
               }
             >
@@ -91,7 +93,7 @@ function RouteComponent() {
       </main>
       <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
         <Link to="/projects" data-variant="outlined" class="button">
-          Cancel
+          {t("project-new-cancel")}
         </Link>
 
         <button
@@ -101,7 +103,7 @@ function RouteComponent() {
           data-variant="filled"
           class="button"
         >
-          Create
+          {t("project-new-create")}
         </button>
       </footer>
     </Body>

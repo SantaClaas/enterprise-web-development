@@ -4,6 +4,7 @@ import { createEffect, createMemo, createSignal, For, onCleanup, Show, Suspense 
 
 import { FloatingActionButtonAction } from "@/FloatingActionButton";
 import Icon from "@/Icon";
+import { useI18n } from "@/i18n";
 import { isProject, query as projectQuery, type Id as ProjectId } from "@/project";
 import { query as timesQuery } from "@/time";
 import {
@@ -51,6 +52,7 @@ function EntryRow(properties: {
   onDelete: () => void;
   isDeleting: boolean;
 }) {
+  const { t } = useI18n();
   const startedAt = () => Temporal.Instant.from(properties.entry.startedAt);
 
   const pausedAt = () =>
@@ -72,7 +74,7 @@ function EntryRow(properties: {
         when={pausedAt()}
         fallback={
           <span class="bg-surface-container text-primary rounded-full px-3 py-1.5 text-center">
-            Running
+            {t("timer-running-status")}
           </span>
         }
       >
@@ -96,7 +98,7 @@ function EntryRow(properties: {
         disabled={properties.isDeleting}
         class="icon-button fill-on-surface-variant disabled:opacity-50"
       >
-        <span class="sr-only">Delete entry</span>
+        <span class="sr-only">{t("timer-delete-entry")}</span>
         <Icon name="delete" class="size-5" />
       </button>
     </li>
@@ -106,6 +108,7 @@ function EntryRow(properties: {
 function TimerPage() {
   const { userId } = Route.useLoaderData()();
   const queryClient = useQueryClient();
+  const { t } = useI18n();
 
   const timer = useQuery(() => timerQuery(userId));
 
@@ -187,15 +190,14 @@ function TimerPage() {
   const entries = () => timer.data?.entries;
 
   const floatingActionButtonLabel = createMemo(() => {
-    if (timer.data?.status === "RUNNING") return "Pause";
-    if (timer.data?.status === "PAUSED") return "Resume";
-
-    return "Start";
+    if (timer.data?.status === "RUNNING") return t("timer-pause");
+    if (timer.data?.status === "PAUSED") return t("timer-resume");
+    return t("timer-start");
   });
 
   return (
     <>
-      <Title title="Timer" />
+      <Title title={t("timer-title")} />
       <Show when={!isSelectingProject()}>
         <FloatingActionButtonAction
           icon={timer.data?.status === "RUNNING" ? "pause" : "play-arrow"}
@@ -222,7 +224,7 @@ function TimerPage() {
               class="button gap-2"
             >
               <Icon name="play-arrow" class="fill-on-primary size-6" />
-              Start
+              {t("timer-start")}
             </button>
           </Show>
 
@@ -234,7 +236,7 @@ function TimerPage() {
               class="button gap-2"
             >
               <Icon name="pause" class="fill-on-surface-variant size-6" />
-              Pause
+              {t("timer-pause")}
             </button>
           </Show>
 
@@ -246,7 +248,7 @@ function TimerPage() {
               class="button gap-2"
             >
               <Icon name="play-arrow" class="fill-on-primary size-6" />
-              Resume
+              {t("timer-resume")}
             </button>
             <button
               onClick={() => setIsSelectingProject(true)}
@@ -255,7 +257,7 @@ function TimerPage() {
               class="button gap-2"
             >
               <Icon name="stop" class="fill-on-surface-variant size-6" />
-              Stop
+              {t("timer-stop")}
             </button>
           </Show>
         </div>
@@ -279,13 +281,16 @@ function TimerPage() {
       <Show when={isSelectingProject()}>
         <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 lg:items-center">
           <div class="bg-surface-container-high rounded-t-large lg:rounded-large w-full max-w-lg p-6">
-            <h2 class="text-title-lg text-on-surface mb-1">Select a project</h2>
+            <h2 class="text-title-lg text-on-surface mb-1">{t("timer-select-project-title")}</h2>
             <p class="text-body-md text-on-surface-variant mb-4">
-              <time datetime={elapsed().toString()}>{durationFormatter.format(elapsed())}</time> will
-              be saved as a time entry.
+              {t("timer-select-project-body", {
+                duration: durationFormatter.format(elapsed()),
+              })}
             </p>
             <Suspense
-              fallback={<p class="text-on-surface-variant py-4 text-center">Loading projects...</p>}
+              fallback={
+                <p class="text-on-surface-variant py-4 text-center">{t("timer-loading-projects")}</p>
+              }
             >
               <ul class="flex flex-col gap-2">
                 <For each={selectableProjects()}>
@@ -309,7 +314,7 @@ function TimerPage() {
               data-variant="outlined"
               class="button mt-6 w-full"
             >
-              Discard
+              {t("timer-discard")}
             </button>
           </div>
         </div>

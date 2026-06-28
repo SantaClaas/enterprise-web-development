@@ -4,6 +4,7 @@ import { createSignal, For, type VoidProps } from "solid-js";
 
 import { FloatingActionButton } from "@/FloatingActionButton";
 import Icon from "@/Icon";
+import { useI18n } from "@/i18n";
 import { deleteTimes, query, updateTimes, type Time, type TimeId } from "@/time";
 import { Title } from "@/Title";
 import { idQuery, type UserId } from "@/user";
@@ -69,6 +70,7 @@ const durationFormatter = new Intl.DurationFormat(undefined, {
 function Day(properties: VoidProps<DayProperties>) {
   // Could do this with a custom styled checkbox and no JS
   const [isEdit, setIsEdit] = createSignal(false);
+  const { t } = useI18n();
 
   function cancelEdit() {
     setIsEdit(false);
@@ -162,7 +164,7 @@ function Day(properties: VoidProps<DayProperties>) {
           onClick={() => setIsEdit(!isEdit())}
           class="icon-button fill-on-surface group-data-is-edit:hidden"
         >
-          <span class="sr-only">Edit</span>
+          <span class="sr-only">{t("times-edit")}</span>
           <Icon name="edit" class="size-6" />
         </button>
 
@@ -172,7 +174,7 @@ function Day(properties: VoidProps<DayProperties>) {
           disabled={updateMutation.isPending}
           class="icon-button fill-on-surface hidden group-data-is-edit:block"
         >
-          <span class="sr-only">Save</span>
+          <span class="sr-only">{t("times-save")}</span>
           <Icon name="save" class="size-6" />
         </button>
 
@@ -181,7 +183,7 @@ function Day(properties: VoidProps<DayProperties>) {
           disabled={updateMutation.isPending}
           class="icon-button fill-on-surface hidden group-data-is-edit:block"
         >
-          <span class="sr-only">Cancel</span>
+          <span class="sr-only">{t("times-cancel")}</span>
           <Icon name="close" class="size-6" />
         </button>
 
@@ -245,7 +247,7 @@ function Day(properties: VoidProps<DayProperties>) {
                 >
                   <input type="hidden" name="time-id" value={time.id} />
                   <label for={`start-${time.id}`} class="sr-only">
-                    Start time
+                    {t("times-start-time-label")}
                   </label>
                   <input
                     type="time"
@@ -259,7 +261,7 @@ function Day(properties: VoidProps<DayProperties>) {
                   />
 
                   <label for={`end-${time.id}`} class="sr-only">
-                    End time
+                    {t("times-end-time-label")}
                   </label>
                   <input
                     type="time"
@@ -277,7 +279,7 @@ function Day(properties: VoidProps<DayProperties>) {
                       {formattedNewDuration()}
                     </time>
                     <label class="icon-button group">
-                      <span class="sr-only">Delete</span>
+                      <span class="sr-only">{t("times-delete")}</span>
                       <Icon name="delete" class="size-6 group-has-checked:hidden" />
                       <Icon name="close" class="hidden size-6 group-has-checked:block" />
                       <input
@@ -300,6 +302,7 @@ function Day(properties: VoidProps<DayProperties>) {
 
 function Times() {
   const routeData = Route.useLoaderData();
+  const { t } = useI18n();
 
   // const timesByDate = Map.groupBy(times, (time) => {
   //   return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
@@ -333,8 +336,8 @@ function Times() {
 
   return (
     <>
-      <Title title="Times" />
-      <FloatingActionButton to="/times/new" label="Log time" icon="add" />
+      <Title title={t("times-title")} />
+      <FloatingActionButton to="/times/new" label={t("times-log-time")} icon="add" />
       <main class="grid h-min gap-y-4 px-4">
         <For each={times()}>
           {([day, timesForDay]) => (

@@ -4,6 +4,7 @@ import { For, Suspense } from "solid-js";
 
 import Body from "../../Body";
 import Icon from "../../Icon";
+import { useI18n } from "../../i18n";
 import {
   query as organizationQuery,
   isOrganization,
@@ -39,6 +40,7 @@ function RouteComponent() {
   const parameters = Route.useParams();
   const userIdQuery = useQuery(() => idQuery);
   const organizations = useQuery(() => organizationQuery(userIdQuery.data));
+  const { t } = useI18n();
 
   const updateNameMutation = useMutation(() => ({
     mutationFn: updateProject,
@@ -99,17 +101,17 @@ function RouteComponent() {
     <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
       <header class="bg-surface-container-high text-on-surface flex py-1">
         <Link to="/projects" class="cursor-default p-4">
-          <span class="sr-only">Discard</span>
+          <span class="sr-only">{t("project-edit-discard")}</span>
           <Icon name="close" class="fill-on-surface size-6" />
         </Link>
-        <h1 class="text-title-lg content-center">Edit Project</h1>
+        <h1 class="text-title-lg content-center">{t("project-edit-title")}</h1>
       </header>
       <main class="h-min">
         <form id="project" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
           {/* TODO same day toggle */}
           {/* TODO form validation start < end */}
           <label for="name" class="text-label-lg text-on-surface-variant col-span-2 block">
-            Name
+            {t("project-edit-name-label")}
           </label>
           <input
             type="text"
@@ -122,13 +124,13 @@ function RouteComponent() {
             for="organization"
             class="text-label-lg text-on-surface-variant row-start-3 mt-4 block"
           >
-            Organization
+            {t("project-edit-organization-label")}
           </label>
           <select id="organization" required class="text-field col-span-2 mt-1 w-full">
             <Suspense
               fallback={
                 <option value="" disabled>
-                  Loading...
+                  {t("project-edit-loading")}
                 </option>
               }
             >
@@ -141,11 +143,11 @@ function RouteComponent() {
       </main>
       <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
         <Link to="/projects" data-variant="outlined" class="button">
-          Cancel
+          {t("project-edit-cancel")}
         </Link>
 
         <button type="submit" form="project" data-variant="filled" class="button">
-          Save
+          {t("project-edit-save")}
         </button>
       </footer>
     </Body>

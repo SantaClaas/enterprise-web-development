@@ -2,6 +2,7 @@ import type { QueryClient } from "@tanstack/solid-query";
 import { createRootRouteWithContext, redirect } from "@tanstack/solid-router";
 
 import { ErrorDetails } from "../ErrorDetails";
+import { useI18n } from "../i18n";
 import { idQuery, UnauthenticatedError } from "../user";
 import { Route as SignInRoute } from "./sign-in";
 import { Route as SignUpRoute } from "./sign-up";
@@ -42,11 +43,14 @@ export const Route = createRootRoute({
       });
     }
   },
-  errorComponent: (properties) => (
-    <ErrorDetails
-      {...properties}
-      title="Error"
-      explainer="Sorry, an unexpected error occurred. Please try again later."
-    />
-  ),
+  errorComponent: (properties) => {
+    const { t } = useI18n();
+    return (
+      <ErrorDetails
+        {...properties}
+        title={t("error-title")}
+        explainer={t("error-body")}
+      />
+    );
+  },
 });

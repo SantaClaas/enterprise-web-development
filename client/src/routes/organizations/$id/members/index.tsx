@@ -3,6 +3,7 @@ import { For, type ParentProps } from "solid-js";
 
 import { ErrorDetails } from "../../../../ErrorDetails";
 import Icon from "../../../../Icon";
+import { useI18n } from "../../../../i18n";
 import type { Id as OrganizationId } from "../../../../organization";
 import { Title } from "../../../../Title";
 import { TopAppBar } from "../../../../TopAppBar";
@@ -15,6 +16,7 @@ type Organization = {
 };
 
 function Page(properties: ParentProps<{ title: string }>) {
+  const { t } = useI18n();
   return (
     <>
       <TopAppBar
@@ -22,7 +24,7 @@ function Page(properties: ParentProps<{ title: string }>) {
         leadingAction={
           <Link to="/organizations" data-position="leading" class="action-button">
             <Icon name="arrow-back" class="fill-on-surface size-6" />
-            <span class="sr-only">Back</span>
+            <span class="sr-only">{t("org-members-back")}</span>
           </Link>
         }
       />
@@ -46,12 +48,13 @@ export const Route = createFileRoute("/organizations/$id/members/")({
   },
   // TODO error component, pending component
   errorComponent(properties) {
+    const { t } = useI18n();
     return (
-      <Page title="Error">
+      <Page title={t("org-members-error-page-title")}>
         <ErrorDetails
           {...properties}
-          title="Error loading organization"
-          explainer="Sorry, an error occurred while loading the organization. Please try again later."
+          title={t("org-members-error-title")}
+          explainer={t("org-members-error-body")}
         />
       </Page>
     );
@@ -60,6 +63,7 @@ export const Route = createFileRoute("/organizations/$id/members/")({
 
 function RouteComponent() {
   const organization = Route.useLoaderData();
+  const { t } = useI18n();
 
   // TODO handle user can not delete themselves or delete all users
 
@@ -67,7 +71,7 @@ function RouteComponent() {
     <>
       <Title title={organization().name} />
       <Page title={organization().name}>
-        <h2 class="text-headline-md">Users</h2>
+        <h2 class="text-headline-md">{t("org-members-users-heading")}</h2>
         {/* Expect an organization to have at least one user */}
         <ul class="mt-4 grid grid-cols-[1fr_auto] gap-2">
           <For each={organization().users}>
@@ -77,7 +81,7 @@ function RouteComponent() {
                   <span class="font-semibold">{user.name}</span> <span>({user.username})</span>
                 </span>
                 <button class="p-3">
-                  <span class="sr-only">Delete</span>
+                  <span class="sr-only">{t("org-members-delete")}</span>
                   <Icon name="close" class="fill-on-surface size-6" />
                 </button>
               </li>
@@ -89,7 +93,7 @@ function RouteComponent() {
           params={{ id: organization().id }}
           class="floating-action-button"
         >
-          <span class="sr-only">Add Member</span>
+          <span class="sr-only">{t("org-members-add-member")}</span>
           <Icon name="add" class="fill-on-primary size-6" />
         </Link>
       </Page>

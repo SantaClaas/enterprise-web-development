@@ -1,10 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { For, Show, type VoidProps } from "solid-js";
+import { For, Show } from "solid-js";
 
 import { FloatingActionButton } from "../../FloatingActionButton";
 import Icon from "../../Icon";
-import { deleteProject, isProject, query, type Id as ProjectId, type Project } from "../../project";
+import { useI18n } from "../../i18n";
+import { deleteProject, isProject, query, type Id as ProjectId } from "../../project";
 import { Title } from "../../Title";
 import { idQuery } from "../../user";
 
@@ -21,6 +22,7 @@ export const Route = createFileRoute("/_app/projects")({
 function Projects() {
   const routeData = Route.useLoaderData();
   const userId = () => routeData().userId;
+  const { t } = useI18n();
 
   const options = () => query(userId());
   const projectsQuery = useQuery(options);
@@ -45,12 +47,12 @@ function Projects() {
 
   return (
     <>
-      <Title title="Projects" />
-      <FloatingActionButton to="/projects/new" label="Create project" icon="add" />
+      <Title title={t("projects-title")} />
+      <FloatingActionButton to="/projects/new" label={t("projects-create")} icon="add" />
       {/* TODO overflow, pagination, scrolling */}
       <main class="text-title-lg px-6">
         <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
-          <For each={projectsQuery.data} fallback={<p>Loading projects...</p>}>
+          <For each={projectsQuery.data} fallback={<p>{t("projects-loading")}</p>}>
             {(project) => {
               return (
                 <Show when={!isProject(project) || !isDeleting(project.id)}>
@@ -67,7 +69,7 @@ function Projects() {
                             data-variant="standard"
                             class="icon-button"
                           >
-                            <span class="sr-only">Edit</span>
+                            <span class="sr-only">{t("projects-edit")}</span>
                             <Icon name="edit" class="fill-on-surface size-6" />
                           </Link>
                           <button
@@ -76,7 +78,7 @@ function Projects() {
                             data-variant="standard"
                             class="icon-button"
                           >
-                            <span class="sr-only">Delete</span>
+                            <span class="sr-only">{t("projects-delete")}</span>
                             <Icon name="close" class="fill-on-surface size-6" />
                           </button>
                         </>
@@ -92,3 +94,4 @@ function Projects() {
     </>
   );
 }
+

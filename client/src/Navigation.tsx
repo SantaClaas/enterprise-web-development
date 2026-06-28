@@ -4,9 +4,11 @@ import type { JSX, VoidProps } from "solid-js";
 
 import { useFloatingActionButton } from "@/FloatingActionButton";
 import Icon from "@/Icon";
+import { useI18n } from "@/i18n";
 
-export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTMLDivElement>>) {
+export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTMLDivElement>>) {
   const floatingActionButton = useFloatingActionButton();
+  const { t } = useI18n();
 
   return (
     <div class="bg-surface-container text-on-surface-variant row-start-3 lg:row-span-full lg:flex lg:min-w-24 lg:flex-col lg:items-center">
@@ -44,7 +46,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
                 <Icon name="calendar-month" class="block size-6 group-[.active]:hidden" />
                 <Icon name="calendar-month-filled" class="hidden size-6 group-[.active]:block" />
               </div>
-              <span class="mt-1 block">Times</span>
+              <span class="mt-1 block">{t("nav-times")}</span>
             </Link>
           </li>
           <li>
@@ -53,7 +55,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
                 <Icon name="timer" class="block size-6 group-[.active]:hidden" />
                 <Icon name="timer-filled" class="hidden size-6 group-[.active]:block" />
               </div>
-              <span class="mt-1 block">Timer</span>
+              <span class="mt-1 block">{t("nav-timer")}</span>
             </Link>
           </li>
           <li>
@@ -69,7 +71,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
                   class="fill-on-secondary-container hidden size-6 group-[.active]:block"
                 />
               </div>
-              <span class="mt-1 block">Projects</span>
+              <span class="mt-1 block">{t("nav-projects")}</span>
             </Link>
           </li>
           <li>
@@ -84,7 +86,7 @@ export default function Navigation(properties: VoidProps<JSX.HTMLAttributes<HTML
                   class="fill-on-secondary-container hidden size-6 group-[.active]:block"
                 />
               </div>
-              <span class="mt-1 block">Organizations</span>
+              <span class="mt-1 block">{t("nav-organizations")}</span>
             </Link>
           </li>
         </menu>

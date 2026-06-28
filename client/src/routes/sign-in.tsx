@@ -3,7 +3,8 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-ro
 import { createSignal } from "solid-js";
 
 import Body from "../Body";
-import { idQuery, UserId } from "../user";
+import { useI18n } from "../i18n";
+import { idQuery, type UserId } from "../user";
 import { Route as TimesRoute } from "./_app/times";
 
 export const Route = createFileRoute("/sign-in")({
@@ -33,6 +34,7 @@ export const Route = createFileRoute("/sign-in")({
 
 function SignIn() {
   const [error, setError] = createSignal<string | undefined>();
+  const { t } = useI18n();
 
   const navigate = useNavigate();
   const search = Route.useSearch();
@@ -57,18 +59,18 @@ function SignIn() {
       });
     } catch (error) {
       console.error("Sign in error", error);
-      setError("An error occurred connecting to the server. Please try again later.");
+      setError(t("sign-in-error-server"));
       return;
     }
 
     if (response.status === 403) {
-      setError("Invalid username or password");
+      setError(t("sign-in-error-invalid-credentials"));
       return;
     }
 
     if (!response.ok) {
       console.error("Sign in failed", response);
-      setError("An error occurred signing in. Please try again.");
+      setError(t("sign-in-error-unknown"));
       return;
     }
 
@@ -85,13 +87,13 @@ function SignIn() {
   return (
     <Body class="mx-auto h-dvh max-w-2xl p-6">
       <main class="grid h-full items-end">
-        <h1 class="text-primary text-display-lg text-center font-serif">Welcome</h1>
+        <h1 class="text-primary text-display-lg text-center font-serif">{t("sign-in-welcome")}</h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">
           <p class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
             {error()}
           </p>
           <label for="username" class="text-label-lg text-on-surface-variant block">
-            Username
+            {t("sign-in-username-label")}
           </label>
           <input
             type="text"
@@ -103,7 +105,7 @@ function SignIn() {
           />
 
           <label for="password" class="text-label-lg text-on-surface-variant mt-4 block">
-            Password
+            {t("sign-in-password-label")}
           </label>
           <input
             type="password"
@@ -116,10 +118,10 @@ function SignIn() {
 
           {/* TODO loading state */}
           <button type="submit" data-variant="filled" class="button mt-6 w-full">
-            Sign in
+            {t("sign-in-submit")}
           </button>
           <Link to="/sign-up" data-variant="text" class="button mt-4 w-full">
-            Sign up for an account
+            {t("sign-in-go-sign-up")}
           </Link>
         </form>
       </main>

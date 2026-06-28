@@ -3,6 +3,7 @@ import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 
 import Body from "../../../Body";
 import Icon from "../../../Icon";
+import { useI18n } from "../../../i18n";
 import { query, updateOrganizationName, type Id as OrganizationId } from "../../../organization";
 import { idQuery, type UserId } from "../../../user";
 
@@ -25,6 +26,7 @@ function RouteComponent() {
   const search = Route.useSearch();
   const loaderData = Route.useLoaderData();
   const parameters = Route.useParams();
+  const { t } = useI18n();
 
   const updateNameMutation = useMutation(() => ({
     async mutationFn({ userId, id, name }: { userId: UserId; id: OrganizationId; name: string }) {
@@ -84,17 +86,17 @@ function RouteComponent() {
     <Body class="bg-surface-container-high text-on-surface grid h-dvh grid-rows-[auto_1fr_auto]">
       <header class="bg-surface-container-high text-on-surface flex py-1">
         <Link to="/organizations" class="cursor-default p-4">
-          <span class="sr-only">Discard</span>
+          <span class="sr-only">{t("org-edit-discard")}</span>
           <Icon name="close" class="fill-on-surface size-6" />
         </Link>
-        <h1 class="text-title-lg content-center">Edit Organization</h1>
+        <h1 class="text-title-lg content-center">{t("org-edit-title")}</h1>
       </header>
       <main class="h-min">
         <form id="organization" onSubmit={handleSubmit} class="grid h-full grid-cols-2 gap-x-4 p-6">
           {/* TODO same day toggle */}
           {/* TODO form validation start < end */}
           <label for="name" class="text-label-lg text-on-surface-variant col-span-2 block">
-            Name
+            {t("org-edit-name-label")}
           </label>
           <input
             type="text"
@@ -107,11 +109,11 @@ function RouteComponent() {
       </main>
       <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">
         <Link to="/organizations" data-variant="outlined" class="button">
-          Cancel
+          {t("org-edit-cancel")}
         </Link>
 
         <button type="submit" form="organization" data-variant="filled" class="button">
-          Save
+          {t("org-edit-save")}
         </button>
       </footer>
     </Body>
