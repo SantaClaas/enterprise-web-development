@@ -3,7 +3,12 @@ import { queryOptions } from "@tanstack/solid-query";
 import { type Id as ProjectId } from "./project";
 import { QUERY_BASE, type UserId } from "./user";
 
-export type TimerStatus = "RUNNING" | "PAUSED";
+export const TIMER_STATUS = {
+  RUNNING: "RUNNING",
+  PAUSED: "PAUSED",
+} as const;
+
+export type TimerStatus = (typeof TIMER_STATUS)[keyof typeof TIMER_STATUS];
 
 export type TimerEntryId = string & { __brand: "TimerEntryId" };
 
@@ -14,11 +19,19 @@ export type TimerEntry = {
 };
 
 export type TimerData = {
-  status: TimerStatus;
-  currentPeriodStart: string | null; // ISO 8601, set only when RUNNING
-  accumulatedMilliseconds: number;             // sum of all completed start-pause entry durations
+  accumulatedMilliseconds: number; // sum of all completed start-pause entry durations
   entries: TimerEntry[];
-};
+} & (
+  | {
+      status: typeof TIMER_STATUS.RUNNING;
+      /** ISO 8601 */
+      currentPeriodStart: string;
+    }
+  | {
+      status: typeof TIMER_STATUS.PAUSED;
+      currentPeriodStart?: never;
+    }
+);
 
 export const query = (userId: UserId | undefined) =>
   queryOptions({

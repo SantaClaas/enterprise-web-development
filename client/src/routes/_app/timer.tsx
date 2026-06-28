@@ -17,6 +17,7 @@ import {
   type TimerData,
   type TimerEntry,
   type TimerEntryId,
+  TIMER_STATUS,
 } from "@/timer";
 import { Title } from "@/Title";
 import { idQuery } from "@/user";
@@ -35,7 +36,7 @@ export const Route = createFileRoute("/_app/timer")({
 
 function EntryRow(properties: {
   entry: TimerEntry;
-  tick: number;
+  now: Temporal.Instant;
   onDelete: () => void;
   isDeleting: boolean;
 }) {
@@ -58,7 +59,7 @@ function EntryRow(properties: {
   const pausedAt = () =>
     properties.entry.pausedAt ? Temporal.Instant.from(properties.entry.pausedAt) : null;
   const duration = () => {
-    const end = pausedAt() ?? (void properties.tick, Temporal.Now.instant());
+    const end = pausedAt() ?? properties.now;
     return end.since(startedAt()).round({ smallestUnit: "second", largestUnit: "hour" });
   };
 
@@ -127,11 +128,12 @@ function TimerPage() {
   const projects = useQuery(() => projectQuery(userId));
   const selectableProjects = () => projects.data?.filter(isProject) ?? [];
 
-  // Tick every second while the timer is RUNNING to update the display
-  const [tick, setTick] = createSignal(0, { equals: false });
+  // Update every second while the timer is RUNNING to drive the display
+  const [now, setNow] = createSignal(Temporal.Now.instant());
   createEffect(() => {
-    if (timer.data?.status === "RUNNING") {
-      const interval = setInterval(() => setTick((n) => n + 1), 1_000);
+    if (timer.data?.status === TIMER_STATUS.RUNNING) {
+      setNow(Temporal.Now.instant());
+      const interval = setInterval(() => setNow(Temporal.Now.instant()), 1_000);
       onCleanup(() => clearInterval(interval));
     }
   });
@@ -143,11 +145,8 @@ function TimerPage() {
       milliseconds: currentTimer?.accumulatedMilliseconds ?? 0,
     });
 
-    if (currentTimer?.status === "RUNNING") {
-      void tick();
-      elapsed = elapsed.add(
-        Temporal.Now.instant().since(Temporal.Instant.from(currentTimer.currentPeriodStart!)),
-      );
+    if (currentTimer?.status === TIMER_STATUS.RUNNING) {
+      elapsed = elapsed.add(now().since(Temporal.Instant.from(currentTimer.currentPeriodStart)));
     }
 
     return elapsed.round({ smallestUnit: "second", largestUnit: "hour" });
@@ -199,8 +198,8 @@ function TimerPage() {
   const entries = () => timer.data?.entries;
 
   const floatingActionButtonLabel = createMemo(() => {
-    if (timer.data?.status === "RUNNING") return t("timer-pause");
-    if (timer.data?.status === "PAUSED") return t("timer-resume");
+    if (timer.data?.status === TIMER_STATUS.RUNNING) return t("timer-pause");
+    if (timer.data?.status === TIMER_STATUS.PAUSED) return t("timer-resume");
     return t("timer-start");
   });
 
@@ -209,10 +208,10 @@ function TimerPage() {
       <Title title={t("timer-title")} />
       <Show when={!isSelectingProject()}>
         <FloatingActionButtonAction
-          icon={timer.data?.status === "RUNNING" ? "pause" : "play-arrow"}
+          icon={timer.data?.status === TIMER_STATUS.RUNNING ? "pause" : "play-arrow"}
           label={floatingActionButtonLabel()}
           onClick={() =>
-            timer.data?.status === "RUNNING" ? pauseMutation.mutate() : startMutation.mutate()
+            timer.data?.status === TIMER_STATUS.RUNNING ? pauseMutation.mutate() : startMutation.mutate()
           }
         />
       </Show>
@@ -237,7 +236,7 @@ function TimerPage() {
             </button>
           </Show>
 
-          <Show when={timer.data?.status === "RUNNING"}>
+          <Show when={timer.data?.status === TIMER_STATUS.RUNNING}>
             <button
               onClick={() => pauseMutation.mutate()}
               disabled={isPending()}
@@ -249,7 +248,7 @@ function TimerPage() {
             </button>
           </Show>
 
-          <Show when={timer.data?.status === "PAUSED"}>
+          <Show when={timer.data?.status === TIMER_STATUS.PAUSED}>
             <button
               onClick={() => startMutation.mutate()}
               disabled={isPending()}
@@ -277,7 +276,7 @@ function TimerPage() {
               {(entry) => (
                 <EntryRow
                   entry={entry}
-                  tick={tick()}
+                  now={now()}
                   onDelete={() => deleteEntryMutation.mutate(entry.id)}
                   isDeleting={deleteEntryMutation.isPending}
                 />
