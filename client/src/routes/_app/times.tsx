@@ -3,8 +3,8 @@ import { createFileRoute } from "@tanstack/solid-router";
 import { createMemo, createSignal, For, type VoidProps } from "solid-js";
 
 import { FloatingActionButton } from "@/FloatingActionButton";
-import Icon from "@/Icon";
 import { useI18n } from "@/i18n";
+import Icon from "@/Icon";
 import { deleteTimes, query, updateTimes, type Time, type TimeId } from "@/time";
 import { Title } from "@/Title";
 import { idQuery, type UserId } from "@/user";
@@ -300,20 +300,6 @@ function Day(properties: VoidProps<DayProperties>) {
 function Times() {
   const routeData = Route.useLoaderData();
   const { t } = useI18n();
-
-  // const timesByDate = Map.groupBy(times, (time) => {
-  //   return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
-  // });
-
-  // return {
-  //   userId,
-  //   times: timesByDate
-  //     .entries()
-  //     .map(([day, times]) => {
-  //       return [Temporal.PlainDate.from(day), times] as const;
-  //     })
-  //     .toArray(),
-  // };
 
   const timesQuery = useQuery(() => query(routeData().userId));
   const times = () => {
