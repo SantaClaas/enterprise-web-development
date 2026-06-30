@@ -1,6 +1,13 @@
 import { FluentBundle, FluentResource, type FluentVariable } from "@fluent/bundle";
 import { negotiateLanguages } from "@fluent/langneg";
-import { createContext, createMemo, createSignal, useContext, type ParentProps } from "solid-js";
+import {
+  createContext,
+  createEffect,
+  createMemo,
+  createSignal,
+  useContext,
+  type ParentProps,
+} from "solid-js";
 
 // Included in bundle even if translation is not not used. This is fine for now but needs to be changed in the future.
 import deFtl from "./locales/de-DE.ftl?raw";
@@ -12,7 +19,9 @@ const MESSAGES: Record<string, string> = {
 };
 
 const SUPPORTED_LOCALES = ["en-US", "de-DE"] as const;
-const DEFAULT_LOCALE = "en-US";
+const DEFAULT_LOCALE = "en-US" satisfies SupportedLocale;
+
+export type SupportedLocale = (typeof SUPPORTED_LOCALES)[number];
 
 function createBundle(locale: string): FluentBundle {
   const bundle = new FluentBundle(locale);
@@ -30,18 +39,37 @@ const I18nContext = createContext<{
    * this repository.
    */
   t: (id: string, args?: TranslateArguments) => string;
-  locale: () => string;
-  setLocale: (locale: string) => void;
+  locale: () => SupportedLocale;
+  setLocale: (locale: SupportedLocale) => void;
 }>();
 
-export function I18nProvider(properties: ParentProps) {
-  const userLocales = Array.from(
+const LOCALE_STORAGE_KEY = "locale";
+
+function getInitialLocale(): SupportedLocale {
+  const saved = localStorage.getItem(LOCALE_STORAGE_KEY);
+  if (saved && (SUPPORTED_LOCALES as readonly string[]).includes(saved)) {
+    return saved as SupportedLocale;
+  }
+  const browserLocales = Array.from(
     navigator.languages?.length ? navigator.languages : [navigator.language ?? DEFAULT_LOCALE],
   );
-  const negotiated = negotiateLanguages(userLocales, SUPPORTED_LOCALES, {
+  const negotiated = negotiateLanguages(browserLocales, SUPPORTED_LOCALES, {
     defaultLocale: DEFAULT_LOCALE,
+  })[0] as SupportedLocale | undefined;
+  return negotiated ?? DEFAULT_LOCALE;
+}
+
+export function I18nProvider(properties: ParentProps) {
+  const [locale, setLocaleSignal] = createSignal<SupportedLocale>(getInitialLocale());
+
+  createEffect(() => {
+    document.documentElement.lang = locale();
   });
-  const [locale, setLocale] = createSignal(negotiated[0] ?? DEFAULT_LOCALE);
+
+  function setLocale(value: SupportedLocale) {
+    setLocaleSignal(value);
+    localStorage.setItem(LOCALE_STORAGE_KEY, value);
+  }
 
   const bundle = createMemo(() => createBundle(locale()));
 

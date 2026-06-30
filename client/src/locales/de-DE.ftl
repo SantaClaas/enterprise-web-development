@@ -11,6 +11,12 @@ app-settings = Einstellungen
 # Settings
 settings-title = Einstellungen
 settings-back = Zurück
+settings-appearance = Erscheinungsbild
+settings-theme-system = System
+settings-theme-light = Hell
+settings-theme-dark = Dunkel
+settings-language = Sprache
+settings-account = Konto
 settings-sign-out = Abmelden
 
 # Sign in

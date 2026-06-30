@@ -9,3 +9,4 @@
 - [ ] Use [Scroll-State queries](https://claas.dev/posts/scroll-state-container-queries-in-tailwind-css/) to increase the elevation color of the top app bar when the content is scrolled
 - [ ] Experimental Kubernetes deployment with a single pod and a single container as the API hosts the frontend
 - [ ] Check [Exercise 1](EWA-Uebung-1-Projektkonzept-V12.pdf) and [Exercise 2](EWA-Uebung-2-Architekturkonzept-V12.pdf) for the requirements of the project and make sure they are all implemented
+- [ ] Make translation loading lazy

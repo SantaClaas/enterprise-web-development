@@ -9,6 +9,9 @@
   color-scheme: light dark;
 }
 
+[data-color-scheme="light"] { color-scheme: light; }
+[data-color-scheme="dark"] { color-scheme: dark; }
+
 /*
 Not using TSX components as these are supposed to be simple headless components and class merging requires JS to run
 when we have perfectly fine CSS solutions to deal with the same problem.

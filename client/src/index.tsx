@@ -22,6 +22,11 @@ if (!("Temporal" in globalThis)) {
   Date.prototype.toTemporalInstant = toTemporalInstant;
 }
 
+const savedTheme = localStorage.getItem("color-scheme");
+if (savedTheme === "light" || savedTheme === "dark") {
+  document.documentElement.dataset.colorScheme = savedTheme;
+}
+
 // Using Tanstack Query as async state management is essential for applications to me. For example this makes deleting an organization and showing that something is happening easier. It also allows for easy implementation for optimistic updates
 const queryClient = new QueryClient();
 // Start fetching the user id as that is our indicator if we are signed in and is needed everywhere in the application
