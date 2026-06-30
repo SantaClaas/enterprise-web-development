@@ -73,6 +73,15 @@ function Day(properties: VoidProps<DayProperties>) {
     setIsEdit(false);
   }
 
+  const totalDuration = createMemo(() =>
+    properties.times
+      .reduce(
+        (totalTime, time) => totalTime.add(time.end.since(time.start)),
+        Temporal.Duration.from({ milliseconds: 0 }),
+      )
+      .round({ smallestUnit: "minute", largestUnit: "hour" }),
+  );
+
   const dayId = properties.day.toString();
   const editFormId = "edit-" + dayId;
 
@@ -208,6 +217,12 @@ function Day(properties: VoidProps<DayProperties>) {
             }}
           </For>
         </ol>
+        <div class="text-label-lg col-span-full flex items-center justify-end gap-3 group-data-is-edit:hidden">
+          <span>{t("times-total")}</span>
+          <time datetime={totalDuration().toString()} class="bg-surface rounded-full px-3 py-2">
+            {durationFormatter().format(totalDuration())}
+          </time>
+        </div>
         <form
           id={editFormId}
           onSubmit={handleEditSubmit}

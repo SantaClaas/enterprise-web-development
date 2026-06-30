@@ -51,6 +51,7 @@ times-cancel = Abbrechen
 times-start-time-label = Startzeit
 times-end-time-label = Endzeit
 times-delete = Löschen
+times-total = Gesamt
 
 # Projects
 projects-title = Projekte
