@@ -53,6 +53,7 @@ test("sign-out returns to sign-in page", async ({ page, request }) => {
   await page.getByTestId("sign-in-submit").click();
   await expect(page).toHaveURL("/times");
 
+  await page.getByTestId("open-settings").click();
   await page.getByTestId("sign-out").click();
   await expect(page).toHaveURL(/\/sign-in/);
 });

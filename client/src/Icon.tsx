@@ -21,6 +21,7 @@ export const ICON_ID = {
   STOP: "stop",
   TIMER: "timer",
   TIMER_FILLED: "timer-filled",
+  SETTINGS: "settings",
 } as const;
 
 export type IconId = (typeof ICON_ID)[keyof typeof ICON_ID];

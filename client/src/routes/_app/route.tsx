@@ -1,37 +1,18 @@
-import { useQueryClient } from "@tanstack/solid-query";
-import { createFileRoute, Outlet } from "@tanstack/solid-router";
+import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
 
 import Body from "../../Body";
+import Icon from "../../Icon";
 import { useI18n } from "../../i18n";
 import Navigation from "../../Navigation";
 import { useTitle } from "../../Title";
-import { ActionButton, TopAppBar } from "../../TopAppBar";
-import { QUERY_BASE } from "../../user";
+import { TopAppBar } from "../../TopAppBar";
 
 export const Route = createFileRoute("/_app")({
   component: RouteComponent,
 });
 
 function RouteComponent() {
-  const queryClient = useQueryClient();
-  const navigate = Route.useNavigate();
   const { t } = useI18n();
-
-  async function handleSignOut() {
-    const response = await fetch("/api/sign-outs", {
-      method: "POST",
-    });
-
-    if (!response.ok) {
-      console.error("Sign out failed", response);
-      return;
-    }
-
-    await queryClient.invalidateQueries({ queryKey: [QUERY_BASE] });
-
-    await navigate({ to: "/sign-in", search: { redirect: window.location.href } });
-  }
-
   const title = useTitle();
 
   return (
@@ -40,12 +21,10 @@ function RouteComponent() {
       <TopAppBar
         title={title()}
         trailingAction={
-          <ActionButton
-            data-testid="sign-out"
-            onClick={handleSignOut}
-            icon={{ name: "logout", alternativeText: t("app-sign-out") }}
-            position="trailing"
-          />
+          <Link data-testid="open-settings" to="/settings" data-position="trailing" class="action-button">
+            <Icon name="settings" class="fill-on-surface size-6" />
+            <span class="sr-only">{t("app-settings")}</span>
+          </Link>
         }
       />
       <Outlet />

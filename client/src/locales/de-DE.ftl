@@ -6,6 +6,12 @@ nav-organizations = Organisationen
 
 # Top app bar
 app-sign-out = Abmelden
+app-settings = Einstellungen
+
+# Settings
+settings-title = Einstellungen
+settings-back = Zurück
+settings-sign-out = Abmelden
 
 # Sign in
 sign-in-welcome = Willkommen
