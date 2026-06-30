@@ -165,7 +165,13 @@ function Day(properties: VoidProps<DayProperties>) {
         data-is-today={properties.day.equals(today) ? "" : undefined}
         class="bg-surface-container data-is-today:bg-primary-container text-on-surface fill-on-surface data-is-today:text-on-primary-container data-is-today:fill-on-primary rounded-large group relative grid grid-cols-[1fr_1fr_auto_auto] gap-2 p-4"
       >
-        <h2 class="text-headline-md col-span-2">{dateFormatter().format(properties.day)}</h2>
+        <h3 class="text-headline-md">{dateFormatter().format(properties.day)}</h3>
+        <time
+          datetime={totalDuration().toString()}
+          class="text-headline-sm self-center text-right group-data-is-edit:invisible"
+        >
+          {durationFormatter().format(totalDuration())}
+        </time>
         <button
           onClick={() => setIsEdit(!isEdit())}
           class="icon-button fill-on-surface group-data-is-edit:hidden"
@@ -217,12 +223,6 @@ function Day(properties: VoidProps<DayProperties>) {
             }}
           </For>
         </ol>
-        <div class="text-label-lg col-span-full flex items-center justify-end gap-3 group-data-is-edit:hidden">
-          <span>{t("times-total")}</span>
-          <time datetime={totalDuration().toString()} class="bg-surface rounded-full px-3 py-2">
-            {durationFormatter().format(totalDuration())}
-          </time>
-        </div>
         <form
           id={editFormId}
           onSubmit={handleEditSubmit}
@@ -312,34 +312,94 @@ function Day(properties: VoidProps<DayProperties>) {
   );
 }
 
+type WeekProperties = {
+  weekOfYear: number;
+  readonly days: readonly (readonly [Temporal.PlainDate, Time[]])[];
+  userId: UserId;
+};
+
+function Week(properties: VoidProps<WeekProperties>) {
+  const { t, locale } = useI18n();
+  const durationFormatter = createMemo(
+    () =>
+      new Intl.DurationFormat(locale(), {
+        style: "digital",
+        hours: "2-digit",
+        minutes: "2-digit",
+      }),
+  );
+
+  const totalDuration = createMemo(() =>
+    properties.days
+      .values()
+      .flatMap(([, times]) => times)
+      .reduce(
+        (total, time) => total.add(time.end.since(time.start)),
+        Temporal.Duration.from({ milliseconds: 0 }),
+      )
+      .round({ smallestUnit: "minute", largestUnit: "hour" }),
+  );
+
+  return (
+    <section>
+      <header class="text-on-surface-variant mb-2 flex items-center justify-between px-1">
+        <h2 class="text-headline-lg">
+          {t("times-calendar-week", { week: properties.weekOfYear })}
+        </h2>
+        <time datetime={totalDuration().toString()} class="text-headline-md">
+          {durationFormatter().format(totalDuration())}
+        </time>
+      </header>
+      <ol class="flex flex-col gap-4">
+        <For each={properties.days}>
+          {([day, times]) => (
+            <li>
+              <Day day={day} times={times} userId={properties.userId} />
+            </li>
+          )}
+        </For>
+      </ol>
+    </section>
+  );
+}
+
 function Times() {
   const routeData = Route.useLoaderData();
   const { t } = useI18n();
 
   const timesQuery = useQuery(() => query(routeData().userId));
-  const times = () => {
+  const weeks = () => {
     if (timesQuery.status !== "success") return;
 
-    const timesByDate = Map.groupBy(timesQuery.data, (time) => {
-      return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
+    const timesByDate = Map.groupBy(timesQuery.data, (time) =>
+      time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString(),
+    );
+
+    const days = timesByDate
+      .entries()
+      .map(([day, times]) => [Temporal.PlainDate.from(day), times] as const);
+
+    const daysByWeek = Map.groupBy(days, ([day]) => {
+      const week = day.weekOfYear;
+      const year = day.yearOfWeek;
+      return `${year}-${String(week).padStart(2, "0")}`;
     });
 
-    return timesByDate
+    return daysByWeek
       .entries()
-      .map(([day, times]) => {
-        return [Temporal.PlainDate.from(day), times] as const;
-      })
-      .toArray();
+      .map(([key, days]) => ({ key, weekOfYear: days[0][0].weekOfYear!, days }))
+      .toArray()
+      .sort((left, right) => right.key.localeCompare(left.key));
   };
 
   return (
     <>
       <Title title={t("times-title")} />
       <FloatingActionButton to="/times/new" label={t("times-log-time")} icon="add" />
-      <main class="grid h-min gap-y-4 px-4">
-        <For each={times()}>
-          {([day, timesForDay]) => (
-            <Day userId={routeData().userId} day={day} times={timesForDay} />
+      <main class="grid h-min gap-y-6 px-4">
+        <For each={weeks()}>
+          {(week) => (
+            <Week weekOfYear={week.weekOfYear} days={week.days} userId={routeData().userId} />
           )}
         </For>
       </main>

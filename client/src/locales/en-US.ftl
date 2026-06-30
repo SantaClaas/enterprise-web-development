@@ -51,7 +51,7 @@ times-cancel = Cancel
 times-start-time-label = Start time
 times-end-time-label = End time
 times-delete = Delete
-times-total = Total
+times-calendar-week = CW { $week }
 
 # Projects
 projects-title = Projects
