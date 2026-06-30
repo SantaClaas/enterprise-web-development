@@ -32,6 +32,20 @@ test("start → pause → resume → discard flow", async ({ page }) => {
   await expect(page.getByTestId("timer-select-project-dialog")).not.toBeVisible();
 });
 
+test("stopping and selecting a project saves the timer", async ({ page }) => {
+  await page.getByTestId("timer-start").click();
+  await page.getByTestId("timer-pause").click();
+  await page.getByTestId("timer-stop").click();
+
+  const dialog = page.getByTestId("timer-select-project-dialog");
+  await expect(dialog).toBeVisible();
+
+  await dialog.locator("form button").first().click();
+
+  await expect(page.getByTestId("timer-start")).toBeVisible();
+  await expect(dialog).not.toBeVisible();
+});
+
 test("start → pause → resume flow", async ({ page }) => {
   await page.getByTestId("timer-start").click();
   await expect(page.getByTestId("timer-pause")).toBeVisible();

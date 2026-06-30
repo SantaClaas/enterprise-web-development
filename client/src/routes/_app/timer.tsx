@@ -64,7 +64,10 @@ function EntryRow(properties: {
   };
 
   return (
-    <li data-testid="timer-entry" class="text-body-md grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2">
+    <li
+      data-testid="timer-entry"
+      class="text-body-md grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2"
+    >
       <time
         datetime={properties.entry.startedAt}
         class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
@@ -209,9 +212,8 @@ function TimerPage() {
 
   function handleSelectProjectSubmit(event: SubmitEvent) {
     event.preventDefault();
-    const form = event.currentTarget as HTMLFormElement;
-    const formData = new FormData(form);
-    const projectId = formData.get("projectId") as ProjectId | null;
+    const submitter = event.submitter as HTMLButtonElement | null;
+    const projectId = submitter?.value as ProjectId | null;
     if (!projectId) return;
     saveMutation.mutate(projectId);
   }
