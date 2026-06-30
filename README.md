@@ -21,6 +21,12 @@ Vite dev server needs to accept incoming requests to the dev server
 ```bash
 pnpm dev --host
 ```
+# Default User
+
+For testing purposes, a default user is created on application startup:
+
+- Username: `yealch`
+- Password: `password`
 
 # End to End Tests
 
@@ -54,15 +60,6 @@ Access the H2 console at http://localhost:8080/h2-console. Use the following set
 - JDBC URL: jdbc:h2:mem:testdb
 - User Name: sa
 - Password: (leave blank)
-
-# TODO
-
-- Refresh token in cookie that is only scoped to auth endpoints so that it is only sent when authentication is checked
-- Handle login error
-- Switch away from username password authentication to Passkey authentication
-- User registration
-- Get docker build up and running
-- Check out minikube for local kubernetes cluster or in docker desktop
 
 # Must haves zum nächsten Mal
 
