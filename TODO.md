@@ -1,0 +1,9 @@
+- [ ] Add e2e tests
+- [ ] Add CSV export
+- [ ] Make 7 days a week in days times colors of the rainbow
+- [ ] Add skeleton loading with shimmer effect for where data is loading
+- [ ] Add public backend endpoint that toggles a setting that adds an artificial delay to each API to simulate a slow network connection to demonstrate optimistic UI updates and skeleton loading
+- [ ] Reorganize client code to directories of time, timer, project, organization
+- [ ] Dark mode light mode toggle system/dark/light CSS only
+- [ ] Language setting for English and German
+- [ ] Use [Scroll-State queries](https://claas.dev/posts/scroll-state-container-queries-in-tailwind-css/) to increase the elevation color of the top app bar when the content is scrolled
