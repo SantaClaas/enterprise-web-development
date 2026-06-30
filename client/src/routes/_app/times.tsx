@@ -396,7 +396,7 @@ function Times() {
     <>
       <Title title={t("times-title")} />
       <FloatingActionButton to="/times/new" label={t("times-log-time")} icon="add" />
-      <main class="grid h-min gap-y-6 px-4">
+      <main class="grid content-start gap-y-6 overflow-y-auto px-4 py-4">
         <For each={weeks()}>
           {(week) => (
             <Week weekOfYear={week.weekOfYear} days={week.days} userId={routeData().userId} />
