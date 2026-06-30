@@ -210,6 +210,17 @@ function TimerPage() {
     return t("timer-start");
   });
 
+  function handleSelectProjectSubmit(event: SubmitEvent) {
+    event.preventDefault();
+    const form = event.currentTarget as HTMLFormElement;
+    const formData = new FormData(form);
+    const projectId = formData.get("projectId") as ProjectId | null;
+    if (!projectId) return;
+    saveMutation.mutate(projectId);
+  }
+
+  const SELECT_PROJECT_MODAL_ID = "select-project-modal";
+
   return (
     <>
       <Title title={t("timer-title")} />
@@ -268,14 +279,119 @@ function TimerPage() {
               {t("timer-resume")}
             </button>
             <button
-              onClick={() => setIsSelectingProject(true)}
               disabled={isPending()}
+              commandfor={SELECT_PROJECT_MODAL_ID}
+              command="show-modal"
               data-variant="outlined"
               class="button gap-2"
             >
               <Icon name="stop" class="fill-on-surface-variant size-6" />
               {t("timer-stop")}
             </button>
+            <dialog
+              id={SELECT_PROJECT_MODAL_ID}
+              class="bg-surface-container-high m-auto max-w-140 min-w-60 flex-col rounded-3xl pt-6 open:flex"
+            >
+              <h1 class="text-headline-sm text-on-surface px-6">
+                {t("timer-select-project-title")}
+              </h1>
+              <p class="text-body-md text-on-surface-variant px-6 pt-4">
+                {t("timer-select-project-body", {
+                  duration: durationFormatter().format(elapsed()),
+                })}
+              </p>
+              <form onSubmit={handleSelectProjectSubmit} class="px-6 pt-6">
+                <Suspense
+                  fallback={
+                    <p class="text-on-surface-variant py-4 text-center">
+                      {t("timer-loading-projects")}
+                    </p>
+                  }
+                >
+                  <ul class="flex flex-col gap-2">
+                    <For each={selectableProjects()}>
+                      {(project) => (
+                        <li>
+                          <button
+                            value={project.id}
+                            name="projectId"
+                            type="submit"
+                            disabled={isPending()}
+                            data-variant="outlined"
+                            class="button w-full"
+                          >
+                            {project.name}
+                          </button>
+                        </li>
+                      )}
+                    </For>
+                  </ul>
+                </Suspense>
+              </form>
+              <footer class="flex justify-end gap-x-2 px-6 py-5">
+                <button
+                  onClick={() => discardMutation.mutate()}
+                  disabled={isPending()}
+                  data-variant="text"
+                  class="button text-label-lg"
+                >
+                  {t("timer-discard")}
+                </button>
+                <button
+                  command="close"
+                  commandfor={SELECT_PROJECT_MODAL_ID}
+                  disabled={isPending()}
+                  data-variant="text"
+                  class="button text-label-lg"
+                >
+                  {t("timer-close")}
+                </button>
+              </footer>
+            </dialog>
+
+            {/* open:flex items-end justify-center bg-black/50 lg:items-center */}
+            {/* <dialog
+              id="select-project-modal"
+              class="bg-surface-container-high rounded-t-large lg:rounded-large w-full max-w-lg p-6"
+            >
+              <h2 class="text-title-lg text-on-surface mb-1">{t("timer-select-project-title")}</h2>
+              <p class="text-body-md text-on-surface-variant mb-4">
+                {t("timer-select-project-body", {
+                  duration: durationFormatter().format(elapsed()),
+                })}
+              </p>
+              <Suspense
+                fallback={
+                  <p class="text-on-surface-variant py-4 text-center">
+                    {t("timer-loading-projects")}
+                  </p>
+                }
+              >
+                <ul class="flex flex-col gap-2">
+                  <For each={selectableProjects()}>
+                    {(project) => (
+                      <li>
+                        <button
+                          onClick={() => saveMutation.mutate(project.id)}
+                          disabled={isPending()}
+                          class="bg-surface-container hover:bg-surface-container-highest rounded-medium text-on-surface w-full px-4 py-3 text-left transition-colors disabled:opacity-50"
+                        >
+                          {project.name}
+                        </button>
+                      </li>
+                    )}
+                  </For>
+                </ul>
+              </Suspense>
+              <button
+                onClick={() => discardMutation.mutate()}
+                disabled={isPending()}
+                data-variant="outlined"
+                class="button mt-6 w-full"
+              >
+                {t("timer-discard")}
+              </button>
+            </dialog> */}
           </Show>
         </div>
 
@@ -294,50 +410,6 @@ function TimerPage() {
           </ol>
         </Show>
       </main>
-
-      <Show when={isSelectingProject()}>
-        <div class="fixed inset-0 z-50 flex items-end justify-center bg-black/50 lg:items-center">
-          <div class="bg-surface-container-high rounded-t-large lg:rounded-large w-full max-w-lg p-6">
-            <h2 class="text-title-lg text-on-surface mb-1">{t("timer-select-project-title")}</h2>
-            <p class="text-body-md text-on-surface-variant mb-4">
-              {t("timer-select-project-body", {
-                duration: durationFormatter().format(elapsed()),
-              })}
-            </p>
-            <Suspense
-              fallback={
-                <p class="text-on-surface-variant py-4 text-center">
-                  {t("timer-loading-projects")}
-                </p>
-              }
-            >
-              <ul class="flex flex-col gap-2">
-                <For each={selectableProjects()}>
-                  {(project) => (
-                    <li>
-                      <button
-                        onClick={() => saveMutation.mutate(project.id)}
-                        disabled={isPending()}
-                        class="bg-surface-container hover:bg-surface-container-highest rounded-medium text-on-surface w-full px-4 py-3 text-left transition-colors disabled:opacity-50"
-                      >
-                        {project.name}
-                      </button>
-                    </li>
-                  )}
-                </For>
-              </ul>
-            </Suspense>
-            <button
-              onClick={() => discardMutation.mutate()}
-              disabled={isPending()}
-              data-variant="outlined"
-              class="button mt-6 w-full"
-            >
-              {t("timer-discard")}
-            </button>
-          </div>
-        </div>
-      </Show>
     </>
   );
 }

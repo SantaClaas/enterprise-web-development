@@ -40,6 +40,7 @@ timer-select-project-title = Projekt auswählen
 timer-select-project-body = { $duration } werden als Zeiteintrag gespeichert.
 timer-loading-projects = Projekte werden geladen …
 timer-discard = Verwerfen
+timer-close = Schließen
 
 # Times
 times-title = Zeiten
