@@ -1,4 +1,4 @@
-- [ ] Add e2e tests
+- [ ] Add e2e tests using playwright with test-id but removed during production build
 - [ ] Add CSV export
 - [ ] Make 7 days a week in days times colors of the rainbow
 - [ ] Add skeleton loading with shimmer effect for where data is loading
