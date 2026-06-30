@@ -21,7 +21,7 @@ export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTM
               <button
                 data-testid="floating-action-button"
                 onClick={configuration().onClick}
-                class="floating-action-button lg:bg-on-primary-container absolute right-6 bottom-22 lg:static lg:mt-10"
+                class="floating-action-button lg:bg-on-primary-container absolute right-6 bottom-22 z-50 lg:static lg:mt-10"
               >
                 <span class="sr-only">{configuration().label}</span>
                 <Icon name={configuration().icon} class="fill-on-primary size-6" />
@@ -32,7 +32,7 @@ export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTM
               <Link
                 data-testid="floating-action-button"
                 to={to()}
-                class="floating-action-button lg:bg-on-primary-container absolute right-6 bottom-22 lg:static lg:mt-10"
+                class="floating-action-button lg:bg-on-primary-container absolute right-6 bottom-22 z-50 lg:static lg:mt-10"
               >
                 <span class="sr-only">{configuration().label}</span>
                 <Icon name={configuration().icon} class="fill-on-primary size-6" />
