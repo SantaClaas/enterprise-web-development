@@ -234,7 +234,7 @@ function TimerPage() {
       />
       <main class="flex min-h-full flex-col items-center justify-center gap-10 py-10">
         <time
-          class="text-on-surface font-mono text-7xl tracking-widest tabular-nums"
+          class="text-on-surface text-display-lg font-mono tracking-widest tabular-nums"
           datetime={elapsed().toString()}
         >
           {durationFormatter().format(elapsed())}
