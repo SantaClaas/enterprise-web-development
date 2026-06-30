@@ -1,8 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
-import Body from "../../../../Body";
-import Icon from "../../../../Icon";
+import Body from "@/components/Body";
+import Icon from "@/components/Icon";
+
 import { useI18n } from "../../../../i18n";
 import { addMember, type Id as OrganizationId } from "../../../../organization";
 
@@ -57,9 +58,7 @@ function RouteComponent() {
               required
               class="text-field col-span-2 mt-1 w-full"
             />
-            {error() && (
-              <p class="text-error col-span-2 mt-2 text-sm">{error()}</p>
-            )}
+            {error() && <p class="text-error col-span-2 mt-2 text-sm">{error()}</p>}
           </form>
         </main>
         <footer class="mt-6 grid grid-cols-2 gap-4 px-6 py-4">

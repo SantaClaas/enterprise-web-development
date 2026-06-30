@@ -2,11 +2,12 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/solid-q
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, onCleanup, onMount, Show } from "solid-js";
 
-import { FloatingActionButton } from "../../FloatingActionButton";
-import Icon from "../../Icon";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
+import Icon from "@/components/Icon";
+import { Title } from "@/components/Title";
+
 import { useI18n } from "../../i18n";
 import { deleteProject, isProject, pagedQuery, type Id as ProjectId } from "../../project";
-import { Title } from "../../Title";
 import { idQuery } from "../../user";
 
 export const Route = createFileRoute("/_app/projects")({
@@ -66,13 +67,16 @@ function Projects() {
     <>
       <Title title={t("projects-title")} />
       <FloatingActionButton to="/projects/new" label={t("projects-create")} icon="add" />
-      <main class="overflow-y-auto px-6 py-4 text-title-lg">
+      <main class="text-title-lg overflow-y-auto px-6 py-4">
         <ul data-testid="projects-list" class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
           <For each={allProjects()} fallback={<p>{t("projects-loading")}</p>}>
             {(project) => {
               return (
                 <Show when={!isProject(project) || !isDeleting(project.id)}>
-                  <li data-testid="project-item" class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4">
+                  <li
+                    data-testid="project-item"
+                    class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4"
+                  >
                     <span class="ps-3">{project.name}</span>
 
                     <Show when={isProject(project) && project.id}>

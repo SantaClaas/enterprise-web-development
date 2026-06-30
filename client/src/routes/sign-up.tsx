@@ -2,7 +2,8 @@ import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
-import Body from "../Body";
+import Body from "@/components/Body";
+
 import { useI18n } from "../i18n";
 import { idQuery, UnauthenticatedError, type UserId } from "../user";
 
@@ -85,7 +86,10 @@ function RouteComponent() {
           {t("sign-up-create-account")}
         </h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">
-          <p data-testid="sign-up-error" class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
+          <p
+            data-testid="sign-up-error"
+            class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0"
+          >
             {error()}
           </p>
           <label for="name" class="text-label-lg text-on-surface-variant block">
@@ -127,7 +131,12 @@ function RouteComponent() {
           />
 
           {/* TODO loading state */}
-          <button data-testid="sign-up-submit" type="submit" data-variant="filled" class="button mt-6 w-full">
+          <button
+            data-testid="sign-up-submit"
+            type="submit"
+            data-variant="filled"
+            class="button mt-6 w-full"
+          >
             {t("sign-up-submit")}
           </button>
           {/* Do not need to pass redirect as a user that signs up should not have been on the app before to be redirected to where they left off */}

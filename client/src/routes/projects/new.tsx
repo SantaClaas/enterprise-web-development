@@ -2,8 +2,9 @@ import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { For, Suspense } from "solid-js";
 
-import Body from "../../Body";
-import Icon from "../../Icon";
+import Body from "@/components/Body";
+import Icon from "@/components/Icon";
+
 import { useI18n } from "../../i18n";
 import { isOrganization, query } from "../../organization";
 import { idQuery } from "../../user";

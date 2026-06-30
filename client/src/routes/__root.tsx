@@ -1,7 +1,8 @@
 import type { QueryClient } from "@tanstack/solid-query";
 import { createRootRouteWithContext, redirect } from "@tanstack/solid-router";
 
-import { ErrorDetails } from "../ErrorDetails";
+import { ErrorDetails } from "@/components/ErrorDetails";
+
 import { useI18n } from "../i18n";
 import { idQuery, UnauthenticatedError } from "../user";
 import { Route as SignInRoute } from "./sign-in";
@@ -45,12 +46,6 @@ export const Route = createRootRoute({
   },
   errorComponent: (properties) => {
     const { t } = useI18n();
-    return (
-      <ErrorDetails
-        {...properties}
-        title={t("error-title")}
-        explainer={t("error-body")}
-      />
-    );
+    return <ErrorDetails {...properties} title={t("error-title")} explainer={t("error-body")} />;
   },
 });

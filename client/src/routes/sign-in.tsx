@@ -2,7 +2,8 @@ import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/solid-router";
 import { createSignal } from "solid-js";
 
-import Body from "../Body";
+import Body from "@/components/Body";
+
 import { useI18n } from "../i18n";
 import { idQuery, type UserId } from "../user";
 import { Route as TimesRoute } from "./_app/times";
@@ -89,7 +90,10 @@ function SignIn() {
       <main class="grid h-full items-end">
         <h1 class="text-primary text-display-lg text-center font-serif">{t("sign-in-welcome")}</h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">
-          <p data-testid="sign-in-error" class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
+          <p
+            data-testid="sign-in-error"
+            class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0"
+          >
             {error()}
           </p>
           <label for="username" class="text-label-lg text-on-surface-variant block">
@@ -119,10 +123,20 @@ function SignIn() {
           />
 
           {/* TODO loading state */}
-          <button data-testid="sign-in-submit" type="submit" data-variant="filled" class="button mt-6 w-full">
+          <button
+            data-testid="sign-in-submit"
+            type="submit"
+            data-variant="filled"
+            class="button mt-6 w-full"
+          >
             {t("sign-in-submit")}
           </button>
-          <Link data-testid="sign-in-go-sign-up" to="/sign-up" data-variant="text" class="button mt-4 w-full">
+          <Link
+            data-testid="sign-in-go-sign-up"
+            to="/sign-up"
+            data-variant="text"
+            class="button mt-4 w-full"
+          >
             {t("sign-in-go-sign-up")}
           </Link>
         </form>

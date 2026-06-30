@@ -2,9 +2,10 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
 import { createEffect, createMemo, createSignal, For, onCleanup, Show, Suspense } from "solid-js";
 
-import { FloatingActionButtonAction } from "@/FloatingActionButton";
+import { FloatingActionButtonAction } from "@/components/FloatingActionButton";
+import Icon from "@/components/Icon";
+import { Title } from "@/components/Title";
 import { useI18n } from "@/i18n";
-import Icon from "@/Icon";
 import { isProject, query as projectQuery, type Id as ProjectId } from "@/project";
 import { query as timesQuery } from "@/time";
 import {
@@ -19,7 +20,6 @@ import {
   type TimerEntryId,
   TIMER_STATUS,
 } from "@/timer";
-import { Title } from "@/Title";
 import { idQuery } from "@/user";
 
 export const Route = createFileRoute("/_app/timer")({

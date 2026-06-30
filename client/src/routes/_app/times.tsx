@@ -2,11 +2,11 @@ import { useInfiniteQuery, useMutation } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
 import { createMemo, createSignal, For, onCleanup, onMount, Show, type VoidProps } from "solid-js";
 
-import { FloatingActionButton } from "@/FloatingActionButton";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
+import Icon from "@/components/Icon";
+import { Title } from "@/components/Title";
 import { useI18n } from "@/i18n";
-import Icon from "@/Icon";
 import { deleteTimes, query, updateTimes, type Time, type TimeId } from "@/time";
-import { Title } from "@/Title";
 import { idQuery, type UserId } from "@/user";
 
 // Assume time zone does not change during the runtime of the application

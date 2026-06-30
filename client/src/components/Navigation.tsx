@@ -2,9 +2,10 @@ import { Link } from "@tanstack/solid-router";
 import { Show } from "solid-js";
 import type { JSX, VoidProps } from "solid-js";
 
-import { useFloatingActionButton } from "@/FloatingActionButton";
-import Icon from "@/Icon";
 import { useI18n } from "@/i18n";
+
+import { useFloatingActionButton } from "./FloatingActionButton";
+import Icon from "./Icon";
 
 export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTMLDivElement>>) {
   const floatingActionButton = useFloatingActionButton();
@@ -43,7 +44,11 @@ export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTM
       <nav class="lg:mt-10">
         <menu class="grid grid-cols-4 text-xs leading-4 font-medium lg:flex lg:h-full lg:flex-col">
           <li>
-            <Link data-testid="navigation-times" to="/times" class="group block cursor-default py-1.5 text-center">
+            <Link
+              data-testid="navigation-times"
+              to="/times"
+              class="group block cursor-default py-1.5 text-center"
+            >
               <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
                 <Icon name="calendar-month" class="block size-6 group-[.active]:hidden" />
                 <Icon name="calendar-month-filled" class="hidden size-6 group-[.active]:block" />
@@ -52,7 +57,11 @@ export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTM
             </Link>
           </li>
           <li>
-            <Link data-testid="navigation-timer" to="/timer" class="group block cursor-default py-1.5 text-center">
+            <Link
+              data-testid="navigation-timer"
+              to="/timer"
+              class="group block cursor-default py-1.5 text-center"
+            >
               <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
                 <Icon name="timer" class="block size-6 group-[.active]:hidden" />
                 <Icon name="timer-filled" class="hidden size-6 group-[.active]:block" />
@@ -61,7 +70,11 @@ export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTM
             </Link>
           </li>
           <li>
-            <Link data-testid="navigation-projects" to="/projects" class="group block cursor-default py-1.5 text-center">
+            <Link
+              data-testid="navigation-projects"
+              to="/projects"
+              class="group block cursor-default py-1.5 text-center"
+            >
               {/* Any way to avoid drawing a box around the icon? */}
               <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
                 <Icon
@@ -77,7 +90,11 @@ export default function Navigation(_properties: VoidProps<JSX.HTMLAttributes<HTM
             </Link>
           </li>
           <li>
-            <Link data-testid="navigation-organizations" to="/organizations" class="group block cursor-default py-1.5 text-center">
+            <Link
+              data-testid="navigation-organizations"
+              to="/organizations"
+              class="group block cursor-default py-1.5 text-center"
+            >
               <div class="group-[.active]:bg-secondary-container group-[.active]:fill-on-secondary-container fill-on-surface-variant group-[.active]:text-secondary hover:bg-on-secondary-container/8 mx-auto max-w-min rounded-2xl px-4 py-1">
                 <Icon
                   name="group"

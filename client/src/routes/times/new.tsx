@@ -2,8 +2,9 @@ import { useQuery, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 import { For, Suspense } from "solid-js";
 
-import Body from "../../Body";
-import Icon from "../../Icon";
+import Body from "@/components/Body";
+import Icon from "@/components/Icon";
+
 import { useI18n } from "../../i18n";
 import { isProject, query } from "../../project";
 import { idQuery } from "../../user";
@@ -121,10 +122,7 @@ function RouteComponent() {
               class="text-field col-span-full mt-1 w-full"
             />
 
-            <label
-              for="start"
-              class="text-label-lg text-on-surface-variant row-start-3 mt-4 block"
-            >
+            <label for="start" class="text-label-lg text-on-surface-variant row-start-3 mt-4 block">
               {t("time-new-start-label")}
             </label>
             <input

@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link, useNavigate } from "@tanstack/solid-router";
 
-import Body from "../../../Body";
-import Icon from "../../../Icon";
+import Body from "@/components/Body";
+import Icon from "@/components/Icon";
+
 import { useI18n } from "../../../i18n";
 import { query, updateOrganizationName, type Id as OrganizationId } from "../../../organization";
 import { idQuery, type UserId } from "../../../user";

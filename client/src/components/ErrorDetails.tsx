@@ -1,7 +1,7 @@
 import type { ErrorComponentProps } from "@tanstack/solid-router";
 import { Show } from "solid-js";
 
-import { useI18n } from "./i18n";
+import { useI18n } from "@/i18n";
 
 export function ErrorDetails(
   properties: ErrorComponentProps & { title: string; explainer: string },

@@ -1,11 +1,12 @@
 import { createFileRoute, Link, Outlet } from "@tanstack/solid-router";
 
-import Body from "../../Body";
-import Icon from "../../Icon";
+import Body from "@/components/Body";
+import Icon from "@/components/Icon";
+import Navigation from "@/components/Navigation";
+import { useTitle } from "@/components/Title";
+import { TopAppBar } from "@/components/TopAppBar";
+
 import { useI18n } from "../../i18n";
-import Navigation from "../../Navigation";
-import { useTitle } from "../../Title";
-import { TopAppBar } from "../../TopAppBar";
 
 export const Route = createFileRoute("/_app")({
   component: RouteComponent,
@@ -21,7 +22,12 @@ function RouteComponent() {
       <TopAppBar
         title={title()}
         trailingAction={
-          <Link data-testid="open-settings" to="/settings" data-position="trailing" class="action-button">
+          <Link
+            data-testid="open-settings"
+            to="/settings"
+            data-position="trailing"
+            class="action-button"
+          >
             <Icon name="settings" class="fill-on-surface size-6" />
             <span class="sr-only">{t("app-settings")}</span>
           </Link>

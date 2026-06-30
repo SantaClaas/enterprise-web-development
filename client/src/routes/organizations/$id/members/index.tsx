@@ -1,9 +1,12 @@
-import { createFileRoute, Link, useRouter } from "@tanstack/solid-router";
 import { useMutation, useQuery } from "@tanstack/solid-query";
+import { createFileRoute, Link, useRouter } from "@tanstack/solid-router";
 import { For, Show, type ParentProps } from "solid-js";
 
-import { ErrorDetails } from "../../../../ErrorDetails";
-import Icon from "../../../../Icon";
+import { ErrorDetails } from "@/components/ErrorDetails";
+import Icon from "@/components/Icon";
+import { Title } from "@/components/Title";
+import { TopAppBar } from "@/components/TopAppBar";
+
 import { useI18n } from "../../../../i18n";
 import {
   changeMemberRole,
@@ -11,8 +14,6 @@ import {
   type Id as OrganizationId,
   type OrganizationRole,
 } from "../../../../organization";
-import { Title } from "../../../../Title";
-import { TopAppBar } from "../../../../TopAppBar";
 import { idQuery, type UserId } from "../../../../user";
 
 type OrganizationMember = { id: UserId; name: string; username: string; role: OrganizationRole };
@@ -118,9 +119,10 @@ function RouteComponent() {
             {(user) => (
               <li class="text-title-lg bg-surface-container rounded-large grid grid-cols-[1fr_auto_auto] items-center gap-2 py-2 ps-6 pe-2">
                 <span>
-                  <span class="font-semibold">{user.name}</span>{" "}
-                  <span>({user.username})</span>{" "}
-                  <span class="text-label-md text-on-surface-variant">{roleLabel(user.role, t)}</span>
+                  <span class="font-semibold">{user.name}</span> <span>({user.username})</span>{" "}
+                  <span class="text-label-md text-on-surface-variant">
+                    {roleLabel(user.role, t)}
+                  </span>
                 </span>
                 <Show when={canChangeRoles() && user.id !== currentUserId()}>
                   <select

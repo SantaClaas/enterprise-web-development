@@ -6,10 +6,11 @@ import { createRouter, RouterProvider } from "@tanstack/solid-router";
 /* @refresh reload */
 import { render } from "solid-js/web";
 
-import { FloatingActionButtonProvider } from "./FloatingActionButton";
+import { FloatingActionButtonProvider } from "@/components/FloatingActionButton";
+import { TitleProvider } from "@/components/Title";
+
 import { I18nProvider } from "./i18n";
 import { routeTree } from "./routeTree.gen";
-import { TitleProvider } from "./Title";
 import { idQuery } from "./user";
 
 // Keep polyfill out of the bundle. You can see this as vite generates two js bundles, one with only the polyfill and one without.

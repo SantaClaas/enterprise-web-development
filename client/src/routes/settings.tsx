@@ -2,9 +2,10 @@ import { useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, useNavigate } from "@tanstack/solid-router";
 import { createSignal, For } from "solid-js";
 
-import Body from "../Body";
+import Body from "@/components/Body";
+import Icon from "@/components/Icon";
+
 import { type SupportedLocale, useI18n } from "../i18n";
-import Icon from "../Icon";
 import { QUERY_BASE } from "../user";
 
 export const Route = createFileRoute("/settings")({

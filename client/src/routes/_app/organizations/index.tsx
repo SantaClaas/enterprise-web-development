@@ -2,8 +2,10 @@ import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/solid-q
 import { createFileRoute, Link } from "@tanstack/solid-router";
 import { For, onCleanup, onMount, Show } from "solid-js";
 
-import { FloatingActionButton } from "../../../FloatingActionButton";
-import Icon from "../../../Icon";
+import { FloatingActionButton } from "@/components/FloatingActionButton";
+import Icon from "@/components/Icon";
+import { Title } from "@/components/Title";
+
 import { useI18n } from "../../../i18n";
 import {
   deleteOrganization,
@@ -11,7 +13,6 @@ import {
   pagedQuery,
   type Id as OrganizationId,
 } from "../../../organization";
-import { Title } from "../../../Title";
 import { idQuery } from "../../../user";
 
 export const Route = createFileRoute("/_app/organizations/")({
@@ -70,18 +71,17 @@ function Organizations() {
   return (
     <>
       <Title title={t("organizations-title")} />
-      <FloatingActionButton
-        to="/organizations/new"
-        label={t("organizations-create")}
-        icon="add"
-      />
-      <main class="overflow-y-auto px-6 py-4 text-title-lg">
+      <FloatingActionButton to="/organizations/new" label={t("organizations-create")} icon="add" />
+      <main class="text-title-lg overflow-y-auto px-6 py-4">
         <ul data-testid="organizations-list" class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
           <For each={allOrganizations()} fallback={<p>{t("organizations-loading")}</p>}>
             {(organization) => {
               return (
                 <Show when={!isOrganization(organization) || !isDeleting(organization.id)}>
-                  <li data-testid="organization-item" class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4">
+                  <li
+                    data-testid="organization-item"
+                    class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4"
+                  >
                     <span class="ps-3">{organization.name}</span>
 
                     <Show when={isOrganization(organization) && organization.id}>
