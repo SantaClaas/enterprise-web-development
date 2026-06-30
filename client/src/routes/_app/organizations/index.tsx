@@ -59,8 +59,7 @@ function Organizations() {
         label={t("organizations-create")}
         icon="add"
       />
-      {/* TODO overflow, pagination, scrolling */}
-      <main class="text-title-lg px-6">
+      <main class="overflow-y-auto px-6 py-4 text-title-lg">
         <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
           <For each={organizationsQuery.data} fallback={<p>{t("organizations-loading")}</p>}>
             {(organization) => {

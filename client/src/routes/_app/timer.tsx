@@ -232,7 +232,7 @@ function TimerPage() {
             : startMutation.mutate()
         }
       />
-      <main class="flex min-h-full flex-col items-center justify-center gap-10 py-10">
+      <main class="flex h-full flex-col items-center justify-center gap-10 overflow-y-auto py-10">
         <time
           class="text-on-surface text-display-lg font-mono tracking-widest tabular-nums"
           datetime={elapsed().toString()}
