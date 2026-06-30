@@ -122,9 +122,6 @@ function TimerPage() {
 
   const timer = useQuery(() => timerQuery(userId));
 
-  // Project selection is purely a local UI state — the DB only knows RUNNING or PAUSED
-  const [isSelectingProject, setIsSelectingProject] = createSignal(false);
-
   const projects = useQuery(() => projectQuery(userId));
   const selectableProjects = () => projects.data?.filter(isProject) ?? [];
 
@@ -226,17 +223,15 @@ function TimerPage() {
   return (
     <>
       <Title title={t("timer-title")} />
-      <Show when={!isSelectingProject()}>
-        <FloatingActionButtonAction
-          icon={timer.data?.status === TIMER_STATUS.RUNNING ? "pause" : "play-arrow"}
-          label={floatingActionButtonLabel()}
-          onClick={() =>
-            timer.data?.status === TIMER_STATUS.RUNNING
-              ? pauseMutation.mutate()
-              : startMutation.mutate()
-          }
-        />
-      </Show>
+      <FloatingActionButtonAction
+        icon={timer.data?.status === TIMER_STATUS.RUNNING ? "pause" : "play-arrow"}
+        label={floatingActionButtonLabel()}
+        onClick={() =>
+          timer.data?.status === TIMER_STATUS.RUNNING
+            ? pauseMutation.mutate()
+            : startMutation.mutate()
+        }
+      />
       <main class="flex min-h-full flex-col items-center justify-center gap-10 py-10">
         <time
           class="text-on-surface font-mono text-7xl tracking-widest tabular-nums"
