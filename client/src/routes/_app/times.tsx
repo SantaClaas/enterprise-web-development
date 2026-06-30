@@ -275,10 +275,10 @@ function Day(properties: VoidProps<DayProperties>) {
                     <time datetime={duration.toString()} class="bg-surface grow rounded-full p-2">
                       {formattedNewDuration()}
                     </time>
-                    <label class="icon-button group">
+                    <label class="icon-button group/delete">
                       <span class="sr-only">{t("times-delete")}</span>
-                      <Icon name="delete" class="size-6 group-has-checked:hidden" />
-                      <Icon name="close" class="hidden size-6 group-has-checked:block" />
+                      <Icon name="delete" class="size-6 group-has-checked/delete:hidden" />
+                      <Icon name="close" class="hidden size-6 group-has-checked/delete:block" />
                       <input
                         type="checkbox"
                         id={`delete-${time.id}`}
