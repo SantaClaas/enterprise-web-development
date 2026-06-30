@@ -169,7 +169,7 @@ function TimerPage() {
   const saveMutation = useMutation(() => ({
     mutationFn: (projectId: ProjectId) => stopTimer(userId, projectId),
     onSuccess: () => {
-      setIsSelectingProject(false);
+      selectProjectDialog?.requestClose();
       queryClient.setQueryData(timerQuery(userId).queryKey, null);
       void queryClient.invalidateQueries({ queryKey: timesQuery(userId).queryKey, exact: true });
     },
@@ -178,7 +178,7 @@ function TimerPage() {
   const discardMutation = useMutation(() => ({
     mutationFn: () => discardTimer(userId),
     onSuccess: () => {
-      setIsSelectingProject(false);
+      selectProjectDialog?.requestClose();
       queryClient.setQueryData(timerQuery(userId).queryKey, null);
     },
   }));
@@ -219,7 +219,9 @@ function TimerPage() {
     saveMutation.mutate(projectId);
   }
 
-  const SELECT_PROJECT_MODAL_ID = "select-project-modal";
+  const SELECT_PROJECT_DIALOG_ID = "select-project-dialog";
+
+  let selectProjectDialog: HTMLDialogElement | undefined;
 
   return (
     <>
@@ -280,7 +282,7 @@ function TimerPage() {
             </button>
             <button
               disabled={isPending()}
-              commandfor={SELECT_PROJECT_MODAL_ID}
+              commandfor={SELECT_PROJECT_DIALOG_ID}
               command="show-modal"
               data-variant="outlined"
               class="button gap-2"
@@ -289,7 +291,9 @@ function TimerPage() {
               {t("timer-stop")}
             </button>
             <dialog
-              id={SELECT_PROJECT_MODAL_ID}
+              id={SELECT_PROJECT_DIALOG_ID}
+              closedby="any"
+              ref={selectProjectDialog}
               class="bg-surface-container-high m-auto max-w-140 min-w-60 flex-col rounded-3xl pt-6 open:flex"
             >
               <h1 class="text-headline-sm text-on-surface px-6">
@@ -339,7 +343,7 @@ function TimerPage() {
                 </button>
                 <button
                   command="close"
-                  commandfor={SELECT_PROJECT_MODAL_ID}
+                  commandfor={SELECT_PROJECT_DIALOG_ID}
                   disabled={isPending()}
                   data-variant="text"
                   class="button text-label-lg"
