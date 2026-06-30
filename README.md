@@ -1,6 +1,7 @@
 # Time Track
 
 [concept.pdf](https://santaclaas.github.io/enterprise-web-development/concept.pdf)
+[repository](https://github.com/santaclaas/enterprise-web-development)
 
 # Run
 
@@ -61,9 +62,3 @@ Access the H2 console at http://localhost:8080/h2-console. Use the following set
 - User Name: sa
 - Password: (leave blank)
 
-# Must haves zum nächsten Mal
-
-Wie notiert vom Dozenten:
-
-- logout
-- Zeiterfassung wesentliche funktionen (Grundzüge der Zeiterfassung)
