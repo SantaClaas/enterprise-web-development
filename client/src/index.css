@@ -5,7 +5,7 @@
 }
 
 :root {
-  @apply bg-surface text-on-surface mx-auto overscroll-none;
+  @apply bg-surface text-on-surface mx-auto overflow-clip overscroll-none;
   color-scheme: light dark;
 }
 
