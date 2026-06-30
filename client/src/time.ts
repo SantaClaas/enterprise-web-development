@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/solid-query";
+import { infiniteQueryOptions } from "@tanstack/solid-query";
 
 import type { UserId } from "./user";
 
@@ -10,14 +10,16 @@ export type Time = {
   end: Temporal.Instant;
 };
 
-export const query = (userId: string | undefined, signal?: AbortSignal) =>
-  queryOptions({
+const PAGE_SIZE = 30;
+
+export const query = (userId: string | undefined) =>
+  infiniteQueryOptions({
     queryKey: ["users", userId, "times"],
-    async queryFn(): Promise<Time[]> {
-      const response = await fetch(`/api/users/${userId}/times`, {
-        method: "GET",
-        signal,
-      });
+    async queryFn({ pageParam, signal }): Promise<Time[]> {
+      const response = await fetch(
+        `/api/users/${userId}/times?page=${pageParam}&size=${PAGE_SIZE}`,
+        { method: "GET", signal },
+      );
 
       if (!response.ok)
         throw new Error(`Error fetching times: ${response.status} ${await response.text()}`);
@@ -30,6 +32,9 @@ export const query = (userId: string | undefined, signal?: AbortSignal) =>
 
       return times;
     },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === PAGE_SIZE ? allPages.length : undefined,
     enabled: Boolean(userId),
   });
 

@@ -1,6 +1,6 @@
-import { useMutation, useQuery } from "@tanstack/solid-query";
+import { useInfiniteQuery, useMutation } from "@tanstack/solid-query";
 import { createFileRoute } from "@tanstack/solid-router";
-import { createMemo, createSignal, For, type VoidProps } from "solid-js";
+import { createMemo, createSignal, For, onCleanup, onMount, Show, type VoidProps } from "solid-js";
 
 import { FloatingActionButton } from "@/FloatingActionButton";
 import { useI18n } from "@/i18n";
@@ -16,27 +16,8 @@ export const Route = createFileRoute("/_app/times")({
   component: Times,
   async loader({ context: { queryClient } }) {
     const userId = await queryClient.ensureQueryData(idQuery);
-
-    const response = await fetch(`/api/users/${userId}/times`);
-    const times: Time[] = await response.json();
-    for (const time of times) {
-      time.start = Temporal.Instant.from(time.start);
-      time.end = Temporal.Instant.from(time.end);
-    }
-
-    const timesByDate = Map.groupBy(times, (time) => {
-      return time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString();
-    });
-
-    return {
-      userId,
-      times: timesByDate
-        .entries()
-        .map(([day, times]) => {
-          return [Temporal.PlainDate.from(day), times] as const;
-        })
-        .toArray(),
-    };
+    await queryClient.prefetchInfiniteQuery({ ...query(userId), pages: 1 });
+    return { userId };
   },
 });
 
@@ -367,11 +348,14 @@ function Times() {
   const routeData = Route.useLoaderData();
   const { t } = useI18n();
 
-  const timesQuery = useQuery(() => query(routeData().userId));
+  const timesQuery = useInfiniteQuery(() => query(routeData().userId));
+
   const weeks = () => {
     if (timesQuery.status !== "success") return;
 
-    const timesByDate = Map.groupBy(timesQuery.data, (time) =>
+    const allTimes = timesQuery.data.pages.flat();
+
+    const timesByDate = Map.groupBy(allTimes, (time) =>
       time.start.toZonedDateTimeISO(timeZone).toPlainDate().toString(),
     );
 
@@ -392,6 +376,20 @@ function Times() {
       .sort((left, right) => right.key.localeCompare(left.key));
   };
 
+  let sentinel!: HTMLDivElement;
+  onMount(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && timesQuery.hasNextPage && !timesQuery.isFetchingNextPage) {
+          void timesQuery.fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(sentinel);
+    onCleanup(() => observer.disconnect());
+  });
+
   return (
     <>
       <Title title={t("times-title")} />
@@ -402,6 +400,10 @@ function Times() {
             <Week weekOfYear={week.weekOfYear} days={week.days} userId={routeData().userId} />
           )}
         </For>
+        <div ref={sentinel} />
+        <Show when={timesQuery.isFetchingNextPage}>
+          <p class="text-on-surface-variant py-4 text-center">{t("times-loading-more")}</p>
+        </Show>
       </main>
     </>
   );

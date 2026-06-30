@@ -8,6 +8,8 @@ import com.yealch.yealch.project.Project;
 import com.yealch.yealch.project.ProjectRepository;
 import com.yealch.yealch.time.Time;
 import com.yealch.yealch.time.TimeRepository;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,13 +20,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.time.OffsetDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
+
 
 @RestController
 public class UsersController {
@@ -92,7 +95,10 @@ public class UsersController {
     }
 
     @GetMapping("/api/users/{userId}/organizations")
-    public ResponseEntity<?> getUserOrganizations(@PathVariable UUID userId, Authentication authentication) {
+    public ResponseEntity<?> getUserOrganizations(@PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication) {
         Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -117,7 +123,9 @@ public class UsersController {
                         organizationRepository.save(defaultOrganization);
                     }
 
-                    return ResponseEntity.ok(user.getOrganizations().stream()
+                    var pageable = PageRequest.of(page, size, Sort.by("name"));
+                    return ResponseEntity.ok(organizationRepository.findByUserId(userId, pageable)
+                            .getContent().stream()
                             .map(organization -> new GetUserOrganizationsResponse(organization.getId(), organization.getName()))
                             .toList());
                 })
@@ -132,7 +140,10 @@ public class UsersController {
      * project is created for them and assigned to the organization.
      */
     @GetMapping("/api/users/{userId}/projects")
-    public ResponseEntity<?> getUserProjects(@PathVariable UUID userId, Authentication authentication) {
+    public ResponseEntity<?> getUserProjects(@PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            Authentication authentication) {
         Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
@@ -156,12 +167,15 @@ public class UsersController {
                         }
                     });
 
-                    return ResponseEntity.ok(user.getOrganizations().stream()
-                            .flatMap(organization -> organization.getProjects().stream()
-                                    .map(project -> new GetUserProjectsResponse(
-                                            project.getId(),
-                                            project.getName(),
-                                            new GetUserProjectsOrganizationResponse(organization.getId(), organization.getName()))))
+                    var pageable = PageRequest.of(page, size, Sort.by("name"));
+                    return ResponseEntity.ok(projectRepository.findByUserId(userId, pageable)
+                            .getContent().stream()
+                            .map(project -> new GetUserProjectsResponse(
+                                    project.getId(),
+                                    project.getName(),
+                                    new GetUserProjectsOrganizationResponse(
+                                            project.getOrganization().getId(),
+                                            project.getOrganization().getName())))
                             .toList());
                 })
                 .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found")));
@@ -262,39 +276,33 @@ public class UsersController {
     }
 
     @GetMapping("/api/users/{userId}/times")
-    public ResponseEntity<?> getUserTimeEntries(@PathVariable UUID userId, Authentication authentication) {
+    public ResponseEntity<?> getUserTimeEntries(@PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "30") int size,
+            Authentication authentication) {
         Optional<UUID> authenticatedUserId = getUserId(authentication);
         if (authenticatedUserId.isEmpty() || !authenticatedUserId.get().equals(userId)) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
         }
 
-        return userRepository.findById(userId)
-                .<ResponseEntity<?>>map(user -> ResponseEntity.ok(
-                        StreamSupport.stream(timeRepository.findAll().spliterator(), false)
-                                .filter(time -> {
-                                    Project project = time.getProject();
-                                    if (project == null) {
-                                        return false;
-                                    }
-                                    Organization organization = project.getOrganization();
-                                    if (organization == null) {
-                                        return false;
-                                    }
-                                    return organization.hasMember(user.getId());
-                                })
-                                .map(time -> new GetUserTimesResponse(
-                                        time.getId(),
-                                        time.getStart().toString(),
-                                        time.getEnd().toString(),
-                                        new GetUserTimesProjectResponse(
-                                                time.getProject().getId(),
-                                                time.getProject().getName(),
-                                                new GetUserTimesOrganizationResponse(
-                                                        time.getProject().getOrganization().getId(),
-                                                        time.getProject().getOrganization().getName()))))
-                                .toList()))
-                .orElseGet(() -> ResponseEntity.status(HttpStatus.NOT_FOUND)
-                        .body(new ErrorResponse("user not found")));
+        if (!userRepository.existsById(userId)) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(new ErrorResponse("user not found"));
+        }
+
+        var pageable = PageRequest.of(page, size, Sort.by("start").descending());
+        return ResponseEntity.ok(timeRepository.findByUserId(userId, pageable)
+                .getContent().stream()
+                .map(time -> new GetUserTimesResponse(
+                        time.getId(),
+                        time.getStart().toString(),
+                        time.getEnd().toString(),
+                        new GetUserTimesProjectResponse(
+                                time.getProject().getId(),
+                                time.getProject().getName(),
+                                new GetUserTimesOrganizationResponse(
+                                        time.getProject().getOrganization().getId(),
+                                        time.getProject().getOrganization().getName()))))
+                .toList());
     }
 
     /** Creates a new organization with this user in it */

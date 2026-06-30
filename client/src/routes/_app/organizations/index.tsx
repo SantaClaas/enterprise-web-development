@@ -1,6 +1,6 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { For, Show } from "solid-js";
+import { For, onCleanup, onMount, Show } from "solid-js";
 
 import { FloatingActionButton } from "../../../FloatingActionButton";
 import Icon from "../../../Icon";
@@ -8,7 +8,7 @@ import { useI18n } from "../../../i18n";
 import {
   deleteOrganization,
   isOrganization,
-  query,
+  pagedQuery,
   type Id as OrganizationId,
 } from "../../../organization";
 import { Title } from "../../../Title";
@@ -16,11 +16,10 @@ import { idQuery } from "../../../user";
 
 export const Route = createFileRoute("/_app/organizations/")({
   component: Organizations,
-  async loader({ context: { queryClient }, abortController }) {
+  async loader({ context: { queryClient } }) {
     const userId = await queryClient.ensureQueryData(idQuery);
-    const organizations = await queryClient.ensureQueryData(query(userId, abortController.signal));
-
-    return { organizations, userId };
+    await queryClient.prefetchInfiniteQuery({ ...pagedQuery(userId), pages: 1 });
+    return { userId };
   },
 });
 
@@ -29,13 +28,13 @@ function Organizations() {
   const userId = () => routeData().userId;
   const { t } = useI18n();
 
-  const options = () => query(userId());
-  const organizationsQuery = useQuery(options);
+  const organizationsQuery = useInfiniteQuery(() => pagedQuery(userId()));
+  const allOrganizations = () => organizationsQuery.data?.pages.flat() ?? [];
 
   const queryClient = useQueryClient();
   const deleteMutation = useMutation(() => {
     const currentUserId = userId();
-    const queryKey = ["user", currentUserId, "organizations"];
+    const queryKey = pagedQuery(currentUserId).queryKey;
 
     return {
       mutationFn: deleteOrganization,
@@ -48,8 +47,25 @@ function Organizations() {
   const isDeleting = (id: OrganizationId) =>
     deleteMutation.isPending && deleteMutation.variables === id;
 
-  const isLastOrganization = () =>
-    organizationsQuery.status === "success" && organizationsQuery.data?.length === 1;
+  const isLastOrganization = () => allOrganizations().length === 1;
+
+  let sentinel!: HTMLDivElement;
+  onMount(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          entry.isIntersecting &&
+          organizationsQuery.hasNextPage &&
+          !organizationsQuery.isFetchingNextPage
+        ) {
+          void organizationsQuery.fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(sentinel);
+    onCleanup(() => observer.disconnect());
+  });
 
   return (
     <>
@@ -61,7 +77,7 @@ function Organizations() {
       />
       <main class="overflow-y-auto px-6 py-4 text-title-lg">
         <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
-          <For each={organizationsQuery.data} fallback={<p>{t("organizations-loading")}</p>}>
+          <For each={allOrganizations()} fallback={<p>{t("organizations-loading")}</p>}>
             {(organization) => {
               return (
                 <Show when={!isOrganization(organization) || !isDeleting(organization.id)}>
@@ -109,6 +125,10 @@ function Organizations() {
             }}
           </For>
         </ul>
+        <div ref={sentinel} />
+        <Show when={organizationsQuery.isFetchingNextPage}>
+          <p class="text-on-surface-variant py-4 text-center">{t("organizations-loading-more")}</p>
+        </Show>
       </main>
     </>
   );

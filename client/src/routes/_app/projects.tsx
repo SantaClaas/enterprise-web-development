@@ -1,21 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/solid-query";
+import { useInfiniteQuery, useMutation, useQueryClient } from "@tanstack/solid-query";
 import { createFileRoute, Link } from "@tanstack/solid-router";
-import { For, Show } from "solid-js";
+import { For, onCleanup, onMount, Show } from "solid-js";
 
 import { FloatingActionButton } from "../../FloatingActionButton";
 import Icon from "../../Icon";
 import { useI18n } from "../../i18n";
-import { deleteProject, isProject, query, type Id as ProjectId } from "../../project";
+import { deleteProject, isProject, pagedQuery, type Id as ProjectId } from "../../project";
 import { Title } from "../../Title";
 import { idQuery } from "../../user";
 
 export const Route = createFileRoute("/_app/projects")({
   component: Projects,
-  async loader({ context: { queryClient }, abortController }) {
+  async loader({ context: { queryClient } }) {
     const userId = await queryClient.ensureQueryData(idQuery);
-    const projects = await queryClient.ensureQueryData(query(userId, abortController.signal));
-
-    return { projects, userId };
+    await queryClient.prefetchInfiniteQuery({ ...pagedQuery(userId), pages: 1 });
+    return { userId };
   },
 });
 
@@ -24,13 +23,14 @@ function Projects() {
   const userId = () => routeData().userId;
   const { t } = useI18n();
 
-  const options = () => query(userId());
-  const projectsQuery = useQuery(options);
+  const projectsQuery = useInfiniteQuery(() => pagedQuery(userId()));
+  const allProjects = () => projectsQuery.data?.pages.flat() ?? [];
+
   const queryClient = useQueryClient();
 
   const deleteMutation = useMutation(() => {
     const currentUserId = userId();
-    const queryKey = ["user", currentUserId, "projects"];
+    const queryKey = pagedQuery(currentUserId).queryKey;
 
     return {
       mutationFn: deleteProject,
@@ -42,8 +42,25 @@ function Projects() {
 
   const isDeleting = (id: ProjectId) => deleteMutation.isPending && deleteMutation.variables === id;
 
-  const isLastProject = () =>
-    projectsQuery.status === "success" && projectsQuery.data?.length === 1;
+  const isLastProject = () => allProjects().length === 1;
+
+  let sentinel!: HTMLDivElement;
+  onMount(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (
+          entry.isIntersecting &&
+          projectsQuery.hasNextPage &&
+          !projectsQuery.isFetchingNextPage
+        ) {
+          void projectsQuery.fetchNextPage();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    observer.observe(sentinel);
+    onCleanup(() => observer.disconnect());
+  });
 
   return (
     <>
@@ -51,7 +68,7 @@ function Projects() {
       <FloatingActionButton to="/projects/new" label={t("projects-create")} icon="add" />
       <main class="overflow-y-auto px-6 py-4 text-title-lg">
         <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
-          <For each={projectsQuery.data} fallback={<p>{t("projects-loading")}</p>}>
+          <For each={allProjects()} fallback={<p>{t("projects-loading")}</p>}>
             {(project) => {
               return (
                 <Show when={!isProject(project) || !isDeleting(project.id)}>
@@ -89,8 +106,11 @@ function Projects() {
             }}
           </For>
         </ul>
+        <div ref={sentinel} />
+        <Show when={projectsQuery.isFetchingNextPage}>
+          <p class="text-on-surface-variant py-4 text-center">{t("projects-loading-more")}</p>
+        </Show>
       </main>
     </>
   );
 }
-

@@ -52,11 +52,13 @@ times-start-time-label = Startzeit
 times-end-time-label = Endzeit
 times-delete = Löschen
 times-calendar-week = KW { $week }
+times-loading-more = Lade mehr…
 
 # Projects
 projects-title = Projekte
 projects-create = Projekt erstellen
 projects-loading = Projekte werden geladen …
+projects-loading-more = Lade mehr…
 projects-edit = Bearbeiten
 projects-delete = Löschen
 
@@ -64,6 +66,7 @@ projects-delete = Löschen
 organizations-title = Organisationen
 organizations-create = Organisation erstellen
 organizations-loading = Organisationen werden geladen …
+organizations-loading-more = Lade mehr…
 organizations-open = Öffnen
 organizations-edit = Bearbeiten
 organizations-delete = Löschen

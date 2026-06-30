@@ -1,4 +1,4 @@
-import { queryOptions } from "@tanstack/solid-query";
+import { infiniteQueryOptions, queryOptions } from "@tanstack/solid-query";
 
 import { QUERY_BASE, type UserId } from "@/user";
 
@@ -76,6 +76,30 @@ export async function updateOrganizationName(userId: UserId, id: Id, name: strin
 export const isOrganization = (
   organization: Organization | OptimisticOrganization,
 ): organization is Organization => "id" in organization;
+
+const ORG_PAGE_SIZE = 20;
+
+export const pagedQuery = (userId: UserId | undefined) =>
+  infiniteQueryOptions({
+    queryKey: [QUERY_BASE, userId, "organizations", "paged"],
+    async queryFn({ pageParam, signal }): Promise<Organization[]> {
+      const response = await fetch(
+        `/api/users/${userId}/organizations?page=${pageParam}&size=${ORG_PAGE_SIZE}`,
+        { method: "GET", signal },
+      );
+
+      if (!response.ok)
+        throw new Error(
+          `Error fetching organizations: ${response.status} ${await response.text()}`,
+        );
+
+      return (await response.json()) as Organization[];
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === ORG_PAGE_SIZE ? allPages.length : undefined,
+    enabled: Boolean(userId),
+  });
 
 export async function addMember(organizationId: Id, username: string) {
   const response = await fetch(`/api/organizations/${organizationId}/members/registrations`, {

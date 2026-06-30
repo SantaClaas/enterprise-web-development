@@ -1,4 +1,4 @@
-import { queryOptions, useQueryClient } from "@tanstack/solid-query";
+import { infiniteQueryOptions, queryOptions, useQueryClient } from "@tanstack/solid-query";
 import { createResource } from "solid-js";
 
 import { type Organization, type Id as OrganizationId } from "./organization";
@@ -67,6 +67,28 @@ export async function updateProject({ userId, id, ...parameters }: UpdateProject
 
 export const isProject = (project: Project | OptimisticProject): project is Project =>
   "id" in project;
+
+const PROJECT_PAGE_SIZE = 20;
+
+export const pagedQuery = (userId: string | undefined) =>
+  infiniteQueryOptions({
+    queryKey: [QUERY_BASE, userId, "projects", "paged"],
+    async queryFn({ pageParam, signal }): Promise<Project[]> {
+      const response = await fetch(
+        `/api/users/${userId}/projects?page=${pageParam}&size=${PROJECT_PAGE_SIZE}`,
+        { method: "GET", signal },
+      );
+
+      if (!response.ok)
+        throw new Error(`Error fetching projects: ${response.status} ${await response.text()}`);
+
+      return (await response.json()) as Project[];
+    },
+    initialPageParam: 0,
+    getNextPageParam: (lastPage, allPages) =>
+      lastPage.length === PROJECT_PAGE_SIZE ? allPages.length : undefined,
+    enabled: Boolean(userId),
+  });
 
 export async function deleteProject(id: Id) {
   const response = await fetch(`/api/projects/${id}`, {

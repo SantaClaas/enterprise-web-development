@@ -42,16 +42,39 @@ public class YealchApplication {
 			user.setPassword(passwordEncoder.encode("password"));
 			userRepository.save(user);
 
-			var organization = new Organization();
-			organization.setName("Yealch Organization");
-			organization.addMember(user, OrganizationRole.OWNER);
+			// Seed 25 organizations (page size is 20, so this triggers a second page)
+			String[] orgNames = {
+				"Alpha Corp", "Beta Labs", "Gamma Inc", "Delta Studio", "Epsilon Works",
+				"Zeta Design", "Eta Group", "Theta Solutions", "Iota Agency", "Kappa Digital",
+				"Lambda Tech", "Mu Creative", "Nu Ventures", "Xi Partners", "Omicron Media",
+				"Pi Consulting", "Rho Systems", "Sigma Network", "Tau Industries", "Upsilon Co",
+				"Phi Software", "Chi Services", "Psi Analytics", "Omega Collective", "Prime Studio",
+			};
 
-			var project = new Project();
-			project.setName("Main Project");
-			organization.addProject(project);
-			organizationRepository.save(organization);
+			// First org gets multiple projects to push the projects list past page size 20
+			var firstOrg = new Organization();
+			firstOrg.setName(orgNames[0]);
+			firstOrg.addMember(user, OrganizationRole.OWNER);
+			for (int p = 1; p <= 22; p++) {
+				var project = new Project();
+				project.setName("Project " + p);
+				firstOrg.addProject(project);
+			}
+			organizationRepository.save(firstOrg);
+			Project seedProject = firstOrg.getProjects().iterator().next();
 
-			// Seed 30 days of time entries (2–3 entries per day)
+			// Remaining orgs each get 1 project
+			for (int i = 1; i < orgNames.length; i++) {
+				var org = new Organization();
+				org.setName(orgNames[i]);
+				org.addMember(user, OrganizationRole.OWNER);
+				var project = new Project();
+				project.setName(orgNames[i] + " Project");
+				org.addProject(project);
+				organizationRepository.save(org);
+			}
+
+			// Seed 60 days of time entries (2–3 entries per day → ~150 entries, 5 pages)
 			OffsetDateTime base = OffsetDateTime.now(ZoneOffset.UTC).withHour(0).withMinute(0).withSecond(0).withNano(0);
 			int[][] slots = {
 				{ 9, 0, 11, 30 },
@@ -59,7 +82,7 @@ public class YealchApplication {
 				{ 15, 0, 17, 45 },
 			};
 
-			for (int day = 0; day < 30; day++) {
+			for (int day = 0; day < 60; day++) {
 				OffsetDateTime date = base.minusDays(day);
 				int entriesThisDay = (day % 3 == 0) ? 3 : 2;
 				for (int s = 0; s < entriesThisDay; s++) {
@@ -67,12 +90,13 @@ public class YealchApplication {
 					var time = new Time();
 					time.setStart(date.withHour(slot[0]).withMinute(slot[1]));
 					time.setEnd(date.withHour(slot[2]).withMinute(slot[3]));
-					time.setProject(project);
+					time.setProject(seedProject);
 					timeRepository.save(time);
 				}
 			}
 
-			logger.info("Seeded 30 days of time entries for user '{}'", user.getUsername());
+			logger.info("Seeded {} organizations, ~{} projects, ~150 time entries for user '{}'",
+					orgNames.length, orgNames.length + 21, user.getUsername());
 		});
 	}
 }
