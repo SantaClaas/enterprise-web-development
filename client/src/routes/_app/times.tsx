@@ -142,6 +142,7 @@ function Day(properties: VoidProps<DayProperties>) {
   return (
     <>
       <article
+        data-testid="times-day"
         data-is-edit={isEdit() ? "" : undefined}
         data-is-today={properties.day.equals(today) ? "" : undefined}
         class="bg-surface-container data-is-today:bg-primary-container text-on-surface fill-on-surface data-is-today:text-on-primary-container data-is-today:fill-on-primary rounded-large group relative grid grid-cols-[1fr_1fr_auto_auto] gap-2 p-4"
@@ -154,6 +155,7 @@ function Day(properties: VoidProps<DayProperties>) {
           {durationFormatter().format(totalDuration())}
         </time>
         <button
+          data-testid="times-edit"
           onClick={() => setIsEdit(!isEdit())}
           class="icon-button fill-on-surface group-data-is-edit:hidden"
         >
@@ -162,6 +164,7 @@ function Day(properties: VoidProps<DayProperties>) {
         </button>
 
         <button
+          data-testid="times-save"
           type="submit"
           form={editFormId}
           disabled={updateMutation.isPending}
@@ -172,6 +175,7 @@ function Day(properties: VoidProps<DayProperties>) {
         </button>
 
         <button
+          data-testid="times-cancel"
           onClick={cancelEdit}
           disabled={updateMutation.isPending}
           class="icon-button fill-on-surface hidden group-data-is-edit:block"

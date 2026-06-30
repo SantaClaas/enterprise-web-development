@@ -1,4 +1,4 @@
-- [ ] Add e2e tests using playwright with test-id but removed during production build
+- [x] Add e2e tests using playwright with test-id but removed during production build
 - [ ] Add CSV export
 - [ ] Make 7 days a week in days times colors of the rainbow
 - [ ] Add skeleton loading with shimmer effect for where data is loading
@@ -7,3 +7,4 @@
 - [ ] Dark mode light mode toggle system/dark/light CSS only
 - [ ] Language setting for English and German
 - [ ] Use [Scroll-State queries](https://claas.dev/posts/scroll-state-container-queries-in-tailwind-css/) to increase the elevation color of the top app bar when the content is scrolled
+- [ ] Experimental Kubernetes deployment with a single pod and a single container as the API hosts the frontend

@@ -89,13 +89,14 @@ function SignIn() {
       <main class="grid h-full items-end">
         <h1 class="text-primary text-display-lg text-center font-serif">{t("sign-in-welcome")}</h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">
-          <p class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
+          <p data-testid="sign-in-error" class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
             {error()}
           </p>
           <label for="username" class="text-label-lg text-on-surface-variant block">
             {t("sign-in-username-label")}
           </label>
           <input
+            data-testid="sign-in-username"
             type="text"
             id="username"
             name="username"
@@ -108,6 +109,7 @@ function SignIn() {
             {t("sign-in-password-label")}
           </label>
           <input
+            data-testid="sign-in-password"
             type="password"
             id="password"
             name="password"
@@ -117,10 +119,10 @@ function SignIn() {
           />
 
           {/* TODO loading state */}
-          <button type="submit" data-variant="filled" class="button mt-6 w-full">
+          <button data-testid="sign-in-submit" type="submit" data-variant="filled" class="button mt-6 w-full">
             {t("sign-in-submit")}
           </button>
-          <Link to="/sign-up" data-variant="text" class="button mt-4 w-full">
+          <Link data-testid="sign-in-go-sign-up" to="/sign-up" data-variant="text" class="button mt-4 w-full">
             {t("sign-in-go-sign-up")}
           </Link>
         </form>

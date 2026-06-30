@@ -64,7 +64,7 @@ function EntryRow(properties: {
   };
 
   return (
-    <li class="text-body-md grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2">
+    <li data-testid="timer-entry" class="text-body-md grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-2">
       <time
         datetime={properties.entry.startedAt}
         class="bg-surface-container text-on-surface rounded-full px-3 py-1.5 text-center"
@@ -234,6 +234,7 @@ function TimerPage() {
       />
       <main class="flex h-full flex-col items-center justify-center gap-10 overflow-y-auto py-10">
         <time
+          data-testid="timer-display"
           class="text-on-surface text-display-lg font-mono tracking-widest tabular-nums"
           datetime={elapsed().toString()}
         >
@@ -243,6 +244,7 @@ function TimerPage() {
         <div class="flex gap-4">
           <Show when={!timer.data?.status}>
             <button
+              data-testid="timer-start"
               onClick={() => startMutation.mutate()}
               disabled={isPending()}
               data-variant="filled"
@@ -255,6 +257,7 @@ function TimerPage() {
 
           <Show when={timer.data?.status === TIMER_STATUS.RUNNING}>
             <button
+              data-testid="timer-pause"
               onClick={() => pauseMutation.mutate()}
               disabled={isPending()}
               data-variant="outlined"
@@ -267,6 +270,7 @@ function TimerPage() {
 
           <Show when={timer.data?.status === TIMER_STATUS.PAUSED}>
             <button
+              data-testid="timer-resume"
               onClick={() => startMutation.mutate()}
               disabled={isPending()}
               data-variant="filled"
@@ -276,6 +280,7 @@ function TimerPage() {
               {t("timer-resume")}
             </button>
             <button
+              data-testid="timer-stop"
               disabled={isPending()}
               commandfor={SELECT_PROJECT_DIALOG_ID}
               command="show-modal"
@@ -286,6 +291,7 @@ function TimerPage() {
               {t("timer-stop")}
             </button>
             <dialog
+              data-testid="timer-select-project-dialog"
               id={SELECT_PROJECT_DIALOG_ID}
               closedby="any"
               ref={selectProjectDialog}
@@ -329,6 +335,7 @@ function TimerPage() {
               </form>
               <footer class="flex justify-end gap-x-2 px-6 py-5">
                 <button
+                  data-testid="timer-discard"
                   onClick={() => discardMutation.mutate()}
                   disabled={isPending()}
                   data-variant="text"

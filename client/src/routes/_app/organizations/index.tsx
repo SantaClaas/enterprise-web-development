@@ -76,18 +76,19 @@ function Organizations() {
         icon="add"
       />
       <main class="overflow-y-auto px-6 py-4 text-title-lg">
-        <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
+        <ul data-testid="organizations-list" class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
           <For each={allOrganizations()} fallback={<p>{t("organizations-loading")}</p>}>
             {(organization) => {
               return (
                 <Show when={!isOrganization(organization) || !isDeleting(organization.id)}>
-                  <li class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4">
+                  <li data-testid="organization-item" class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4">
                     <span class="ps-3">{organization.name}</span>
 
                     <Show when={isOrganization(organization) && organization.id}>
                       {(id) => (
                         <>
                           <Link
+                            data-testid="organization-members"
                             to="/organizations/$id/members"
                             params={{ id: id() }}
                             data-variant="standard"
@@ -98,6 +99,7 @@ function Organizations() {
                           </Link>
 
                           <Link
+                            data-testid="organization-edit"
                             to="/organizations/$id/edit"
                             params={{ id: id() }}
                             search={{ name: organization.name }}
@@ -108,6 +110,7 @@ function Organizations() {
                             <Icon name="edit" class="fill-on-surface size-6" />
                           </Link>
                           <button
+                            data-testid="organization-delete"
                             disabled={isLastOrganization()}
                             onClick={() => deleteMutation.mutate(id())}
                             data-variant="standard"

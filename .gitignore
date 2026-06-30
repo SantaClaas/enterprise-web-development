@@ -1,5 +1,8 @@
 *.pdf
 node_modules/
+**/e2e/.auth/
+**/playwright-report/
+**/test-results/
 
 # MacOS system files
 .DS_Store

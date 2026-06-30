@@ -85,13 +85,14 @@ function RouteComponent() {
           {t("sign-up-create-account")}
         </h1>
         <form onSubmit={handleSubmit} class="rounded-3xl text-base leading-6">
-          <p class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
+          <p data-testid="sign-up-error" class="text-error text-body-lg min-h-6 text-center transition empty:opacity-0">
             {error()}
           </p>
           <label for="name" class="text-label-lg text-on-surface-variant block">
             {t("sign-up-name-label")}
           </label>
           <input
+            data-testid="sign-up-name"
             type="text"
             id="name"
             name="name"
@@ -103,6 +104,7 @@ function RouteComponent() {
             {t("sign-up-username-label")}
           </label>
           <input
+            data-testid="sign-up-username"
             type="text"
             id="username"
             name="username"
@@ -115,6 +117,7 @@ function RouteComponent() {
             {t("sign-up-password-label")}
           </label>
           <input
+            data-testid="sign-up-password"
             type="password"
             id="password"
             name="password"
@@ -124,11 +127,12 @@ function RouteComponent() {
           />
 
           {/* TODO loading state */}
-          <button type="submit" data-variant="filled" class="button mt-6 w-full">
+          <button data-testid="sign-up-submit" type="submit" data-variant="filled" class="button mt-6 w-full">
             {t("sign-up-submit")}
           </button>
           {/* Do not need to pass redirect as a user that signs up should not have been on the app before to be redirected to where they left off */}
           <Link
+            data-testid="sign-up-go-sign-in"
             to="/sign-in"
             search={{ redirect: undefined }}
             data-variant="text"

@@ -67,18 +67,19 @@ function Projects() {
       <Title title={t("projects-title")} />
       <FloatingActionButton to="/projects/new" label={t("projects-create")} icon="add" />
       <main class="overflow-y-auto px-6 py-4 text-title-lg">
-        <ul class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
+        <ul data-testid="projects-list" class="grid grid-cols-[1fr_auto_auto_auto] gap-y-4">
           <For each={allProjects()} fallback={<p>{t("projects-loading")}</p>}>
             {(project) => {
               return (
                 <Show when={!isProject(project) || !isDeleting(project.id)}>
-                  <li class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4">
+                  <li data-testid="project-item" class="bg-surface-container rounded-large col-span-full grid grid-cols-subgrid items-center p-4">
                     <span class="ps-3">{project.name}</span>
 
                     <Show when={isProject(project) && project.id}>
                       {(id) => (
                         <>
                           <Link
+                            data-testid="project-edit"
                             to="/projects/$id/edit"
                             params={{ id: id() }}
                             search={{ name: project.name, organizationId: project.organization.id }}
@@ -89,6 +90,7 @@ function Projects() {
                             <Icon name="edit" class="fill-on-surface size-6" />
                           </Link>
                           <button
+                            data-testid="project-delete"
                             disabled={isLastProject()}
                             onClick={() => deleteMutation.mutate(id())}
                             data-variant="standard"

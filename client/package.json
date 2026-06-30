@@ -10,7 +10,8 @@
     "format": "oxfmt",
     "format:check": "oxfmt --check",
     "lint": "oxlint",
-    "lint:fix": "oxlint --fix"
+    "lint:fix": "oxlint --fix",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@claas.dev/material-tailwind": "^0.6.0",
@@ -23,6 +24,7 @@
     "temporal-polyfill": "^0.3.2"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@tailwindcss/vite": "^4.2.3",
     "@tanstack/router-plugin": "^1.167.32",
     "@types/node": "^24.12.0",

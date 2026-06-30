@@ -41,6 +41,7 @@ function RouteComponent() {
         title={title()}
         trailingAction={
           <ActionButton
+            data-testid="sign-out"
             onClick={handleSignOut}
             icon={{ name: "logout", alternativeText: t("app-sign-out") }}
             position="trailing"
